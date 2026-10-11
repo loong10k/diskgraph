@@ -1,0 +1,21 @@
+{
+  "source_sha": "5371e15fdafdceea8bbe4cfd34e92b93b874de11",
+  "run_id": 38071033060,
+  "job_id": 114268371027,
+  "status": "diagnosis_pending",
+  "failures": [
+    {
+      "target": "diskgraph-ffi --lib",
+      "test": "native_candidate_callback_keeps_revision_resolved_before_new_publication",
+      "error": "timeout: query deadline exceeded"
+    },
+    {
+      "target": "history_compatibility_matrix",
+      "test": "same_identity_renamed_path_is_one_addition_and_one_removal_not_growth",
+      "error": "BudgetExceeded",
+      "recorded_after_sql_wall_us": 494403,
+      "recorded_thread_cpu_us": 0
+    }
+  ],
+  "not_fixed_by_linux_image_verifier": true
+}

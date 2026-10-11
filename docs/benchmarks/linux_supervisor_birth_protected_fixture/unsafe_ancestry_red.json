@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "scope": "authenticated Linux doctor constructor only",
+  "public_broker_qualified": false,
+  "pending_frontend_exit_qualified": false,
+  "services_registered": false,
+  "images": {
+    "diskgraph": {
+      "bytes": 6496984,
+      "sha256": "4576cba66f2ac7cce0c0efc911a0d3e40f4e358b08c602b1da24ed2993123fe2"
+    },
+    "diskgraph-scan-worker": {
+      "bytes": 834792,
+      "sha256": "9503efeb839e147715492b9fa34ac495d69bc65bacd820c9311f6848ce81d663"
+    }
+  },
+  "cases": [
+    {
+      "case": "clean",
+      "passed": false,
+      "exit_code": 6,
+      "error_code": "unsupported",
+      "elapsed_seconds": 0.0035466660046949983,
+      "data_born": false,
+      "slot_record": "DGSL01C\n",
+      "stdout": "{\"api_version\":2,\"coverage\":null,\"error\":{\"code\":\"unsupported\",\"exit_code\":6,\"message\":\"unsupported (exit 6)\"},\"ok\":false,\"truncated\":false,\"warnings\":[]}\n",
+      "stderr": "diskgraph: engine startup failed\n",
+      "original_child_waited": true
+    },
+    {
+      "case": "active_slot",
+      "passed": false,
+      "exit_code": 6,
+      "error_code": "unsupported",
+      "elapsed_seconds": 0.002826333002303727,
+      "data_born": false,
+      "slot_record": "DGSL01A\n",
+      "stdout": "{\"api_version\":2,\"coverage\":null,\"error\":{\"code\":\"unsupported\",\"exit_code\":6,\"message\":\"unsupported (exit 6)\"},\"ok\":false,\"truncated\":false,\"warnings\":[]}\n",
+      "stderr": "diskgraph: engine startup failed\n",
+      "original_child_waited": true
+    },
+    {
+      "case": "forged_role",
+      "passed": true,
+      "exit_code": 3,
+      "error_code": "permission_denied",
+      "elapsed_seconds": 0.002509666999685578,
+      "data_born": false,
+      "slot_record": "DGSL01C\n",
+      "stdout": "{\"api_version\":2,\"coverage\":null,\"error\":{\"code\":\"permission_denied\",\"exit_code\":3,\"message\":\"permission_denied (exit 3)\"},\"ok\":false,\"truncated\":false,\"warnings\":[]}\n",
+      "stderr": "diskgraph: engine startup failed\n",
+      "original_child_waited": true
+    },
+    {
+      "case": "wrong_session",
+      "passed": true,
+      "exit_code": 3,
+      "error_code": "permission_denied",
+      "elapsed_seconds": 0.002876250000554137,
+      "data_born": false,
+      "slot_record": "DGSL01C\n",
+      "stdout": "{\"api_version\":2,\"coverage\":null,\"error\":{\"code\":\"permission_denied\",\"exit_code\":3,\"message\":\"permission_denied (exit 3)\"},\"ok\":false,\"truncated\":false,\"warnings\":[]}\n",
+      "stderr": "diskgraph: engine startup failed\n",
+      "original_child_waited": true
+    },
+    {
+      "case": "wrong_sender",
+      "passed": true,
+      "exit_code": 3,
+      "error_code": "permission_denied",
+      "elapsed_seconds": 0.004196374997263774,
+      "data_born": false,
+      "slot_record": "DGSL01C\n",
+      "stdout": "{\"api_version\":2,\"coverage\":null,\"error\":{\"code\":\"permission_denied\",\"exit_code\":3,\"message\":\"permission_denied (exit 3)\"},\"ok\":false,\"truncated\":false,\"warnings\":[]}\n",
+      "stderr": "diskgraph: engine startup failed\n",
+      "original_child_waited": true
+    },
+    {
+      "case": "expired",
+      "passed": true,
+      "exit_code": 7,
+      "error_code": "budget_exceeded",
+      "elapsed_seconds": 0.0023457920033251867,
+      "data_born": false,
+      "slot_record": "DGSL01C\n",
+      "stdout": "{\"api_version\":2,\"coverage\":null,\"error\":{\"code\":\"budget_exceeded\",\"exit_code\":7,\"message\":\"budget_exceeded (exit 7)\"},\"ok\":false,\"truncated\":false,\"warnings\":[]}\n",
+      "stderr": "diskgraph: engine startup failed\n",
+      "original_child_waited": true
+    },
+    {
+      "case": "wrong_image",
+      "passed": false,
+      "exit_code": 6,
+      "error_code": "unsupported",
+      "elapsed_seconds": 0.0022655409993603826,
+      "data_born": false,
+      "slot_record": "DGSL01C\n",
+      "stdout": "{\"api_version\":2,\"coverage\":null,\"error\":{\"code\":\"unsupported\",\"exit_code\":6,\"message\":\"unsupported (exit 6)\"},\"ok\":false,\"truncated\":false,\"warnings\":[]}\n",
+      "stderr": "diskgraph: engine startup failed\n",
+      "original_child_waited": true
+    },
+    {
+      "case": "wrong_data",
+      "passed": false,
+      "exit_code": 6,
+      "error_code": "unsupported",
+      "elapsed_seconds": 0.0028290829941397533,
+      "data_born": false,
+      "slot_record": "DGSL01C\n",
+      "stdout": "{\"api_version\":2,\"coverage\":null,\"error\":{\"code\":\"unsupported\",\"exit_code\":6,\"message\":\"unsupported (exit 6)\"},\"ok\":false,\"truncated\":false,\"warnings\":[]}\n",
+      "stderr": "diskgraph: engine startup failed\n",
+      "original_child_waited": true
+    }
+  ],
+  "passed": false
+}

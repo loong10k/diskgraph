@@ -353,3 +353,7 @@ Linux监督安装准备增量：独立归档SHA／root独占副本／固定三�
 Linux监督doctor构造增量：root原父消息凭据绑定JSON摘要／原目录与ns／ClockStamp／固定服务UID槽已接入CLI构造；共享解析RED1/2→macOS GREEN3/0，兼容host9/0与两包Clippy通过。新Linux分支尚未原生编译/验收，八场景脚本及CI已配置待执行；公共broker、bootstrap原child owner、私有退休确认和有限前端退出仍未实现。不据构造接线勾选监督父项。见linux_supervisor_birth_constructor.md及对应receipt.json。
 
 5371e15 LinuxARM实际构造验收7/1：同长度错误镜像SHA因内部Host延迟校验而创建数据库。监督入口已补完整有界SHA和高精度原对象观察，保持旧内部API语义；本机helper3/0，修复后的同源码Linux验收待执行。保留原7/1真实失败、实际child wait及原容器移除证据，不勾选监督父项。
+
+Linux doctor 构造原生补验：d76ad70f 的独立校验 LinuxARM归档在受保护隔离目录八场景8/0，错误SHA拒绝且数据不出生。原CI夹具Unsupported保留；可写/opt重现4/4，具体原runner权限未观察。夹具改用预检/var/lib且记录实际祖先，不放宽生产目录校验。同源码全量新CI待执行，服务父项仍开放。见linux_supervisor_birth_constructor.md及linux_supervisor_birth_protected_fixture/。
+
+Windows revision回调夹具：将新revision全部材料由逐条autocommit改为单事务，保持实际发布原子边界、原选定revision断言及原期限。本机行为测试因未安装固定macOS镜像Unsupported，不记行为绿灯；FFI Clippy通过。Windows原生复验待执行，历史终检494ms超时仍未诊断关闭。见docs/benchmarks/windows_atomic_revision_fixture/receipt.json。

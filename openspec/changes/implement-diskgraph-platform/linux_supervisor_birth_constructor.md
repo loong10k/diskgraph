@@ -1,6 +1,6 @@
 # Linux 监督 doctor 出生接线
 
-状态：已接入 Engine/CLI 构造，macOS 上执行共享解析回归与兼容 CLI 回归；新 Linux 条件代码尚未在原生环境编译和验收。新增隔离原生验收脚本与 CI 门禁，尚无通过证据。不关闭监督服务父项。
+状态：已接入 Engine/CLI 构造；d76ad70f 的 Linux ARM64 release 归档在隔离环境通过八场景构造验收。当前全量 CI 仍有夹具及 Windows 待核验项；公共 broker、原 child 全局容量寿命、私有退休确认和有限前端退出未完成，不关闭监督服务父项。
 
 ```mermaid
 flowchart TD
@@ -35,3 +35,11 @@ root 内核凭据不代替固定 broker 的发行、镜像与生命周期信任�
 新验证helper本机3/0、Clippy和格式检查通过，修复后的Linux原生验收仍待执行。原7/1失败及成功创建数据库的完整结果、实际原子进程wait和容器移除证据全部保留在`docs/benchmarks/linux_supervisor_birth_image_verification/`，不得称为8/8，也不关闭服务父门禁。
 
 同一5371e15的三个Linux矩阵在Engine/CLI/MCP测试步骤失败，实际唯一失败目标为source_layout：两个新对象缺少现有门禁要求的“来源：”标记。原日志分别保留，补正文档而不放宽门禁，本机6/0通过；未把测试中预期的catch_unwind panic误判为失败。矩阵未运行到构造门禁，7/1证据来自该源码真实release归档的独立原生运行。
+
+## d76ad70f 原生八场景与夹具保护边界
+
+独立核对原 CI job 114404388500 的源码、归档摘要和实际归档，在不联网的一次性 Linux ARM64 容器中执行实际 CLI/worker。原生八场景全部通过，wrong_image 精确 Conflict 且数据库不出生；所有原 child 已实际 wait，两次容器均已移除。该结果关闭完整镜像验证与 doctor 构造的 Linux ARM64 子项，不证明公共 broker、异常 I/O 下有限前端退出或其他平台监督服务资格。
+
+当前 CI 的 Linux 构造步骤返回 Unsupported。原 runner 祖先权限未记录，因此尚不能断定具体根因；在同一 d76ad70f 二进制、隔离容器中将 /opt 设置为 0777，原 /opt 夹具实际重现四个 Unsupported 失败。生产目录校验未修改。新夹具使用 /var/lib，先核对 /、/var、/var/lib 的 root 身份、真实目录类型与不可组/其他写，拒绝不安全祖先；显式设置本轮新目录权限，回执同时记录 /opt 权限。同一受保护夹具八场景通过。CI 上的新夹具仍需原生执行证明。
+
+证据见 `docs/benchmarks/linux_supervisor_birth_protected_fixture/receipt.json`、原失败、隔离重现和新的 native_green.json；旧失败报告保持原样。

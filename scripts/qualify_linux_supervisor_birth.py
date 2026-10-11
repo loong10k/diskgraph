@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import shutil
 import socket
+import stat
 import subprocess
 import sys
 import tempfile
@@ -26,8 +27,8 @@ def demote():
 def run_case(prefix, binary, worker, case):
     """只运行固定 doctor 镜像与命令；保留原 child 到实际 communicate/wait 完成。"""
     root = prefix / case
-    root.mkdir(mode=0o755)
-    state = root / 'state'; state.mkdir(mode=0o755)
+    root.mkdir(mode=0o755); root.chmod(0o755)
+    state = root / 'state'; state.mkdir(mode=0o755); state.chmod(0o755)
     slot = state / ('uid_' + str(SERVICE_UID) + '.slot')
     slot.write_bytes(b'DGSL01A\n' if case == 'active_slot' else b'DGSL01C\n')
     slot.chmod(0o600); os.chown(slot, SERVICE_UID, SERVICE_UID)
@@ -103,12 +104,22 @@ def run_case(prefix, binary, worker, case):
 
 
 def qualify(binary, worker, output):
-    """接受当前构建的两个明确镜像，只在全新 /opt 夹具内复制执行；不注册任何服务。"""
+    """接受当前构建的两个明确镜像，只在通过预检的全新受保护夹具内执行；不注册服务。"""
     if sys.platform != 'linux' or os.geteuid() != 0 or os.getuid() != 0 or os.getgid() != 0:
         raise RuntimeError('qualification requires isolated Linux root')
-    prefix = Path(tempfile.mkdtemp(prefix='diskgraph-birth-', dir='/opt'))
+    # runner 的 /opt 可能是可写工具缓存；不能用它伪装为生产要求的 root 受保护域。
+    ancestry = {}
+    for entry in ('/', '/var', '/var/lib', '/opt'):
+        info = os.lstat(entry)
+        ancestry[entry] = {'uid': info.st_uid, 'mode': stat.S_IMODE(info.st_mode),
+                           'is_directory': stat.S_ISDIR(info.st_mode)}
+    for entry in ('/', '/var', '/var/lib'):
+        info = ancestry[entry]
+        if info['uid'] != 0 or info['mode'] & 0o022 or not info['is_directory']:
+            raise RuntimeError('fixture ancestry is not independently root protected: ' + entry)
+    prefix = Path(tempfile.mkdtemp(prefix='diskgraph-birth-', dir='/var/lib'))
     prefix.chmod(0o755)
-    images = prefix / 'images'; images.mkdir(mode=0o755)
+    images = prefix / 'images'; images.mkdir(mode=0o755); images.chmod(0o755)
     receipts = {}
     for name, source in [('diskgraph', binary), ('diskgraph-scan-worker', worker)]:
         image = images / name
@@ -117,7 +128,8 @@ def qualify(binary, worker, output):
         receipts[name] = {'bytes': image.stat().st_size, 'sha256': hashlib.sha256(image.read_bytes()).hexdigest()}
     result = {'schema_version': 1, 'scope': 'authenticated Linux doctor constructor only',
               'public_broker_qualified': False, 'pending_frontend_exit_qualified': False,
-              'services_registered': False, 'images': receipts, 'cases': []}
+              'services_registered': False, 'fixture_ancestry': ancestry,
+              'images': receipts, 'cases': []}
     try:
         for case in ('clean', 'active_slot', 'forged_role', 'wrong_session', 'wrong_sender', 'expired', 'wrong_image', 'wrong_data'):
             result['cases'].append(run_case(prefix, images / 'diskgraph', images / 'diskgraph-scan-worker', case))

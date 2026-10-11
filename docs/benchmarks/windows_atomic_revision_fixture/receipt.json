@@ -1,0 +1,12 @@
+{
+  "baseline_source": "5371e15fdafdceea8bbe4cfd34e92b93b874de11",
+  "baseline_ci": 38071033060,
+  "baseline_windows_job": 114268371027,
+  "change": "fixture publishes all revision material in one transaction, matching production atomic publication",
+  "budgets_changed": false,
+  "assertions_changed": false,
+  "clippy_passed": true,
+  "local_behavior_test": "Unsupported: fixed macOS worker installation unavailable; neither behavioral RED nor GREEN",
+  "native_windows_qualified": false,
+  "history_494ms_timeout_resolved": false
+}

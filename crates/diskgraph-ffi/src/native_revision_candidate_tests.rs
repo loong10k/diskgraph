@@ -54,7 +54,9 @@ fn fixture() -> (
 }
 
 fn publish_block(database: &str, snapshot: &str, old_revision: &str, node: i64, relation: &str) {
-    let db = Connection::open(database).unwrap();
+    let mut connection = Connection::open(database).unwrap();
+    // 关系、归属和新 revision 采用同一持久提交，保持真实发布的原子边界。
+    let db = connection.transaction().unwrap();
     let target_kind = if relation == "protected_by" {
         "protection_policy"
     } else {
@@ -110,6 +112,7 @@ fn publish_block(database: &str, snapshot: &str, old_revision: &str, node: i64, 
     )
     .unwrap();
     db.execute("UPDATE graph_revisions SET selection_sealed=1,evidence_complete=1 WHERE revision_id='ffi-new'",[]).unwrap();
+    db.commit().unwrap();
 }
 
 #[test]

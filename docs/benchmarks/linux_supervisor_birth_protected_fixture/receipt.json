@@ -1,0 +1,37 @@
+{
+  "source": "d76ad70f2cc9069d34e5eec0fb325c88f61ae729",
+  "archive_job": 114404388500,
+  "archive_sha256": "814e69f1c56c34ad22eb0d2a8cd20b73fc49f51448f52138dcee6a8332765d5e",
+  "fixture_sha256": "bde31be97ca10f457ac0a985a18316593451212b539ec07543d3bf60fa5169e3",
+  "image": "sha256:a532724022429812ec797c285c1b540a644c15e248579c6bfdf12a8fbaab4964",
+  "native_cases": {
+    "passed": 8,
+    "failed": 0
+  },
+  "unsafe_opt_reproduction": {
+    "passed": 4,
+    "failed": 4
+  },
+  "original_runner_opt_mode": "not observed; new receipt records actual ancestry",
+  "archive_verified_against_original_job": true,
+  "network": "none",
+  "services_registered": false,
+  "desktop_services_installed": false,
+  "original_children_waited": true,
+  "containers_retired": [
+    {
+      "container": "dbd4f7a156b0cd443fd2e01ce4e9e71982d4ffdd653867d3cc1487bcf9750662",
+      "inspect_exit": 1,
+      "stderr": "error: no such object: dbd4f7a156b0cd443fd2e01ce4e9e71982d4ffdd653867d3cc1487bcf9750662"
+    },
+    {
+      "container": "515c6dfcf572b23d799c7110bf998c6b5751b5e4e769dafa55306d806907ed89",
+      "inspect_exit": 1,
+      "stderr": "error: no such object: 515c6dfcf572b23d799c7110bf998c6b5751b5e4e769dafa55306d806907ed89"
+    }
+  ],
+  "qualifies": "Linux doctor authenticated construction only",
+  "public_broker_qualified": false,
+  "pending_foreground_exit_qualified": false,
+  "full_workflow_qualified": false
+}
