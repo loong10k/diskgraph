@@ -50,7 +50,7 @@ CLI操作返回失败时，既有有限错误envelope必须在原执行栈结束
 
 ## 真实CLI纵向资格
 
-增加独立root原生测试，使用本次构建的实际diskgraph与diskgraph-scan-worker，不以C角色替代业务。隔离root保护目录预置bootstrap和服务槽、服务UID独占数据库，原子launcher通过schema3材料、原ClockStamp、原内核身份通知接入既有doctor。验收真实JSON与公共EOF之后bootstrap仍ACTIVE，最终原wait、私有完成与服务CLEAN全部成立才写bootstrap CLEAN。此项无异常Pending注入，公共端由测试宿主持有；不证明真实前端进程、公开broker服务或安装信任已经完成。
+增加独立root原生测试，使用本次构建的实际diskgraph与diskgraph-scan-worker，不以C角色替代业务。隔离root保护目录预置bootstrap和服务槽、服务UID独占数据库，原子launcher通过schema3材料、原ClockStamp、原内核身份通知接入既有doctor。验收真实JSON与公共EOF之后bootstrap仍ACTIVE，最终原wait、私有完成与服务CLEAN全部成立才写bootstrap CLEAN。此项无异常Pending注入。新增独立UID 23112前端持有原公共连接，逐消息内核身份核验后才认领bootstrap；实际stdout EOF与原Child wait成功必须先于监督owner退休。C前端只转交真实CLI字节，不代替业务。隔离Linux ARM夹具四场景通过：原角色缺失doctor模式拒绝、Unicode完整分片、128KiB超限拒绝、原4KiB stdout管道背压约30秒退出。Rust纵向测试尚未原生执行；不证明公开broker服务或安装信任已经完成。
 
 ## 原生短竞争夹具资格
 

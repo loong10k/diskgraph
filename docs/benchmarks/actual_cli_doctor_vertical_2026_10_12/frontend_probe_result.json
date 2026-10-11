@@ -1,0 +1,54 @@
+{
+  "fixture_only": true,
+  "rust_actual_doctor_vertical_executed": false,
+  "cases": [
+    {
+      "binary": "/old-role",
+      "mode": "normal",
+      "actual_uid": 23112,
+      "actual_pid_matches_original_child": true,
+      "exit": 8,
+      "stdout_pipe_capacity": 65536,
+      "stdout_bytes": 0,
+      "seconds": 0.0006132910002634162,
+      "actual_original_wait_consumed": true,
+      "payload_exact": false
+    },
+    {
+      "binary": "/new-role",
+      "mode": "normal",
+      "actual_uid": 23112,
+      "actual_pid_matches_original_child": true,
+      "exit": 0,
+      "stdout_pipe_capacity": 65536,
+      "stdout_bytes": 12323,
+      "seconds": 0.00138354199953028,
+      "actual_original_wait_consumed": true,
+      "payload_exact": true
+    },
+    {
+      "binary": "/new-role",
+      "mode": "oversized",
+      "actual_uid": 23112,
+      "actual_pid_matches_original_child": true,
+      "exit": 8,
+      "stdout_pipe_capacity": 65536,
+      "stdout_bytes": 131072,
+      "seconds": 0.0019780420007009525,
+      "actual_original_wait_consumed": true,
+      "payload_exact": false
+    },
+    {
+      "binary": "/new-role",
+      "mode": "nonreading",
+      "actual_uid": 23112,
+      "actual_pid_matches_original_child": true,
+      "exit": 8,
+      "stdout_pipe_capacity": 4096,
+      "stdout_bytes": 4096,
+      "seconds": 30.04559772200082,
+      "actual_original_wait_consumed": true,
+      "payload_exact": false
+    }
+  ]
+}

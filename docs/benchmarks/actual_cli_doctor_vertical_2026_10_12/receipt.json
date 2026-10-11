@@ -9,9 +9,12 @@
   "embedded_python_programs_compiled": 5,
   "new_test": "native_child::linux_supervisor_doctor_tests::original_launcher_runs_actual_doctor_and_retires_both_original_slots",
   "scope": "actual CLI doctor via original Rust atomic root launcher and schema3 private materials; actual JSON/EOF before original bootstrap retirement, service and bootstrap CLEAN only after original normal wait",
-  "limits": "30 second original deadline; isolated root /var/lib tree; collected public and diagnostic bytes <=128 KiB; no active pending child injection or actual frontend process; not a production broker/service proof",
+  "limits": "30 second original deadline; root-isolated /var/lib; fixed separate UID frontend; no active pending child injection; Rust vertical native execution still pending; not production broker/service proof",
   "source_sha256": {
-    "crates/diskgraph-engine/src/native_child/linux_supervisor_doctor_tests.rs": "1621354b925d68d26ea45c0035db1ab5fac5ee660a55b5d6704b3828dbb25d7c",
-    ".github/workflows/ci.yml": "2de1a6ce43edf9818faa3c9cb14cb1a5e51e2443f378432e22848422163ca9b5"
-  }
+    "crates/diskgraph-engine/src/native_child/linux_supervisor_doctor_tests.rs": "aa1e58855ae025c732b700e92ddd87e34255d12a1c4ab5039e69e19bbd8835d9",
+    "crates/diskgraph-engine/src/native_child/linux_supervisor_frontend_fixture.rs": "408262c9e08f626bf0e7e974e50cfa0fdd38cd42c04af0fb0b684b93ff916be6",
+    "scripts/fixtures/linux_supervisor_birth/role.c": "c9c7e334d706717894f80d828973d993157ddcf058022841287ef15a5ca089dc",
+    ".github/workflows/ci.yml": "5942f6ba3824ba51055792ec6e27acf55899a5efba0ce40c25709e90c1e1d479"
+  },
+  "independent_frontend_fixture_native_cases_passed": 4
 }

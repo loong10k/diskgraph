@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/out/probe.py", line 39, in <module>
+    run('/new-role','nonreading',8)
+  File "/out/probe.py", line 31, in run
+    assert child.returncode==expected,(binary,mode,child.returncode,stderr)
+AssertionError: ('/new-role', 'nonreading', 0, b'')

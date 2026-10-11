@@ -1,0 +1,16 @@
+{
+  "native_original_source": "126cc4ce4d3380a4ba4d7e9fe15a21190cab499e",
+  "run": 38156890357,
+  "job": 114521668720,
+  "native_failure": "real COMMIT hook not reached under 150ms fixture request; no observed production commit-error masking",
+  "fixture_request_seconds": 2,
+  "production_db_window_ms": 250,
+  "production_capability_window_ms": 50,
+  "local_store_deadline_regression": {
+    "passed": 10,
+    "failed": 0,
+    "ignored": 0
+  },
+  "new_native_validation_completed": false,
+  "requirements": "real COMMIT hook must enter before original request deadline, deny only after same deadline; exact SQLite ConstraintViolation preserved; original durable state and busy_timeout restored"
+}

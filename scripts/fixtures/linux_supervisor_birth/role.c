@@ -14,6 +14,8 @@
 #include <sys/wait.h>
 #include <poll.h>
 #include <unistd.h>
+#include <time.h>
+#include <signal.h>
 
 /* 固定ELF夹具，不创建Engine或授予任意命令；观察真正exec后的身份与白名单。 */
 static int notification(unsigned version, unsigned sequence, const char *value) {
@@ -26,9 +28,20 @@ static int notification(unsigned version, unsigned sequence, const char *value) 
     return send(6, packet, (size_t)length + 4, MSG_NOSIGNAL | MSG_DONTWAIT) == length + 4;
 }
 
+/* 原前端时钟的剩余整毫秒；向下取整可提前拒绝，不续期。 */
+static int frontend_remaining(struct timespec started) {
+    struct timespec now;
+    if (clock_gettime(CLOCK_MONOTONIC, &now) != 0) return 0;
+    int64_t elapsed = (int64_t)(now.tv_sec - started.tv_sec) * 1000000000 + now.tv_nsec - started.tv_nsec;
+    int64_t remaining = 30000000000LL - elapsed;
+    return remaining > 0 ? (int)(remaining / 1000000) : 0;
+}
+
 int main(int argc, char **argv) {
     if (argc == 4 && strcmp(argv[1], "frontend") == 0) {
         /* 真实公开连接测试角色：连接者与逐消息发送者可故意不同；不创建Engine或监督owner。 */
+        struct timespec frontend_started = {0, 0};
+        if (strcmp(argv[3], "doctor") == 0 && clock_gettime(CLOCK_MONOTONIC, &frontend_started) != 0) return 8;
         int connection = socket(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0);
         struct sockaddr_un address = {.sun_family = AF_UNIX};
         if (connection < 0 || strlen(argv[2]) >= sizeof(address.sun_path)) return 8;
@@ -56,6 +69,42 @@ int main(int argc, char **argv) {
             if (sent != (ssize_t)sizeof(input) - 1 && errno != EPIPE && errno != ECONNRESET) return 8;
         }
         shutdown(connection, SHUT_WR);
+        if (strcmp(argv[3], "doctor") == 0) {
+            /* 独立前端只复制实际业务字节；原30秒总期限不随分片续期，真实EOF才正常退出。 */
+            int output_flags = fcntl(STDOUT_FILENO, F_GETFL);
+            if (output_flags < 0 || fcntl(STDOUT_FILENO, F_SETFL, output_flags | O_NONBLOCK) != 0 || signal(SIGPIPE, SIG_IGN) == SIG_ERR) return 8;
+            unsigned total = 0;
+            for (;;) {
+                int remaining = frontend_remaining(frontend_started);
+                struct pollfd input_ready = {.fd = connection, .events = POLLIN | POLLHUP};
+                if (!remaining || poll(&input_ready, 1, remaining) <= 0) return 8;
+                char bytes[4096];
+                ssize_t count = recv(connection, bytes, sizeof(bytes), 0);
+                if (count < 0 && errno == EINTR) continue;
+                if (count < 0) return 8;
+                if (!count) {
+                    close(connection);
+                    return total ? 0 : 8;
+                }
+                if ((unsigned)count > 131072 - total) return 8;
+                total += (unsigned)count;
+                size_t sent = 0;
+                while (sent < (size_t)count) {
+                    remaining = frontend_remaining(frontend_started);
+                    if (!remaining) return 8;
+                    ssize_t written = write(STDOUT_FILENO, bytes + sent, (size_t)count - sent);
+                    if (written > 0) { sent += (size_t)written; continue; }
+                    if (written < 0 && errno == EINTR) continue;
+                    if (written < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
+                        struct pollfd output_ready = {.fd = STDOUT_FILENO, .events = POLLOUT};
+                        int ready = poll(&output_ready, 1, remaining);
+                        if (ready < 0 && errno == EINTR) continue;
+                        if (ready > 0) continue;
+                    }
+                    return 8;
+                }
+            }
+        }
         struct pollfd waiting = {.fd = connection, .events = POLLIN | POLLHUP};
         if (poll(&waiting, 1, 5000) <= 0) return 8;
         char output[64]; ssize_t received = recv(connection, output, sizeof(output), 0);

@@ -352,12 +352,17 @@ fn process_enqueue_late_real_commit_abort_is_not_rewritten_as_budget_error() {
     let before = fixture.persisted_state();
     let reached = Arc::new(AtomicBool::new(false));
     let mark = Arc::clone(&reached);
-    let deadline = Instant::now() + Duration::from_millis(150);
+    let entered_in_time = Arc::new(AtomicBool::new(false));
+    let entered = Arc::clone(&entered_in_time);
+    // 此场景验收真实COMMIT拒绝在请求到期后的错误优先级，非150ms短预算门禁。
+    // 给真实INSERT准备2秒，但回调仍跨过同一原期限；不改变生产250/50ms窗口。
+    let deadline = Instant::now() + Duration::from_secs(2);
     fixture
         .store
         .connection
         .commit_hook(Some(move || {
             mark.store(true, Ordering::SeqCst);
+            entered.store(Instant::now() < deadline, Ordering::SeqCst);
             wait_past(deadline);
             true
         }))
@@ -375,7 +380,11 @@ fn process_enqueue_late_real_commit_abort_is_not_rewritten_as_budget_error() {
         .unwrap();
     assert!(
         reached.load(Ordering::SeqCst),
-        "real COMMIT hook not reached"
+        "real COMMIT hook not reached: {result:?}"
+    );
+    assert!(
+        entered_in_time.load(Ordering::SeqCst),
+        "COMMIT fixture entered after its original deadline"
     );
     assert!(
         matches!(&result, Err(StoreError::Sqlite(rusqlite::Error::SqliteFailure(error, _))) if error.code == ErrorCode::ConstraintViolation),

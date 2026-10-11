@@ -417,3 +417,6 @@ CLI真实输出次序修复：原业务失败在host.execute退休完成后才�
 126cc4ce macOS MSRV竞争门禁失败：名义100ms持锁记录248.205625ms，终检258.756167ms BudgetExceeded；旧计时还包含释放后的记录间隙。夹具改为释放前后时间范围，只在实际释放上界满足原短输入+30ms时验收；最多五次新的隔离夹具，不续原业务期限，意外权限/存储错误立即失败，无法形成原场景仍失败。原250ms/50ms、500ms长持锁与60ms整次请求要求不变。本机原五场景首轮资格1/0，撤权回归2/0（忽略项独立执行），Clippy通过；原生修正未验收。见terminal_contention_fixture_qualification_2026_10_12/。
 
 126cc4ce macOS Intel stable终态失败仍为短竞争门禁：150ms注入唤醒场景记录280.36603ms，终检250.516398ms BudgetExceeded；此前100ms场景记录197.044275ms且成功，两者都不能充当指定短输入的准确资格。真实socket SSE到期测试通过，hardening套件10/0；新资格夹具尚需原生执行。原job与artifact保存在terminal_contention_fixture_qualification_2026_10_12/。当前两组Windows仍执行，未提前推送取消它们。
+
+
+126cc4ce CI终态19/23成功，五平台包成功；Windows MSRV成功，stable Store失败为150ms夹具未进入真实COMMIT回调，Engine767/0/8。修正该错误优先级夹具：2秒原请求准备窗口，要求真实COMMIT进入期限前、同一期限后拒绝，生产250/50ms窗口未改；本机Store期限回归10/0，新原生待验收。独立UID前端夹具4/0只证明C输入输出角色；新增真实Rust CLI doctor原Child EOF/wait顺序需Linux CI，服务父项保持开放。见commit_hook_fixture_windows_126及actual_cli_doctor_vertical_2026_10_12。

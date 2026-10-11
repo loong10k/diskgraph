@@ -1,17 +1,23 @@
 //! 当前CLI/worker的原子监督纵向资格；不以固定C角色代替业务。
 use super::linux_supervisor_launcher::LinuxSupervisorLauncher;
 use crate::native_deadline::ClockStamp;
-use crate::recovery_control::{ControlNotification, LinuxControlRead, UnixForegroundOutput};
+use crate::recovery_control::{
+    ControlNotification, FrontendRead, LinuxControlRead, LinuxFrontendConnection,
+    UnixForegroundOutput,
+};
 use crate::recovery_slot::{LinuxSupervisorTrust, SlotReservation};
 use sha2::{Digest, Sha256};
 use std::ffi::CString;
 use std::fs::File;
 use std::io::Read;
 use std::os::unix::fs::PermissionsExt;
-use std::os::unix::net::UnixStream;
+use std::os::unix::net::UnixListener;
 use std::path::Path;
 use std::sync::atomic::AtomicBool;
 use std::time::{Duration, Instant};
+#[path = "linux_supervisor_frontend_fixture.rs"]
+mod frontend_fixture;
+use frontend_fixture::OriginalFrontend;
 
 #[test]
 #[ignore = "requires current CLI/worker images and isolated root installation; mandatory native CI"]
@@ -66,15 +72,6 @@ fn original_launcher_runs_actual_doctor_and_retires_both_original_slots() {
         File::open("/proc/self/ns/user").unwrap(),
         File::open("/proc/self/ns/mnt").unwrap(),
     );
-    let reservation = SlotReservation::acquire(
-        File::options()
-            .read(true)
-            .write(true)
-            .open(&bootstrap)
-            .unwrap(),
-        deadline,
-    )
-    .unwrap();
     let launcher = LinuxSupervisorLauncher::prepare(
         File::open(&cli).unwrap(),
         vec![
@@ -95,15 +92,58 @@ fn original_launcher_runs_actual_doctor_and_retires_both_original_slots() {
         (23111, 23111),
     )
     .unwrap();
+    let socket_path = root.path().join("frontend.sock");
+    let listener = UnixListener::bind(&socket_path).unwrap();
+    LinuxFrontendConnection::prepare_listener(&listener).unwrap();
+    listener.set_nonblocking(true).unwrap();
+    std::fs::set_permissions(&socket_path, std::fs::Permissions::from_mode(0o666)).unwrap();
+    let frontend_image = root.path().join("original_frontend");
+    copy_current_image("DG_LINUX_SUPERVISOR_ROLE", &frontend_image);
+    let mut frontend = OriginalFrontend::spawn(&frontend_image, &socket_path);
+    let stream = loop {
+        assert!(
+            Instant::now() < deadline,
+            "original frontend connect expired"
+        );
+        match listener.accept() {
+            Ok((stream, _)) => break stream,
+            Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
+                std::thread::sleep(Duration::from_millis(1))
+            }
+            Err(error) => panic!("original accept: {error}"),
+        }
+    };
+    let mut connection =
+        LinuxFrontendConnection::new(UnixForegroundOutput::new(stream).unwrap(), 23112).unwrap();
+    let cancel = AtomicBool::new(false);
+    let mut command = Vec::new();
+    loop {
+        match connection.poll_input_until(deadline, &cancel).unwrap() {
+            FrontendRead::Data(bytes) => {
+                command.extend_from_slice(bytes);
+                assert!(command.len() <= 64);
+            }
+            FrontendRead::Pending => std::thread::sleep(Duration::from_millis(1)),
+            FrontendRead::Eof => break,
+        }
+    }
+    assert_eq!(command, b"DG_FRONT_INPUT\n");
+    let reservation = SlotReservation::acquire(
+        File::options()
+            .read(true)
+            .write(true)
+            .open(&bootstrap)
+            .unwrap(),
+        deadline,
+    )
+    .unwrap();
+    // 真实独立前端的逐消息身份已核验；只执行固定doctor，不接受客户端路径或参数。
     let mut owner = launcher
         .spawn_lifecycle(reservation, session, deadline)
         .unwrap();
-    let cancel = AtomicBool::new(false);
     owner.send_materials(&trust, &cancel).unwrap();
-    let (public, mut reader) = UnixStream::pair().unwrap();
-    reader.set_nonblocking(true).unwrap();
     owner
-        .attach_foreground_output(UnixForegroundOutput::new(public).unwrap())
+        .attach_foreground_output(connection.into_output().unwrap())
         .unwrap();
     let mut response = Vec::new();
     let mut diagnostics = Vec::new();
@@ -126,13 +166,7 @@ fn original_launcher_runs_actual_doctor_and_retires_both_original_slots() {
         if let Some(bytes) = owner.read_stderr().unwrap() {
             diagnostics.extend_from_slice(bytes);
         }
-        let mut bytes = [0; 4096];
-        match reader.read(&mut bytes) {
-            Ok(0) => public_eof = true,
-            Ok(count) => response.extend_from_slice(&bytes[..count]),
-            Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {}
-            Err(error) => panic!("original public read: {error}"),
-        }
+        public_eof = frontend.poll_capture(&mut response);
         assert!(response.len() + diagnostics.len() <= 128 << 10);
         std::thread::sleep(Duration::from_millis(1));
     }
@@ -149,7 +183,8 @@ fn original_launcher_runs_actual_doctor_and_retires_both_original_slots() {
         data.join("diskgraph-control.sqlite").exists(),
         "actual doctor must open its real isolated databases"
     );
-    // 公共EOF不能代替原wait；根父侧尚未轮询退休，bootstrap必须仍为ACTIVE。
+    // 独立前端已收到实际公共EOF并被原Child实际wait；仍不能代替监督child的原wait。
+    // 根父侧尚未轮询监督退休，bootstrap必须仍为ACTIVE。
     assert_eq!(std::fs::read(&bootstrap).unwrap(), b"DGSL01A\n");
     loop {
         assert!(

@@ -847,7 +847,7 @@ jobs:
           PYTHON
             cli_image="$(cat "$fixture/diskgraph.path")" || exit $?
             worker_image="$(cat "$fixture/diskgraph-scan-worker.path")" || exit $?
-            sudo env DG_LINUX_SUPERVISOR_CLI="$cli_image" DG_LINUX_SUPERVISOR_WORKER="$worker_image" "$test_binary" "$doctor_case" --ignored --exact --nocapture || exit $?
+            sudo env DG_LINUX_SUPERVISOR_ROLE="$fixture/role" DG_LINUX_SUPERVISOR_CLI="$cli_image" DG_LINUX_SUPERVISOR_WORKER="$worker_image" "$test_binary" "$doctor_case" --ignored --exact --nocapture || exit $?
           } 2>&1 | tee "$fixture/qualification.log"
       - name: Preserve Linux root atomic supervisor birth primitive
         if: ${{ always() && runner.os == 'Linux' && (steps.linux_supervisor_spawn.outcome == 'success' || steps.linux_supervisor_spawn.outcome == 'failure') }}
