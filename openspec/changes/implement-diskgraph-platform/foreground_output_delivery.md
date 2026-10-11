@@ -43,3 +43,7 @@ flowchart TD
 ```
 
 组件不提供socket目录/安装者信任，不授予Engine管理员或远程token能力。现有HTTP/SSE请求授权仍需原token与实时数据库权限交集。四项Rust原生资格测试已定义并纳入CI，当前未执行新源码；隔离LinuxARM的C客户端与内核探针已验证测试角色、SO_PASSCRED继承、同UID不同发送PID及意外FD关闭，只是资格夹具证据。
+
+## CLI失败正文与前台结束顺序
+
+CLI操作返回失败时，既有有限错误envelope必须在原执行栈结束及ForegroundEnded通知之前写入并flush；不得等原恢复退休后才生成正文。保持原业务错误和退出码，外层不得重复交付。BrokenPipe或flush失败不能吞掉原业务失败，也不能在公共EOF后再次尝试写正文。成功输出flush错误应作为实际交付失败；启动准入失败仍由外层交付。回归需验证失败正文、flush顺序、原错误优先级及禁止重发；本增量不关闭broker与完整原生退出门禁。

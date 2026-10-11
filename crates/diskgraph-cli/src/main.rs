@@ -16,6 +16,7 @@ mod cli_engine_host;
 mod cli_exit;
 mod cli_options;
 mod command;
+mod command_reply;
 mod compare_support;
 mod comparison_commands;
 mod disabled_commands;

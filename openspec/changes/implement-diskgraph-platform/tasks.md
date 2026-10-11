@@ -405,3 +405,5 @@ e49ee361完整CI终态：38149478669已完成19/23成功、4失败、0取消，�
 69931541完整CI终态18/23成功、5失败，Windows stable、macOS ARM stable/MSRV及五种原生包成功；Linux三项仍为退出码夹具失败，Windows MSRV为SSE先200断言失败，Intel为竞争时序断言失败。Intel实际持锁281.440661ms超过250ms，终检251.714006ms拒绝；不得按名义100ms宣称生产误拒绝或放宽窗口。SSE夹具把同一3秒token签发移到数据库授权、原HTTP runtime启动与TCP连接准备之后，保持读取3秒与关闭6秒要求并补充响应诊断，原runtime实际stop/join。本机目标测试因未配置受信宿主Unsupported（0/1）未验收行为，Clippy/fmt独立核验；新源码与原生时序仍需CI。见sse_expiry_preparation_2026_10_12/，父服务任务不勾选。
 
 新CI ae6751e8暴露Linux-only辅助校验提取编译错误：helper已有&msghdr，两处CMSG宏额外取引用成为&&msghdr，原生Build E0308。改为直接传原借用，不改变FD关闭、凭据校验或原错误优先级；本机macOS不能代替Linux编译，修正原生验证仍开放。失败原job保存在linux_credentials_compile_fix_2026_10_12/；不取消仍执行的其他平台验收。
+
+CLI真实输出次序修复：原业务失败在host.execute退休完成后才由cli_main打印，受控角色却先通知ForegroundEnded，可能让前台在恢复Pending时丢失失败正文。现将业务身份/查询/dispatch失败包在同一执行栈，原公开错误在其返回前写入并flush；外层按错误尝试标记禁止退休后重发，启动失败仍由原外层输出。原业务失败优先于BrokenPipe，成功交付失败保持失败退出。原成功-only行为抽取后回归RED0/4→GREEN4/0；实际CLI宿主原registry顺序1/0及宿主回归10/0，目标Clippy、显式10包fmt、OpenSpec通过。夹具没有活跃child，不证明Pending时前端进程退出或三平台服务；CI待最终源码。见cli_failure_before_retirement_2026_10_12/。

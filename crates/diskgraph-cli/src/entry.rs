@@ -39,18 +39,22 @@ pub(crate) fn cli_main() -> CliExit {
         return CliExit::Code(ExitCode::from(BusinessError::PermissionDenied.exit_code()));
     }
     // serve 必须在任何 CLI Engine/LocalIdentity 构造之前交接给 MCP。
+    let mut error_attempted = false;
     let outcome = if matches!(&cli.command, Command::Serve { .. }) {
         match crate::serve_command::run(&cli) {
             Ok(status) => return CliExit::Companion(status),
             Err(error) => Err(error),
         }
     } else {
-        run(cli)
+        run_with_delivery(cli, &mut error_attempted)
     };
     match outcome {
         Ok(()) => CliExit::Code(ExitCode::from(0)),
         Err(error) => {
             let business = engine_business(&error);
+            if error_attempted {
+                return CliExit::Code(ExitCode::from(business.exit_code()));
+            }
             if std::env::args().any(|arg| arg == "--json") {
                 println!("{}", error_reply::line(&error));
             } else {
@@ -63,7 +67,13 @@ pub(crate) fn cli_main() -> CliExit {
 
 /// 保留 run 的原生业务职责与错误语义。来源：DiskGraph CLI main::run。
 /// 参数：与原入口的 run 请求及执行依赖相同。返回：原业务结果或真实执行错误。
+#[cfg(test)]
 pub(crate) fn run(cli: Cli) -> Result<(), EngineError> {
+    run_with_delivery(cli, &mut false)
+}
+
+/// 参数：原CLI配置及公开错误交付标记；返回：原结果，在恢复前完成公开交付。
+fn run_with_delivery(cli: Cli, error_attempted: &mut bool) -> Result<(), EngineError> {
     if matches!(&cli.command, Command::Serve { .. }) {
         // 此命令仅由 cli_main 的进程转交入口处理，内部误路由也不得引导管理员。
         return Err(BusinessError::InvalidArgument.into());
@@ -92,29 +102,33 @@ pub(crate) fn run(cli: Cli) -> Result<(), EngineError> {
     host.execute(|engine| {
         #[cfg(test)]
         entry_deadline_tests::after_startup();
-        // 启动准入已使用独立期限；查询从身份准备起计时，后续各阶段共享而不刷新。
-        let deadline = diskgraph_core::query_deadline(QueryBudget::default())?;
-        // 单次 CLI 查询不消费扫描队列；--wait 由当前请求执行，远程队列由长期服务执行。
-        let principal = PrincipalId::new(cli.principal.clone())
-            .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
-        // The CLI authorizes against the local policy store; an empty policy is
-        // default-deny, and first-run setup grants the local user administration.
-        let authorizer = LocalIdentity::load(engine)?;
         let mut json_output = Vec::new();
-        let outcome = dispatch(
-            engine,
-            &cli,
-            &principal,
-            &authorizer,
-            &mut json_output,
-            deadline,
-        );
-        if cli.json {
-            for line in json_output {
-                println!("{line}");
-            }
-        }
-        outcome
+        let outcome = (|| {
+            // 启动准入已使用独立期限；查询从身份准备起计时，后续各阶段共享而不刷新。
+            let deadline = diskgraph_core::query_deadline(QueryBudget::default())?;
+            // 单次 CLI 查询不消费扫描队列；--wait 由当前请求执行，远程队列由长期服务执行。
+            let principal = PrincipalId::new(cli.principal.clone())
+                .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
+            // The CLI authorizes against the local policy store; an empty policy is
+            // default-deny, and first-run setup grants the local user administration.
+            let authorizer = LocalIdentity::load(engine)?;
+            dispatch(
+                engine,
+                &cli,
+                &principal,
+                &authorizer,
+                &mut json_output,
+                deadline,
+            )
+        })();
+        crate::command_reply::deliver(
+            outcome,
+            json_output,
+            cli.json,
+            &mut std::io::stdout(),
+            &mut std::io::stderr(),
+            error_attempted,
+        )
     })
 }
 

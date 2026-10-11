@@ -1,0 +1,31 @@
+{
+  "local_platform": "macOS ARM64",
+  "behavior_red": {
+    "passed": 0,
+    "failed": 4,
+    "note": "Extracted original success-only delivery into actual execution closure before adding behavior fix"
+  },
+  "green": {
+    "passed": 4,
+    "failed": 0
+  },
+  "actual_cli_host_sequence": {
+    "passed": 1,
+    "failed": 0,
+    "active_child": false,
+    "note": "Original Engine registry actually sealed; no native child exists in this fixture"
+  },
+  "host_regression": {
+    "passed": 10,
+    "failed": 0
+  },
+  "targeted_clippy": true,
+  "workspace_fmt_explicit_10_packages": true,
+  "openspec_strict": true,
+  "native_product_exit_verified": false,
+  "source_sha256": {
+    "crates/diskgraph-cli/src/entry.rs": "3c94e635e269fb171d6e66fc4dffcacff86a632c2f0d5cbfc2fd288340b6c3b1",
+    "crates/diskgraph-cli/src/command_reply.rs": "a7a318b06d29a36a21e196856a9e77894c3324c33d1acef4c513bce7bd1137fc",
+    "crates/diskgraph-cli/src/command_reply_tests.rs": "1ae9648c4585c946f59247976b972f6565d87655d1ba563de66ee5329e5255e4"
+  }
+}

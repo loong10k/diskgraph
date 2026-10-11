@@ -401,3 +401,35 @@ fn startup_deadline_expiring_during_admission_refuses_database_birth() {
         "expired admission created database state before terminal refusal"
     );
 }
+
+#[test]
+fn business_failure_body_precedes_original_host_retirement() {
+    let directory = tempfile::tempdir().unwrap();
+    let session = managed_empty_host(&directory);
+    let survivor = Arc::clone(&session.engine);
+    let mut output = Vec::new();
+    let mut attempted = false;
+    let result = session.execute(|_| {
+        let result = crate::command_reply::deliver::<()>(
+            Err(diskgraph_core::BusinessError::PermissionDenied.into()),
+            Vec::new(),
+            true,
+            &mut output,
+            &mut Vec::new(),
+            &mut attempted,
+        );
+        // 仍在原业务栈；公开失败已经实际编码交付，后续execute才处理原registry退休。
+        let response: serde_json::Value = serde_json::from_slice(&output).unwrap();
+        assert_eq!(response["ok"], false);
+        assert!(attempted);
+        result
+    });
+    assert!(matches!(
+        result,
+        Err(EngineError::Business(
+            diskgraph_core::BusinessError::PermissionDenied
+        ))
+    ));
+    assert_original_registry_sealed(&survivor, &directory);
+    // 本夹具没有活跃child，只证明实际CLI宿主顺序，不替代公共EOF/原进程退休资格。
+}
