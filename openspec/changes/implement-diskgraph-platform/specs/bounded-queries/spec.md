@@ -338,3 +338,15 @@ CLI status SHALL 按任务真实scope使用OperationView能力与实时数据库
 #### Scenario: Withdrawal restored after management response encoding
 - **WHEN** 元数据或OperationView授权在真实响应编码后撤销并以相同epoch恢复
 - **THEN** 原请求持有的撤权见证拒绝已编码缓冲；平台没有原生通知能力时，授权代次改变返回Conflict，不能声称精确观察到撤权事件。
+
+### Requirement: Filtered page pre-decode admission
+CLI children（包括min_bytes与unknown_only）及search SHALL 使用原请求共享账本，在拥有字符串/解码旧node_json前准入实际16列原始字节；页外存在探针不得解码。保持Unicode str.to_lowercase子串语义、尺寸/name/id目录顺序、name/id搜索keyset及显式offset。无法在原预算内构造可恢复页时返回BudgetExceeded且不输出。explore的max_nodes SHALL 包含返回的父节点；零页兼容返回父节点及明确截断。
+
+#### Scenario: Valid oversized legacy payload with small response
+- **GIVEN** 隔离旧节点JSON有90k有效未知字段，最终序列化节点小于64KiB
+- **WHEN** 实际CLI执行过滤children、unknown children或Unicode search
+- **THEN** 在NodeRow拥有/解码前按原始字段预算拒绝，不因响应小而放行。
+
+#### Scenario: One-node explore budget
+- **WHEN** 请求explore max_nodes=1且父节点有子节点
+- **THEN** 只返回父节点和node_limit截断，子节点仅作为存在探针。

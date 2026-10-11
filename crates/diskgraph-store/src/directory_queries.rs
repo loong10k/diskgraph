@@ -220,3 +220,6 @@ impl SqliteSnapshotStore {
         self.children(snapshot_id, parent_id, 0, limit)
     }
 }
+
+#[path = "filtered_directory_budget_query.rs"]
+mod filtered_directory_budget_query;

@@ -57,12 +57,15 @@ pub(crate) fn run(
                     let after = cursor
                         .as_ref()
                         .map(|cursor| (cursor.last_name.as_str(), cursor.last_id));
-                    let (items, more) = reader.search_page(
+                    let mut reads =
+                        diskgraph_core::QueryReadBudget::new(snapshot_reply::budget(), original)?;
+                    let (items, more) = reader.search_page_with_budget(
                         snapshot,
                         pattern,
                         after,
                         *offset,
                         (*limit).clamp(1, 100),
+                        &mut reads,
                     )?;
                     let consumed = cursor
                         .as_ref()

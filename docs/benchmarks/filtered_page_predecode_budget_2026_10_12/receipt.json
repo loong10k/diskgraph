@@ -1,0 +1,60 @@
+{
+  "base_commit": "37253b8dc6b17099eeee003e94cf9286806e015c",
+  "source_sha256": {
+    "crates/diskgraph-store/src/node_codec.rs": "655e7a6f4255f13b0becace3ceae46f94b6a1790a50e7cb77c1d923faa397432",
+    "crates/diskgraph-store/src/directory_queries.rs": "8a1ee9e21f7c23008a864dc4169e32a790187f2c34b1c6e8db4d3667b9f0b987",
+    "crates/diskgraph-store/src/filtered_directory_budget_query.rs": "0be222e426f73914ce419ae40e511e350d1bf5efc5bc9fc27427a7ae531da0f6",
+    "crates/diskgraph-store/src/filtered_page_budget_tests.rs": "561e9e43ce0ad0044e37f9d9334cf3109abef00563d26dfb76db50ccb1c8cb8f",
+    "crates/diskgraph-store/src/search_queries.rs": "4f74950112fbc781d143d98a9ea9810408463aae64b1930d8a702d01d44511b0",
+    "crates/diskgraph-cli/src/node_commands.rs": "793eed6ff719a24b1415705379e2ad0adcad70f36f3f27455400f65e07cd9203",
+    "crates/diskgraph-cli/src/search_commands.rs": "0bf13766ab42b600cd1f25bebff1f2a1c514d41c386cb9ee847dad3cbdaf0a09",
+    "crates/diskgraph-cli/src/narrow_query_authorization_tests.rs": "e7a6ce041345288af16cf6898de097868f1a85dd2a9a7b2587619bce8694472b"
+  },
+  "red": {
+    "raw_legacy": "All three actual CLI cases accepted 90k valid legacy JSON with ignored padding and a small final response",
+    "explore": "max_nodes=1 returned both parent and child"
+  },
+  "green": {
+    "cli_narrow": 9,
+    "store": 4,
+    "release_store": 4,
+    "directory_regression": 3,
+    "deep_search_keyset": 1,
+    "management_regression": 5,
+    "store_source_layout": 3
+  },
+  "actual_200k_sqlite_fixture": {
+    "filtered_page_1": {
+      "decoded": 1,
+      "vm_steps_100_quantized": 0
+    },
+    "filtered_page_5": {
+      "decoded": 5,
+      "vm_steps_100_quantized": 100
+    },
+    "known_with_200k_unknown": {
+      "decoded": 1,
+      "vm_steps_100_quantized": 0
+    },
+    "search_child_prefix_page_1": {
+      "decoded": 1,
+      "vm_steps_100_quantized": 0
+    },
+    "search_child_prefix_page_5": {
+      "decoded": 5,
+      "vm_steps_100_quantized": 200
+    }
+  },
+  "measurement_limits": [
+    "VM observations count each 100 instructions; zero means fewer than 100, not zero work",
+    "in-memory SQLite rows; not a 200k-file native scan or a complete process benchmark",
+    "arbitrary substring search may visit many names; decoded nodes are page bounded, no O(page) search claim",
+    "no strict SQLite memory/RSS bound",
+    "release tests are functional cost checks, not p50/p95 or a performance SLA"
+  ],
+  "clippy": "macOS Store/CLI all targets passed",
+  "fmt": "Store/CLI passed",
+  "spec": "strict passed",
+  "compatibility": "Unicode str.to_lowercase including Greek final sigma; name/id keyset; explicit offsets, min_bytes, unknown-only, full DiskNode fields; trusted unbudgeted APIs retained",
+  "native": "not in current 37253b8d CI; native acceptance pending"
+}

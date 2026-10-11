@@ -1,6 +1,6 @@
 //! Unicode 子串匹配与 name/ID keyset 搜索。
 
-use crate::node_codec::{as_i64, read_node_page};
+use crate::node_codec::{as_i64, read_node_page, read_node_page_with_budget};
 use crate::{Result, SqliteSnapshotStore};
 use diskgraph_core::DiskNode;
 use rusqlite::params;
@@ -18,7 +18,38 @@ impl SqliteSnapshotStore {
         offset: u64,
         limit: u64,
     ) -> Result<(Vec<DiskNode>, bool)> {
-        self.snapshot(snapshot_id)?;
+        self.search_page_inner(snapshot_id, pattern, after, offset, limit, None)
+    }
+
+    /// 保留Unicode str::to_lowercase语义及name/id keyset，在复制节点字段前累计准入。
+    /// 参数：snapshot/pattern/after/offset/limit为原页条件，budget为共享原期限与额度。
+    /// 返回：完整预算内页和more；预算不足拒绝整页，不生成局部游标。
+    pub fn search_page_with_budget(
+        &self,
+        snapshot_id: &str,
+        pattern: &str,
+        after: Option<(&str, u64)>,
+        offset: u64,
+        limit: u64,
+        budget: &mut diskgraph_core::QueryReadBudget,
+    ) -> Result<(Vec<DiskNode>, bool)> {
+        self.search_page_inner(snapshot_id, pattern, after, offset, limit, Some(budget))
+    }
+
+    fn search_page_inner(
+        &self,
+        snapshot_id: &str,
+        pattern: &str,
+        after: Option<(&str, u64)>,
+        offset: u64,
+        limit: u64,
+        mut budget: Option<&mut diskgraph_core::QueryReadBudget>,
+    ) -> Result<(Vec<DiskNode>, bool)> {
+        if let Some(budget) = budget.as_mut() {
+            self.snapshot_with_budget(snapshot_id, budget)?;
+        } else {
+            self.snapshot(snapshot_id)?;
+        }
         let seek = if after.is_some() {
             "AND (n.name,n.id)>(?3,?4)"
         } else {
@@ -28,17 +59,18 @@ impl SqliteSnapshotStore {
             "SELECT n.id, n.parent_id, n.locator_key, n.name, n.subtree_bytes, n.node_json, n.kind, n.direct_bytes, n.files, n.directories, n.modified_unix_seconds, n.file_volume_id, n.file_id, n.category_hint, n.reclaim_hint, n.read_error FROM nodes n JOIN node_search s ON s.snapshot_id = n.snapshot_id AND s.id = n.id WHERE n.snapshot_id = ?1 AND (instr(s.name_fold, ?2) > 0 OR instr(s.path_fold, ?2) > 0) {seek} ORDER BY n.name ASC, n.id ASC LIMIT ?5 OFFSET ?6"
         );
         let mut statement = self.connection.prepare(&sql)?;
-        read_node_page(
-            &mut statement,
-            params![
-                snapshot_id,
-                pattern.to_lowercase(),
-                after.map(|key| key.0),
-                after.map(|key| as_i64(key.1)).transpose()?,
-                as_i64(limit.saturating_add(1))?,
-                as_i64(if after.is_some() { 0 } else { offset })?
-            ],
-            limit,
-        )
+        let parameters = params![
+            snapshot_id,
+            pattern.to_lowercase(),
+            after.map(|key| key.0),
+            after.map(|key| as_i64(key.1)).transpose()?,
+            as_i64(limit.saturating_add(1))?,
+            as_i64(if after.is_some() { 0 } else { offset })?
+        ];
+        if let Some(budget) = budget {
+            read_node_page_with_budget(&mut statement, parameters, limit, budget)
+        } else {
+            read_node_page(&mut statement, parameters, limit)
+        }
     }
 }

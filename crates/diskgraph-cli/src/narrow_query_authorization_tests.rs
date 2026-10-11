@@ -337,3 +337,92 @@ fn search_cursor_uses_dispatch_identity_instead_of_cli_label() {
     ));
     assert!(output.is_empty());
 }
+
+#[test]
+fn explore_one_node_budget_counts_the_parent() {
+    let (_directory, engine, actor, scope) = fixture();
+    let cli = Cli::parse_from([
+        "diskgraph",
+        "--json",
+        "explore",
+        "--scope",
+        scope.as_str(),
+        "--max-nodes",
+        "1",
+    ]);
+    let mut output = vec![];
+    dispatch(
+        &engine,
+        &cli,
+        &actor,
+        &engine.policy_authorizer().unwrap(),
+        &mut output,
+        Instant::now() + Duration::from_secs(5),
+    )
+    .unwrap();
+    let value: serde_json::Value = serde_json::from_str(&output[0]).unwrap();
+    assert_eq!(value["data"]["node"]["id"], 1);
+    assert!(
+        value["data"]["children"].as_array().unwrap().is_empty(),
+        "parent plus child exceeded one-node budget: {value}"
+    );
+    assert_eq!(value["data"]["truncated"], "node_limit");
+}
+
+#[test]
+fn filtered_children_and_search_admit_legacy_payload_before_decode() {
+    let mut escaped = vec![];
+    for (command, unknown) in [("children", false), ("children", true), ("search", false)] {
+        let (directory, engine, actor, scope) = fixture();
+        let mut legacy =
+            serde_json::to_value(engine.revision_node("fixture-revision", 2).unwrap()).unwrap();
+        legacy["size_known"] = serde_json::json!(!unknown);
+        // 有效但大于原64KiB额度的旧负载；未知字段虽不出现在响应中，其原始拥有成本仍必须准入。
+        legacy["ignored_padding"] = serde_json::json!("x".repeat(90_000));
+        rusqlite::Connection::open(directory.path().join("data/diskgraph.sqlite"))
+            .unwrap()
+            .execute(
+                "UPDATE nodes SET kind=NULL,node_json=?1 WHERE snapshot_id='fixture' AND id=2",
+                [serde_json::to_string(&legacy).unwrap()],
+            )
+            .unwrap();
+        let mut parsed = cli(command, &scope);
+        if let crate::command::Command::Children {
+            min_bytes,
+            unknown_only,
+            ..
+        } = &mut parsed.command
+        {
+            *unknown_only = unknown;
+            if !unknown {
+                *min_bytes = Some(50);
+            }
+        }
+        let mut output = vec![];
+        let result = dispatch(
+            &engine,
+            &parsed,
+            &actor,
+            &engine.policy_authorizer().unwrap(),
+            &mut output,
+            Instant::now() + Duration::from_secs(5),
+        );
+        if !matches!(
+            result,
+            Err(EngineError::Business(BusinessError::BudgetExceeded))
+                | Err(EngineError::Store(
+                    diskgraph_store::StoreError::BudgetExceeded
+                ))
+        ) || !output.is_empty()
+        {
+            escaped.push(format!(
+                "{command}/unknown={unknown}: {result:?}, output_count={}",
+                output.len()
+            ));
+        }
+    }
+    assert!(
+        escaped.is_empty(),
+        "raw legacy budgets escaped: {escaped:?}"
+    );
+}

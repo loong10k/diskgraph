@@ -100,3 +100,33 @@ pub(crate) fn read_node_page(
     let more = rows.next()?.is_some();
     Ok((items, more))
 }
+
+/// 在复制/解码当前页字段前计入同一请求账本；存在探针不构造NodeRow。
+/// 参数：statement和parameters为原查询，limit为页上限，budget为原始期限和累计额度。
+/// 返回：完整预算内页及more；无法构造可恢复完整页时返回BudgetExceeded，不交付局部结果。
+pub(crate) fn read_node_page_with_budget(
+    statement: &mut rusqlite::Statement<'_>,
+    parameters: impl rusqlite::Params,
+    limit: u64,
+    budget: &mut diskgraph_core::QueryReadBudget,
+) -> Result<(Vec<DiskNode>, bool)> {
+    if !budget.check() {
+        return Err(StoreError::BudgetExceeded);
+    }
+    let mut rows = statement.query(parameters)?;
+    let mut items = Vec::new();
+    while (items.len() as u64) < limit {
+        let Some(row) = rows.next()? else {
+            break;
+        };
+        if !budget.admit(1, 0, NodeRow::raw_bytes(row)?) {
+            return Err(StoreError::BudgetExceeded);
+        }
+        items.push(NodeRow::from_row(row)?.into_node()?);
+    }
+    let more = rows.next()?.is_some();
+    if !budget.check() {
+        return Err(StoreError::BudgetExceeded);
+    }
+    Ok((items, more))
+}
