@@ -1,0 +1,10 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.39s
+     Running unittests src/main.rs (target/debug/deps/diskgraph-2b297645c71baf0b)
+
+running 3 tests
+test supervised_entry::tests::actual_cli_supervisor_route_requires_fixed_doctor_without_ignored_overrides ... ok
+test supervised_entry::tests::actual_cli_supervisor_route_admits_existing_read_only_query_commands ... ok
+test supervised_entry::tests::fixed_query_mapping_roundtrips_real_clap_without_global_argument_injection ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 99 filtered out; finished in 0.04s
+

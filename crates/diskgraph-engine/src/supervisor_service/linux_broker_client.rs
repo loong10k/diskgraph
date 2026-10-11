@@ -12,6 +12,16 @@ use std::time::{Duration, Instant};
 /// 参数：socket为root保护的本地入口；返回：原监督角色的完整i32状态或明确协议/期限拒绝。
 /// 固定doctor，无客户执行路径；原30秒涵盖连接、请求、全部输出与终态后的真实EOF。
 pub fn run_client(socket: &Path) -> io::Result<i32> {
+    run(socket, None)
+}
+
+/// 参数：固定socket和已解析只读查询；返回：原业务退出状态或有限协议/期限拒绝。
+/// 不接受环境或执行路径，不绕过既有CLI/Engine资源授权。
+pub fn run_query(socket: &Path, query: &super::BrokerQuery) -> io::Result<i32> {
+    run(socket, Some(query))
+}
+
+fn run(socket: &Path, query: Option<&super::BrokerQuery>) -> io::Result<i32> {
     let deadline = Instant::now() + Duration::from_secs(30);
     let (_parent, _ancestors) = root_installation_path::open_directory(
         socket
@@ -44,10 +54,15 @@ pub fn run_client(socket: &Path) -> io::Result<i32> {
     let expected =
         crate::recovery_slot::LinuxSupervisorPeer::from_host(peer.pid, peer.uid, peer.gid)
             .map_err(io::Error::other)?;
-    let mut request = b"DG_FRONT_INPUT\n".to_vec();
-    request.extend_from_slice(&serde_json::to_vec(
-        &ClockStamp::capture(deadline).map_err(io::Error::other)?,
-    )?);
+    let request = if let Some(query) = query {
+        super::broker_query_request::BrokerQueryRequest::encode(query, deadline)?
+    } else {
+        let mut request = b"DG_FRONT_INPUT\n".to_vec();
+        request.extend_from_slice(&serde_json::to_vec(
+            &ClockStamp::capture(deadline).map_err(io::Error::other)?,
+        )?);
+        request
+    };
     if request.len() > 4096 {
         return Err(io::Error::other("oversized fixed broker request"));
     }

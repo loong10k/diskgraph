@@ -1,0 +1,20 @@
+   Compiling diskgraph-engine v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.26s
+     Running unittests src/lib.rs (target/debug/deps/diskgraph_engine-1d042a518dc74750)
+
+running 12 tests
+test supervisor_service::installation_config_tests::installation_rejects_unknown_duplicate_and_oversized_json ... ok
+test supervisor_service::broker_admission_error::tests::public_broker_keeps_original_slot_errors_and_rejects_text_impersonation ... ok
+test supervisor_service::installation_config_tests::fixed_installer_configuration_decodes_without_creating_paths ... ok
+test supervisor_service::broker_frame_tests::broker_frame_rejects_unknown_kind_and_lengths_before_body_allocation ... ok
+test supervisor_service::broker_frame_tests::original_broker_frames_keep_bounded_stdout_stderr_and_full_status ... ok
+test supervisor_service::held_installation_image_tests::ordinary_user_cannot_derive_root_installation_trust_from_own_file ... ok
+test supervisor_service::broker_query_tests::query_values_stay_in_one_argument_and_keep_original_unicode ... ok
+test supervisor_service::broker_query_tests::query_deserialization_cannot_bypass_birth_validation ... ok
+test supervisor_service::broker_query_tests::query_refuses_global_overrides_unknown_switches_duplicates_and_invalid_numbers ... ok
+test supervisor_service::broker_query_tests::query_wire_keeps_original_deadline_and_rejects_unknown_versions_and_fields ... ok
+test supervisor_service::installation_config_tests::installation_rejects_identity_protocol_and_path_injection ... ok
+test supervisor_service::held_installation_image_tests::actual_held_image_digest_covers_multiple_bounded_chunks_and_original_deadline ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 831 filtered out; finished in 0.02s
+

@@ -1,0 +1,22 @@
+   Compiling diskgraph-engine v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine)
+   Compiling diskgraph-mcp v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-mcp)
+   Compiling diskgraph-cli v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.98s
+     Running unittests src/main.rs (target/debug/deps/diskgraph-2b297645c71baf0b)
+
+running 2 tests
+
+thread 'supervised_entry::tests::actual_cli_supervisor_route_admits_existing_read_only_query_commands' (3519948) panicked at crates/diskgraph-cli/src/supervised_entry.rs:68:13:
+assertion failed: allowed(&Cli::parse_from(arguments))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test supervised_entry::tests::actual_cli_supervisor_route_admits_existing_read_only_query_commands ... FAILED
+test supervised_entry::tests::actual_cli_supervisor_route_requires_fixed_doctor_without_ignored_overrides ... ok
+
+failures:
+
+failures:
+    supervised_entry::tests::actual_cli_supervisor_route_admits_existing_read_only_query_commands
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 99 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p diskgraph-cli --bin diskgraph`

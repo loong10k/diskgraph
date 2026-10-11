@@ -1,4 +1,4 @@
-"""仅CI隔离root域验证真实broker/CLI/worker；不安装系统服务，不把失败kill当退休证据。"""
+"""仅CI隔离root域验证真实broker/CLI/worker；可运行临时unit，不安装桌面服务，不把失败kill当退休证据。"""
 import argparse
 import hashlib
 import json
@@ -22,6 +22,12 @@ def lowered():
     os.setgroups([])
     os.setgid(23112)
     os.setuid(23112)
+
+
+def lowered_service():
+    os.setgroups([])
+    os.setgid(23111)
+    os.setuid(23111)
 
 
 def digest(path):
@@ -83,14 +89,36 @@ def actual_broker(args, mode):
                 assert time.monotonic() - started < 30, "original startup never bound socket"
                 assert server.poll() is None, server.communicate()
                 time.sleep(0.005)
-            frontend = subprocess.Popen([str(root / "diskgraph"), "--json", "--supervisor-socket", config["socket_path"], "doctor"],
+            command = {
+                "scope_list": ["scope", "list"],
+                "snapshots": ["snapshots"],
+                "unknown_job": ["status", "--job", "absent-original-job"],
+            }.get(mode, ["doctor"])
+            baseline = None
+            if mode in ("scope_list", "snapshots", "unknown_job"):
+                direct = subprocess.Popen([str(root / "diskgraph"), "--json", "--data-dir", str(data), *command],
+                                          preexec_fn=lowered_service, env={}, cwd=root, stdin=subprocess.DEVNULL,
+                                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                try:
+                    direct_stdout, direct_stderr = direct.communicate(timeout=35)
+                    baseline = (direct.returncode, json.loads(direct_stdout))
+                finally:
+                    original_dispose(direct)
+            frontend = subprocess.Popen([str(root / "diskgraph"), "--json", "--supervisor-socket", config["socket_path"], *command],
                                         preexec_fn=lowered, env={}, cwd=root, stdin=subprocess.DEVNULL,
                                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             before = time.monotonic()
             stdout, stderr = frontend.communicate(timeout=35)
             assert time.monotonic() - before < 33 and len(stdout) + len(stderr) <= 1 << 20
             document = json.loads(stdout)
-            if mode == "clean":
+            if baseline is not None:
+                assert frontend.returncode == baseline[0] and document["ok"] == baseline[1]["ok"], (baseline, stdout, stderr)
+                if document["ok"]:
+                    assert document["data"] == baseline[1]["data"], (baseline, document)
+                else:
+                    assert document["error"]["code"] == baseline[1]["error"]["code"], (baseline, document)
+                assert (data / "diskgraph-control.sqlite").exists()
+            elif mode == "clean":
                 assert frontend.returncode == 0 and document["ok"] is True, (frontend.returncode, stdout, stderr)
                 assert (data / "diskgraph-control.sqlite").exists()
             else:
@@ -100,11 +128,12 @@ def actual_broker(args, mode):
             # 仅原broker实际正常wait后断言CLEAN，不用测试kill或client状态替代监督退休。
             server_stdout, server_stderr = server.communicate(timeout=35)
             assert server.returncode == 0, (server_stdout, server_stderr)
-            assert (state / "bootstrap.slot").read_bytes() == (b"DGSL01C\n" if mode == "clean" else original_record)
+            assert (state / "bootstrap.slot").read_bytes() == (b"DGSL01C\n" if mode != "active" else original_record)
             assert (state / "uid_23111.slot").read_bytes() == b"DGSL01C\n"
             return {"mode": mode, "frontend_exit": frontend.returncode, "server_exit": server.returncode,
                     "frontend_stdout_eof": True, "original_broker_wait_consumed": True,
-                    "bootstrap_record": (state / "bootstrap.slot").read_text().strip(), "json_ok": document["ok"]}
+                    "bootstrap_record": (state / "bootstrap.slot").read_text().strip(), "json_ok": document["ok"],
+                    "direct_business_result_matched": baseline is not None}
         finally:
             if frontend is not None:
                 original_dispose(frontend)
@@ -303,7 +332,7 @@ def main():
         parser.error("--systemd requires the actual installed MCP image via --mcp")
     if os.geteuid() != 0 or os.environ.get("DG_ISOLATED_ROOT_ACCEPTANCE") != "1":
         raise SystemExit("requires explicit isolated root acceptance; never installs desktop service")
-    rows = [actual_broker(args, mode) for mode in ("clean", "active", "bad_digest")]
+    rows = [actual_broker(args, mode) for mode in ("clean", "active", "bad_digest", "scope_list", "snapshots", "unknown_job")]
     rows += [delegated_sender(args, lower) for lower in (False, True)]
     if args.mcp is not None:
         rows.append(prepared_installation(args))

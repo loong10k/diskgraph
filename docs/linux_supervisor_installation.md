@@ -1,6 +1,6 @@
 # Linux fixed supervisor installation artifacts
 
-The current broker forwards JSON `doctor` only. Other CLI commands, MCP forwarding, macOS and Windows services remain under implementation. The existing direct read-only entry points retain their current contracts.
+The broker now routes JSON `doctor` and fixed read-only metadata queries: scope list/show, status, snapshot listing, tree without HTML, node, children, top, search, explore, growth, changes, explain, related, impact and candidates. Native qualification of the added queries is pending CI. Scanning, maintenance, content and file output commands, MCP forwarding, macOS and Windows services remain under implementation. The existing direct read-only entry points retain their current contracts.
 
 On an isolated Linux host, a trusted root installer prepares a fresh prefix from an independently verified archive containing `diskgraph`, `diskgraph-mcp`, `diskgraph-scan-worker`, `diskgraph-supervisor` and the existing worker manifest:
 
@@ -19,3 +19,5 @@ The preparation writes fixed executable images, a root owned mode-0600 `supervis
 The frontend uses `diskgraph --json --supervisor-socket /var/lib/diskgraph-isolated/front.sock doctor`. Its original 30-second budget includes connection, authenticated frames, output and terminal EOF. Client completion does not release recovery capacity: the original supervisor owner must retire and both original slots must become CLEAN.
 
 The generated unit disables automatic restart. Unexpected failure retains ACTIVE for explicit recovery; restarting or removing a socket does not prove resource retirement. The isolated CI gate checks the real prepared images and unit syntax, then runs that generated unit under a random exclusive name in the temporary Linux runner. It observes both original slot FDs as CLEAN before stopping that unit. Failure to stop retains the unit, installation and original records. Static syntax checks alone do not satisfy this runtime gate. This new runtime gate is awaiting native qualification. No desktop service has been installed, and production activation remains pending native service lifecycle qualification.
+
+For example: `diskgraph --json --supervisor-socket /var/lib/diskgraph-isolated/front.sock scope list`. Only declared command arguments are forwarded; the installation fixes the principal and data directory. Unknown arguments, global overrides and requests exceeding 4KiB are rejected before birth. Results retain the original JSON and exit code, with output capped at 1MiB. Engine still checks resource permissions.

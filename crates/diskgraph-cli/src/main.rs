@@ -58,6 +58,7 @@ mod snapshot_action;
 mod snapshot_commands;
 mod snapshot_reply;
 mod supervised_entry;
+mod supervised_query;
 mod tree_commands;
 mod tui;
 mod tui_commands;

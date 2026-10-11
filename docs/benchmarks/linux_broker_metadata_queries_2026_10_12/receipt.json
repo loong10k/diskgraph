@@ -1,0 +1,40 @@
+{
+  "base": "53ebabdf",
+  "behavior": "fixed read-only metadata query routing through original Linux broker owner",
+  "cli_red": {
+    "passed": 1,
+    "failed": 1,
+    "cause": "scope list not admitted by original doctor-only frontend"
+  },
+  "cli_green": {
+    "passed": 3,
+    "failed": 0
+  },
+  "common_engine_green": {
+    "passed": 12,
+    "failed": 0
+  },
+  "source_layout": {
+    "passed": 6,
+    "failed": 0
+  },
+  "fixture_cleanup_simulation": {
+    "passed": 2,
+    "failed": 0
+  },
+  "local_clippy": "engine and CLI all-targets passed on macOS; Linux cfg not compiled",
+  "native_query_qualification": "pending CI",
+  "native_service_runtime": "pending CI",
+  "prior_ci": {
+    "run": 38165131204,
+    "source": "2c71eab0",
+    "success": 21,
+    "failure": 2,
+    "failures": [
+      "Linux stable Clippy",
+      "Linux ARM pre-exec ETXTBSY fixture"
+    ]
+  },
+  "desktop_service_installed": false,
+  "full_platform_production_ready": false
+}

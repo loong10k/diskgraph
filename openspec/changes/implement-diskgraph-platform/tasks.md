@@ -432,3 +432,5 @@ CLI真实输出次序修复：原业务失败在host.execute退休完成后才�
 
 
 生成unit的原生运行门禁接入：仅临时Linux runner随机独占/run/systemd/system unit，禁止enable；实际安装四镜像后调用真实doctor，经始终持有的原槽FD确认两个CLEAN，再正常stop。stop失败保留原unit/安装树/ACTIVE，夹具处置不算退休。仅测试的控制失败注入2/0、安装产物回归18/0、CI契约8/0、YAML/shell/Python解析和OpenSpec验证通过；实际systemd场景未运行，三平台服务父项仍开放。见linux_generated_unit_runtime_gate_2026_10_12。
+
+Linux只读元数据转交增量：实际Clap入口RED1/1→GREEN3/0，版本化请求/固定参数/未知字段/原期限交集共同组件12/0、源规范6/0、本机Engine/CLI all-target Clippy及fmt通过；新增真实scope list、snapshots和不存在job的直接/监督结果及原owner退休对照门禁待Linux CI，不据本机共同组件宣称原生服务完成。2c71eab0完整CI终态21/23成功，Windows双工具链、三项macOS及五种原生包成功；Linux stable Clippy和ARM pre-exec ETXTBSY原失败保留，修复尚待新CI。三平台服务、实际Pending、MCP及完整CLI父项继续开放。见linux_broker_metadata_queries_2026_10_12。

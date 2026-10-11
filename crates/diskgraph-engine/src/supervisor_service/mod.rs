@@ -1,9 +1,21 @@
+mod broker_query;
+#[cfg(test)]
+mod broker_query_tests;
+pub use broker_query::BrokerQuery;
 #[cfg(any(test, target_os = "linux"))]
 mod broker_admission_error;
 #[cfg(any(test, target_os = "linux"))]
 mod broker_frame;
 #[cfg(test)]
 mod broker_frame_tests;
+#[cfg(any(
+    test,
+    all(
+        target_os = "linux",
+        any(target_arch = "x86_64", target_arch = "aarch64")
+    )
+))]
+mod broker_query_request;
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 mod held_installation_image;
 #[cfg(all(test, any(target_os = "linux", target_os = "macos")))]
@@ -46,4 +58,4 @@ pub use linux_broker::LinuxBroker;
     target_os = "linux",
     any(target_arch = "x86_64", target_arch = "aarch64")
 ))]
-pub use linux_broker_client::run_client;
+pub use linux_broker_client::{run_client, run_query};

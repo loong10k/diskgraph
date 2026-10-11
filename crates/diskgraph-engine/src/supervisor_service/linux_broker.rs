@@ -19,7 +19,7 @@ use std::sync::atomic::AtomicBool;
 use std::time::{Duration, Instant};
 
 /// 持有固定安装配置、原镜像、状态域与原命名空间的Linux公开broker。来源：PF-06；无Java对等对象。
-/// 首期仅分发已有doctor，公开交付结束不代替原监督owner退休，不启用MCP或任意命令。
+/// 分发已验证只读CLI查询，公开交付结束不代替原监督owner退休，不启用MCP或任意命令。
 pub struct LinuxBroker {
     config: InstallationConfig,
     image: File,
@@ -144,9 +144,9 @@ impl LinuxBroker {
                         continue;
                     }
                     completed_request = true;
-                    let request_deadline =
-                        match receive_doctor(&mut connection, request_deadline, &cancel) {
-                            Ok(deadline) => deadline,
+                    let (query, request_deadline) =
+                        match receive_query(&mut connection, request_deadline, &cancel) {
+                            Ok(request) => request,
                             Err(_) => {
                                 let _ = send(
                                     &mut connection,
@@ -158,7 +158,7 @@ impl LinuxBroker {
                                 continue;
                             }
                         };
-                    let launch = self.launch(request_deadline);
+                    let launch = self.launch(&query, request_deadline);
                     match launch {
                         Ok((mut owner, trust)) => {
                             if owner.send_materials(&trust, &cancel).is_err() {
@@ -212,7 +212,7 @@ impl LinuxBroker {
         }
     }
 
-    fn launch(&self, deadline: Instant) -> LinuxBrokerLaunchResult {
+    fn launch(&self, query: &super::BrokerQuery, deadline: Instant) -> LinuxBrokerLaunchResult {
         let prepared = (|| {
             let stamp = ClockStamp::capture(deadline).map_err(io::Error::other)?;
             let mut nonce = [0; 32];
@@ -233,9 +233,10 @@ impl LinuxBroker {
                 "--json",
                 "--data-dir",
                 self.config.data_dir.to_str().expect("validated fixed path"),
-                "doctor",
             ]
             .into_iter()
+            .map(str::to_owned)
+            .chain(query.arguments()?)
             .map(|arg| CString::new(arg).map_err(io::Error::other))
             .collect::<io::Result<Vec<_>>>()?;
             let environment = vec![
@@ -287,11 +288,11 @@ impl LinuxBroker {
     }
 }
 
-fn receive_doctor(
+fn receive_query(
     connection: &mut LinuxFrontendConnection,
     deadline: Instant,
     cancel: &AtomicBool,
-) -> io::Result<Instant> {
+) -> io::Result<(super::BrokerQuery, Instant)> {
     let mut request = Vec::new();
     loop {
         match connection
@@ -308,14 +309,20 @@ fn receive_doctor(
             FrontendRead::Eof => break,
         }
     }
+    if request.starts_with(b"DG_FRONT_QUERY_V1\n") {
+        return super::broker_query_request::BrokerQueryRequest::decode(&request, deadline);
+    }
     let bytes = request
         .strip_prefix(b"DG_FRONT_INPUT\n")
         .ok_or_else(|| io::Error::other("unsupported fixed broker command"))?;
     let original: ClockStamp = serde_json::from_slice(bytes)?;
-    Ok(original
-        .adopt(Duration::from_secs(30))
-        .map_err(io::Error::other)?
-        .min(deadline))
+    Ok((
+        super::BrokerQuery::new("doctor", None, Vec::new(), Vec::new())?,
+        original
+            .adopt(Duration::from_secs(30))
+            .map_err(io::Error::other)?
+            .min(deadline),
+    ))
 }
 
 fn send(
