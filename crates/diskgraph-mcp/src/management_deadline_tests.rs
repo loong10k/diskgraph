@@ -135,6 +135,7 @@ struct RegrantingAuthority<'a> {
     permission: diskgraph_core::Permission,
     calls: std::cell::Cell<usize>,
     target: usize,
+    callback_delay: Duration,
 }
 
 impl Authorizer for RegrantingAuthority<'_> {
@@ -164,6 +165,9 @@ impl Authorizer for RegrantingAuthority<'_> {
                     policy_version,
                 })
                 .unwrap();
+        }
+        if !self.callback_delay.is_zero() {
+            std::thread::sleep(self.callback_delay);
         }
         self.policy.decide(principal, permission, scope)
     }
@@ -196,6 +200,7 @@ fn snapshot_read_remembers_revocation_restored_during_terminal_callback() {
         permission: diskgraph_core::Permission::MetadataRead,
         calls: std::cell::Cell::new(0),
         target: 1,
+        callback_delay: Duration::ZERO,
     };
     let result = service.engine().list_snapshots_until(
         &scope,
@@ -218,6 +223,15 @@ fn snapshot_read_remembers_revocation_restored_during_terminal_callback() {
 
 #[test]
 fn job_status_remembers_revocation_restored_during_capability_callback() {
+    assert_job_status_regrant_refused(Duration::ZERO);
+}
+
+#[test]
+fn committed_job_status_withdrawal_is_not_masked_by_late_capability() {
+    assert_job_status_regrant_refused(Duration::from_millis(60));
+}
+
+fn assert_job_status_regrant_refused(callback_delay: Duration) {
     let (_dir, service, scope) = fixture();
     let job = service
         .engine()
@@ -247,6 +261,7 @@ fn job_status_remembers_revocation_restored_during_capability_callback() {
         permission: diskgraph_core::Permission::OperationView,
         calls: std::cell::Cell::new(0),
         target: 0,
+        callback_delay,
     };
     let result = service.engine().job_status_authorized_until(
         &job.job_id,
@@ -287,6 +302,7 @@ fn revision_reader_remembers_revocation_restored_during_capability_callback() {
             permission: diskgraph_core::Permission::MetadataRead,
             calls: std::cell::Cell::new(0),
             target,
+            callback_delay: Duration::ZERO,
         };
         let result = service.engine().with_authorized_revision_reader_until(
             "deadline-revision",
@@ -338,6 +354,7 @@ fn display_reader_remembers_revocation_restored_during_capability_callback() {
             permission: diskgraph_core::Permission::MetadataRead,
             calls: std::cell::Cell::new(0),
             target,
+            callback_delay: Duration::ZERO,
         };
         let result = service
             .engine()
@@ -394,6 +411,7 @@ fn revision_admission_remembers_revocation_restored_during_capability_callback()
         permission: diskgraph_core::Permission::MetadataRead,
         calls: std::cell::Cell::new(0),
         target: 0,
+        callback_delay: Duration::ZERO,
     };
     let result = service.engine().authorize_revision_until(
         None,
@@ -410,4 +428,54 @@ fn revision_admission_remembers_revocation_restored_during_capability_callback()
             BusinessError::Conflict
         }
     );
+}
+
+#[test]
+fn late_job_capability_without_withdrawal_never_runs_consumer_or_renews_request() {
+    for remaining in [Duration::from_secs(1), Duration::from_millis(30)] {
+        let (_dir, service, scope) = fixture();
+        let job = service
+            .engine()
+            .control_store()
+            .unwrap()
+            .create_job(
+                &scope,
+                diskgraph_store::JobKind::Index,
+                service.context.principal(),
+            )
+            .unwrap();
+        let authority = RegrantingAuthority {
+            engine: service.engine(),
+            policy: service.authorizer().unwrap(),
+            scope,
+            permission: diskgraph_core::Permission::OperationView,
+            calls: std::cell::Cell::new(0),
+            target: usize::MAX,
+            callback_delay: Duration::from_millis(60),
+        };
+        let consumed = std::cell::Cell::new(false);
+        let result = service.engine().with_job_status_authorized_until(
+            &job.job_id,
+            service.context.principal(),
+            &authority,
+            Instant::now() + remaining,
+            |_| {
+                consumed.set(true);
+                Ok(())
+            },
+        );
+        assert_eq!(
+            crate::business_of(&result.unwrap_err()),
+            BusinessError::BudgetExceeded
+        );
+        assert!(
+            !consumed.get(),
+            "late Allow must never enter response preparation"
+        );
+        // 短原期限可在回调前已耗尽；长原期限必须真正执行一次迟到回调。
+        assert!(authority.calls.get() <= 1);
+        if remaining == Duration::from_secs(1) {
+            assert_eq!(authority.calls.get(), 1);
+        }
+    }
 }

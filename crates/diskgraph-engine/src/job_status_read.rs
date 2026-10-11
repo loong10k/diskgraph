@@ -57,7 +57,7 @@ impl Engine {
         if matches!(decision, Decision::Denied(_)) {
             return Err(BusinessError::PermissionDenied.into());
         }
-        if Instant::now() >= capability_deadline || Instant::now() >= deadline {
+        if Instant::now() >= deadline {
             return Err(BusinessError::BudgetExceeded.into());
         }
         // 同一个原始撤权见证用于读前与编码后观察，禁止通过重新捕获掩盖撤权再恢复。
@@ -91,9 +91,21 @@ impl Engine {
             }
             Ok::<_, EngineError>(current)
         };
-        let control = self.control_until(deadline)?;
-        let current = control.with_read_deadline(deadline, |control| observe(control, decision))?;
+        // 迟到能力只能参与有界的拒绝原因核验，不能获得新的业务读取期限。
+        let observation_deadline = if Instant::now() >= capability_deadline {
+            deadline.min(Instant::now() + crate::terminal_authorization_windows::DATABASE_WINDOW)
+        } else {
+            deadline
+        };
+        let control = self.control_until(observation_deadline)?;
+        let current = control
+            .with_read_deadline(observation_deadline, |control| observe(control, decision))?;
         drop(control);
+        // 先保留本请求已提交撤权/代次变化的拒绝原因，再处理迟到能力。
+        // 迟到的 Allow 仍不能进入消费者，50ms 与原请求期限均不续期。
+        if Instant::now() >= capability_deadline || Instant::now() >= deadline {
+            return Err(BusinessError::BudgetExceeded.into());
+        }
         let result = consumer(&current);
         crate::authority_expiry::check_authority_expiry(expiry)?;
         let capability_deadline =

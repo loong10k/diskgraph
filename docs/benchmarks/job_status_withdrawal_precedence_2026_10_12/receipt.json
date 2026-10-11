@@ -1,0 +1,31 @@
+{
+  "host": "macOS ARM64",
+  "red": {
+    "passed": 0,
+    "failed": 1,
+    "actual": "BudgetExceeded",
+    "expected": "Conflict on host without native withdrawal notification"
+  },
+  "green": {
+    "management": 9,
+    "mcp_original_status_deadline": 1,
+    "cli_management": 5,
+    "engine_ast_layout": 6,
+    "cli_ast_layout": 2,
+    "clippy": "Engine/MCP/CLI all-targets",
+    "fmt": "passed",
+    "openspec": "passed"
+  },
+  "invariants": {
+    "capability_window_ms": 50,
+    "late_capability_refusal_observation_ms": 250,
+    "original_deadline_preserved": true,
+    "late_allow_consumer_called": false,
+    "already_expired_request_extra_observation": false
+  },
+  "native_windows": "pending; original both Rust failure retained in ci_37253b8d_terminal_2026_10_12",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/job_status_read.rs": "a4959af1e8f1cce573502086d2c0e3428b001ef8ca228ddeb3705758ba38f731",
+    "crates/diskgraph-mcp/src/management_deadline_tests.rs": "d3de934209ec049408689caca39e91422344682796f5649d9714b2c7c3de788b"
+  }
+}
