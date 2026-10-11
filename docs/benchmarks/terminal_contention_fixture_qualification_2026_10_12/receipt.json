@@ -1,0 +1,29 @@
+{
+  "native_failure": {
+    "run": 38156890357,
+    "job": 114521668680,
+    "source": "126cc4ce4d3380a4ba4d7e9fe15a21190cab499e",
+    "nominal_hold_ms": 100,
+    "recorded_hold_ms": 248.205625,
+    "query_terminal_ms": 258.756167,
+    "result": "BudgetExceeded",
+    "old_hold_measurement_includes_interval_after_release": true
+  },
+  "behavior_change": "qualification harness only; record hold lower/release upper and require real short input <=max(hold,wake_delay)+30ms. Up to five independent isolated fixture attempts, all logs retained; never renew/retry original business deadline or accept another error. Every original scenario must qualify or test fails.",
+  "database_ms": 250,
+  "capability_ms": 50,
+  "request_short_ms": 60,
+  "local_qualified_test": {
+    "passed": 1,
+    "failed": 0,
+    "all_five_original_cases_qualified_on_first_attempt": true
+  },
+  "local_revocation_regression": {
+    "passed": 2,
+    "failed": 0,
+    "ignored": 1,
+    "ignored_case_executed_separately": true
+  },
+  "local_clippy_passed": true,
+  "fixed_native_qualification_passed": false
+}

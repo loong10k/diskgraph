@@ -88,91 +88,131 @@ fn terminal_reader_waits_for_brief_contention_but_keeps_its_observation_window()
         (500, 1000, false, 0),
         (100, 60, false, 0),
     ] {
-        let (_dir, engine, principal, _, revision) =
-            crate::relation_request_tests::published_authorization_fixture();
-        // 短竞争仅在原取锁循环实际观察 WouldBlock 后释放，不依赖 sleep 准时唤醒。
-        let held_elapsed = std::sync::Mutex::new(None);
-        let observed_wait = std::sync::atomic::AtomicBool::new(false);
-        std::thread::scope(|threads| {
-            let held_thread = RefCell::new(None);
-            let policy = Contended {
-                calls: Cell::new(0),
-                terminal_started: Cell::new(None),
-                callback_elapsed: Cell::new(Duration::ZERO),
-                contend: || {
-                    let (tx, rx) = std::sync::mpsc::channel();
-                    let (wait_tx, wait_rx) = std::sync::mpsc::channel();
-                    crate::scan_observation_deadline_tests::observe_next_control_wait(wait_tx);
-                    let observed_wait = &observed_wait;
-                    let engine = &engine;
-                    let held_elapsed = &held_elapsed;
-                    let original_thread = threads.spawn(move || {
-                        let held = engine.control_store().unwrap();
-                        let held_started = Instant::now();
-                        tx.send(()).unwrap();
-                        let actually_waiting = wait_rx.recv_timeout(Duration::from_secs(2)).is_ok();
-                        observed_wait.store(actually_waiting, std::sync::atomic::Ordering::SeqCst);
-                        // 模拟原生CI已经观察到的通知后线程延迟；不能在这之后重新给予完整持锁时间。
-                        let wake_remaining = Duration::from_millis(wake_delay_ms)
-                            .saturating_sub(held_started.elapsed());
-                        if !wake_remaining.is_zero() {
-                            std::thread::sleep(wake_remaining);
-                        }
-                        // 持锁预算从原取锁时刻开始；通知等待和线程唤醒已经消耗的时间不得续给。
-                        let remaining =
-                            Duration::from_millis(hold_ms).saturating_sub(held_started.elapsed());
-                        if !remaining.is_zero() {
-                            std::thread::sleep(remaining);
-                        }
-                        drop(held);
-                        *held_elapsed.lock().unwrap() = Some(held_started.elapsed());
-                    });
-                    *held_thread.borrow_mut() = Some(original_thread);
-                    rx.recv_timeout(Duration::from_secs(2)).unwrap();
-                },
-            };
-            let started = Instant::now();
-            let result = engine.with_authorized_revision_reader_until(
-                revision,
-                &principal,
-                &policy,
-                started + Duration::from_millis(request_ms),
-                |_, _, _| Ok(()),
-            );
-            let elapsed = policy.terminal_started.get().unwrap().elapsed();
-            let request_elapsed = started.elapsed();
-            // 固定查询时长后再join同一持锁线程；诊断须包含实际持锁时长，不能把尚未写入的None当作短竞争。
-            held_thread.borrow_mut().take().unwrap().join().unwrap();
-            let timing = format!(
-                "hold_ms={hold_ms}, request_ms={request_ms}, allowed={allowed}, wake_delay_ms={wake_delay_ms}, actual_hold={:?}, callback={:?}, terminal={elapsed:?}, request={:?}",
-                *held_elapsed.lock().unwrap(),
-                policy.callback_elapsed.get(),
-                request_elapsed,
-            );
-            eprintln!("terminal_contention: {timing}; result={result:?}");
-            assert_eq!(policy.calls.get(), 2);
-            assert!(
-                observed_wait.load(std::sync::atomic::Ordering::SeqCst),
-                "must witness actual control lock contention"
-            );
-            if allowed {
-                assert!(
-                    result.is_ok(),
-                    "brief terminal contention: {result:?}; {timing}"
+        let mut qualified = false;
+        for attempt in 0..5 {
+            let (_dir, engine, principal, _, revision) =
+                crate::relation_request_tests::published_authorization_fixture();
+            // 短竞争仅在原取锁循环实际观察 WouldBlock 后释放，不依赖 sleep 准时唤醒。
+            let held_elapsed = std::sync::Mutex::new(None);
+            let released_elapsed = std::sync::Mutex::new(None);
+            let observed_wait = std::sync::atomic::AtomicBool::new(false);
+            std::thread::scope(|threads| {
+                let held_thread = RefCell::new(None);
+                let policy = Contended {
+                    calls: Cell::new(0),
+                    terminal_started: Cell::new(None),
+                    callback_elapsed: Cell::new(Duration::ZERO),
+                    contend: || {
+                        let (tx, rx) = std::sync::mpsc::channel();
+                        let (wait_tx, wait_rx) = std::sync::mpsc::channel();
+                        crate::scan_observation_deadline_tests::observe_next_control_wait(wait_tx);
+                        let observed_wait = &observed_wait;
+                        let engine = &engine;
+                        let held_elapsed = &held_elapsed;
+                        let released_elapsed = &released_elapsed;
+                        let original_thread = threads.spawn(move || {
+                            let held = engine.control_store().unwrap();
+                            let held_started = Instant::now();
+                            tx.send(()).unwrap();
+                            let actually_waiting =
+                                wait_rx.recv_timeout(Duration::from_secs(2)).is_ok();
+                            observed_wait
+                                .store(actually_waiting, std::sync::atomic::Ordering::SeqCst);
+                            // 模拟原生CI已经观察到的通知后线程延迟；不能在这之后重新给予完整持锁时间。
+                            let wake_remaining = Duration::from_millis(wake_delay_ms)
+                                .saturating_sub(held_started.elapsed());
+                            if !wake_remaining.is_zero() {
+                                std::thread::sleep(wake_remaining);
+                            }
+                            // 持锁预算从原取锁时刻开始；通知等待和线程唤醒已经消耗的时间不得续给。
+                            let remaining = Duration::from_millis(hold_ms)
+                                .saturating_sub(held_started.elapsed());
+                            if !remaining.is_zero() {
+                                std::thread::sleep(remaining);
+                            }
+                            // 先记录仍持锁的实际时长；不能把释放后的线程调度/诊断锁等待计为持锁。
+                            let actual_hold = held_started.elapsed();
+                            drop(held);
+                            let after_release = held_started.elapsed();
+                            *held_elapsed.lock().unwrap() = Some(actual_hold);
+                            *released_elapsed.lock().unwrap() = Some(after_release);
+                        });
+                        *held_thread.borrow_mut() = Some(original_thread);
+                        rx.recv_timeout(Duration::from_secs(2)).unwrap();
+                    },
+                };
+                let started = Instant::now();
+                let result = engine.with_authorized_revision_reader_until(
+                    revision,
+                    &principal,
+                    &policy,
+                    started + Duration::from_millis(request_ms),
+                    |_, _, _| Ok(()),
                 );
-            } else {
-                assert!(
-                    matches!(
-                        result,
-                        Err(crate::EngineError::Business(
-                            diskgraph_core::BusinessError::BudgetExceeded
-                        ))
-                    ),
-                    "held terminal contention: {result:?}; {timing}"
+                let elapsed = policy.terminal_started.get().unwrap().elapsed();
+                let request_elapsed = started.elapsed();
+                // 固定查询时长后再join同一持锁线程；诊断须包含实际持锁时长，不能把尚未写入的None当作短竞争。
+                held_thread.borrow_mut().take().unwrap().join().unwrap();
+                let timing = format!(
+                    "attempt={attempt}, hold_ms={hold_ms}, request_ms={request_ms}, allowed={allowed}, wake_delay_ms={wake_delay_ms}, actual_hold_lower={:?}, release_upper={:?}, callback={:?}, terminal={elapsed:?}, request={:?}",
+                    *held_elapsed.lock().unwrap(),
+                    *released_elapsed.lock().unwrap(),
+                    policy.callback_elapsed.get(),
+                    request_elapsed,
                 );
-                assert!(elapsed < Duration::from_millis(300), "{elapsed:?}");
+                eprintln!("terminal_contention: {timing}; result={result:?}");
+                assert_eq!(policy.calls.get(), 2);
+                assert!(
+                    observed_wait.load(std::sync::atomic::Ordering::SeqCst),
+                    "must witness actual control lock contention"
+                );
+                if allowed
+                    && released_elapsed.lock().unwrap().is_some_and(|actual| {
+                        actual > Duration::from_millis(hold_ms.max(wake_delay_ms) + 30)
+                    })
+                {
+                    // 原生调度未实现指定的短竞争输入。只允许成功/预算拒绝，不吞权限、存储等失败。
+                    // 此次查询结果与原期限保留；下一次是新的隔离资格夹具，不续期或重试原业务。
+                    assert!(
+                        result.is_ok()
+                            || matches!(
+                                result,
+                                Err(crate::EngineError::Business(
+                                    diskgraph_core::BusinessError::BudgetExceeded
+                                ))
+                            ),
+                        "unexpected result for overscheduled fixture: {result:?}; {timing}"
+                    );
+                    eprintln!("terminal_contention_fixture_unqualified: {timing}");
+                    return;
+                }
+                qualified = true;
+                if allowed {
+                    assert!(
+                        result.is_ok(),
+                        "brief terminal contention: {result:?}; {timing}"
+                    );
+                } else {
+                    assert!(
+                        matches!(
+                            result,
+                            Err(crate::EngineError::Business(
+                                diskgraph_core::BusinessError::BudgetExceeded
+                            ))
+                        ),
+                        "held terminal contention: {result:?}; {timing}"
+                    );
+                    assert!(elapsed < Duration::from_millis(300), "{elapsed:?}");
+                }
+            });
+            if qualified {
+                break;
             }
-        });
+        }
+        assert!(
+            qualified,
+            "native scheduling never produced the required short contention input: hold_ms={hold_ms}, wake_delay_ms={wake_delay_ms}"
+        );
     }
 }
 

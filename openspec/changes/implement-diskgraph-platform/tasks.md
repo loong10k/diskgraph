@@ -411,3 +411,7 @@ CLI真实输出次序修复：原业务失败在host.execute退休完成后才�
 真实doctor纵向原生门禁新增：本次cargo构建实际CLI与worker，经Rust原子root launcher、schema3原材料及ClockStamp进入既有doctor，公共JSON/EOF之后bootstrap仍ACTIVE，原wait及私有完成后要求服务与bootstrap槽均CLEAN。每次独占root保护/var/lib隔离域，原30秒与128KiB观察限制，精确测试存在性检查；不使用C角色代替CLI。当前Linux测试尚未编译/执行，本机macOS Clippy不覆盖该分支；CI契约5/0、YAML解析、shell语法和五段Python编译通过，仅验证接线。无活跃Pending注入、真实前端或服务进程，父产品门禁仍开放。见actual_cli_doctor_vertical_2026_10_12/。
 
 126cc4ce Linux stable原生owner6/1：新增输入EOF与原输出/wait正控通过，无私有完成的负控在drop后认领要求Unconfirmed处失败，旧断言未打印实际错误，不断言根因已确认。夹具仅对Busy在原5秒内重试（并行clone可能短暂继承原锁FD），最终仍精确要求Unconfirmed、ACTIVE不变和不能认领；其他错误记录真实variant与Busy次数。保留原失败，不记修正通过，四项frontend资格因前置失败未执行。见original_slot_drop_contention_2026_10_12/。
+
+126cc4ce Linux x86_64 MSRV完整job成功，无失败step；原owner7/0/0、真实frontend内核凭据4/0/0。相关生产组件逐文件比对该提交与当前工作树摘要一致，组件原生资格有效；新增CLI失败交付、真实doctor纵向测试及stable负控修正未被此证据覆盖。见linux_msrv_supervisor_126_native/。
+
+126cc4ce macOS MSRV竞争门禁失败：名义100ms持锁记录248.205625ms，终检258.756167ms BudgetExceeded；旧计时还包含释放后的记录间隙。夹具改为释放前后时间范围，只在实际释放上界满足原短输入+30ms时验收；最多五次新的隔离夹具，不续原业务期限，意外权限/存储错误立即失败，无法形成原场景仍失败。原250ms/50ms、500ms长持锁与60ms整次请求要求不变。本机原五场景首轮资格1/0，撤权回归2/0（忽略项独立执行），Clippy通过；原生修正未验收。见terminal_contention_fixture_qualification_2026_10_12/。

@@ -1,0 +1,26 @@
+{
+  "run": 38156890357,
+  "job": 114521668718,
+  "source": "126cc4ce4d3380a4ba4d7e9fe15a21190cab499e",
+  "platform": "Linux x86_64 Rust 1.97.0",
+  "job_conclusion": "success",
+  "original_owner_tests": {
+    "passed": 7,
+    "failed": 0,
+    "ignored": 0
+  },
+  "original_frontend_credential_tests": {
+    "passed": 4,
+    "failed": 0,
+    "ignored": 0
+  },
+  "qualified_production_components_match_current_worktree": true,
+  "source_sha256": {
+    "crates/diskgraph-engine/src/recovery_control/linux_frontend_connection.rs": "aafca0ddb9924b5d1c0219fbc0b34e2124c28f39dfb40bc6e576812de216dfd8",
+    "crates/diskgraph-engine/src/recovery_control/linux_message_credentials.rs": "da21dbb75604f7fa0eba8eef4dcef93855bb6841d475e60275f69931f1939df2",
+    "crates/diskgraph-engine/src/recovery_control/unix_foreground_output.rs": "7076f371ea31deef15042d897a27b243e25e7aa79f54b9ab97b375400cb67440",
+    "crates/diskgraph-engine/src/native_child/linux_supervisor_process.rs": "388ad43f7827a1020a6558d30b93edd20cf52a1a733ec5a03885259f9919e501",
+    "crates/diskgraph-engine/src/native_child/unix_control_channel.rs": "0be02c7ab15304d8e6b3abd9f13e1c3c28b79ac1fdcbe369e2f4ee8403ced35c"
+  },
+  "scope_boundary": "Does not qualify new CLI failure-before-retirement wiring, new actual CLI doctor vertical test, stable owner negative fixture correction, public broker or three-platform services."
+}

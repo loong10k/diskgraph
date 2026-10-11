@@ -1,0 +1,20 @@
+[1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 0.80s
+[1m[92m     Running[0m unittests src/lib.rs (target/debug/deps/diskgraph_engine-95a7718c14675bb5)
+
+running 1 test
+test revision_reader_lock_gap_tests::terminal_reader_waits_for_brief_contention_but_keeps_its_observation_window ... terminal_contention: hold_ms=0, request_ms=1000, allowed=true, wake_delay_ms=0, actual_hold=Some(377.708µs), callback=3.129084ms, terminal=14.24025ms, request=24.361875ms; result=Ok(())
+terminal_contention: hold_ms=100, request_ms=1000, allowed=true, wake_delay_ms=0, actual_hold=Some(248.205625ms), callback=828µs, terminal=258.756167ms, request=260.903458ms; result=Err(Business(BudgetExceeded))
+
+thread 'revision_reader_lock_gap_tests::terminal_reader_waits_for_brief_contention_but_keeps_its_observation_window' (127083) panicked at crates/diskgraph-engine/src/revision_reader_lock_gap_tests.rs:159:17:
+brief terminal contention: Err(Business(BudgetExceeded)); hold_ms=100, request_ms=1000, allowed=true, wake_delay_ms=0, actual_hold=Some(248.205625ms), callback=828µs, terminal=258.756167ms, request=260.903458ms
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    revision_reader_lock_gap_tests::terminal_reader_waits_for_brief_contention_but_keeps_its_observation_window
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 830 filtered out; finished in 0.49s
+
+[1m[91merror[0m: test failed, to rerun pass `-p diskgraph-engine --lib`
