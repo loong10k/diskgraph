@@ -768,6 +768,30 @@ jobs:
           path: ${{ runner.temp }}/diskgraph-supervisor-birth.json
           retention-days: 7
           if-no-files-found: warn
+      - name: Native Linux root atomic supervisor birth primitive
+        if: ${{ !cancelled() && runner.os == 'Linux' && (steps.workspace_tests.outcome == 'success' || steps.workspace_tests.outcome == 'failure') }}
+        id: linux_supervisor_spawn
+        timeout-minutes: 10
+        shell: bash
+        run: |
+          fixture="${{ runner.temp }}/diskgraph-supervisor-spawn-fixture"
+          mkdir -p "$fixture"
+          {
+            cc -std=c11 -O2 -Wall -Wextra -Werror scripts/fixtures/linux_supervisor_birth/role.c -o "$fixture/role" || exit $?
+            cc -std=c11 -O2 -Wall -Wextra -Werror -DBASELINE scripts/fixtures/linux_supervisor_birth/driver.c crates/diskgraph-engine/src/native_child/linux_atomic_spawn.c -o "$fixture/baseline" || exit $?
+            cc -std=c11 -O2 -Wall -Wextra -Werror scripts/fixtures/linux_supervisor_birth/driver.c crates/diskgraph-engine/src/native_child/linux_atomic_spawn.c crates/diskgraph-engine/src/native_child/linux_supervisor_spawn.c -o "$fixture/driver" || exit $?
+            sudo python3 scripts/qualify_linux_supervisor_spawn.py --driver "$fixture/driver" --role "$fixture/role" --baseline "$fixture/baseline" --output "${{ runner.temp }}/diskgraph-supervisor-spawn.json"
+          } 2>&1 | tee "$fixture/qualification.log"
+      - name: Preserve Linux root atomic supervisor birth primitive
+        if: ${{ always() && runner.os == 'Linux' && (steps.linux_supervisor_spawn.outcome == 'success' || steps.linux_supervisor_spawn.outcome == 'failure') }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.3.3
+        with:
+          name: linux-supervisor-spawn-${{ matrix.os }}-${{ matrix.rust }}-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/diskgraph-supervisor-spawn.json
+            ${{ runner.temp }}/diskgraph-supervisor-spawn-fixture/qualification.log
+          retention-days: 7
+          if-no-files-found: error
       - name: Observe original macOS failures without concurrent test scheduling
         if: failure() && runner.os == 'macOS' && steps.workspace_tests.outcome == 'failure'
         id: macos_failure_isolation

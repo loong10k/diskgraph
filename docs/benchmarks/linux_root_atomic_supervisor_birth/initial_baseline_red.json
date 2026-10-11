@@ -1,0 +1,24 @@
+{
+  "baseline_missing_supervisor_contract": true,
+  "exit_code": 42,
+  "stdout": "{\"passed\":false,\"uid\":0,\"gid\":0,\"groups\":1,\"private_endpoints\":false,\"capabilities_empty\":false,\"whitelist\":true,\"no_new_privs\":true}\n{\"original_pidfd_waited\":true,\"public_eof_before_init\":true,\"handshake\":true,\"exit_code\":3}\n",
+  "stderr": "",
+  "records": [
+    {
+      "passed": false,
+      "uid": 0,
+      "gid": 0,
+      "groups": 1,
+      "private_endpoints": false,
+      "capabilities_empty": false,
+      "whitelist": true,
+      "no_new_privs": true
+    },
+    {
+      "original_pidfd_waited": true,
+      "public_eof_before_init": true,
+      "handshake": true,
+      "exit_code": 3
+    }
+  ]
+}

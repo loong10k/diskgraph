@@ -367,3 +367,5 @@ v2服务组身份增量：补绑定非root主GID、实际real/effective组及空
 - 558d73f9验收补记：LinuxARM release归档经原job独立SHA核对，隔离实际v2 doctor 14/14；原child全部wait且容器移除。关闭该平台构造/私有通知子验收，服务父项、其他平台与全量CI仍开放。证据：`docs/benchmarks/linux_supervisor_v2_native_558d73f9/`。
 
 Linux broker接收组件实施：recvmsg逐笔PID/UID/GID、原准备端点、CLOEXEC、附加FD关闭拒绝、截断拒绝及固定单次poll已编码，9项原生测试已定义但本机macOS不能运行Linux分支。源码规范6/0、兼容CLI9/0、两包Clippy通过；不声称Linux红绿、不勾选broker或服务父项。另保留558d73f9 Linux双架构14/14原生CI结果和Linux条件Clippy原失败，并修正等价条件表达。见linux_control_reader_component/与linux_supervisor_v2_native_558d73f9/。
+
+root监督出生C层增量：独立CLONE_PIDFD／0..6白名单／exec前UID/GID/补充组/caps降权已实现，原C路径实际合同缺失RED→LinuxARM九场景GREEN，双GNU2.17对象无未定义符号；未接Rust原owner、全局bootstrap、产品broker，不勾父项。同709源reader原生Linux双架构各9/0；macOS原持锁夹具100标称实249ms失败保留，受控唤醒迟延RED0/1→取锁原时刻预算扣除GREEN3/0。仅测试夹具修改，生产250/50ms窗口和所有原请求期限不变，新源码三平台CI待验收。见linux_supervisor_birth_constructor.md及三个对应证据目录。

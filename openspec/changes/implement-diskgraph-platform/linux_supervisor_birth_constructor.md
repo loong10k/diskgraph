@@ -83,3 +83,13 @@ v2 原材料新增必须绑定的非 root 主GID，缺失、0、保留哨兵均�
 Linux 生产接收器必须使用实际 recvmsg 的每笔 SCM_CREDENTIALS 核对原 child PID/UID/GID，不能用 socketpair 创建者 SO_PEERCRED 或帧自报身份替代。原端点须在发送前启用 SO_PASSCRED；未准备端点拒绝准入。身份验证先于 ControlReceiver 解析，夹带 SCM_RIGHTS 或截断控制材料必须关闭全部可见句柄并永久拒绝。每次 poll 只执行一笔固定4096字节读取，不在公共 broker 的单次轮询中等待；Pending、完整帧、协议确认 EOF 分别表示。原绝对期限、取消、会话、顺序、累计字节与帧预算保持，任何错误锁存。确认 EOF 不释放 bootstrap；仍须原 child owner 的真实 wait 与完整资源退休。原生反例包括不同 PID/UID/GID、同创建者但不同实际发送进程、附加 FD、未准备端点、缺失 Complete 的 EOF、取消与过期。本机 macOS 无法执行 Linux 条件分支，不伪造红绿结果；该子项等待同源码原生 Linux 测试。
 
 558d73f9进一步原生证据：CI Linux x86_64 job114419400736和ARM64 job114419400694各自root出生夹具14/14，原始结果另存ci_x86_64.json/ci_arm64.json。Linuxx86任务在后续Clippy因cli_engine_host.rs嵌套条件失败，按相同短路语义合并条件，不禁用lint、不改预算或测试。旧reset测试在本轮两个平台全量Engine测试已通过，但该次未复现不视为前次根因已修复。完整CI未终态；新reader源码不受本证据覆盖。
+
+## root 原子监督出生层（实施中）
+
+监督出生使用独立的 native64 C syscall 入口，不复用扫描器的派生限制，不改扫描器 ABI。root 出生前要求真实/有效 UID/GID 为0、专用 UID/GID 非0且非保留哨兵、七个源FD数值互异且>=10（原对象及端点类型由受信父侧准备，不据不同FD数值证明对象独立）；内核 CLONE_PIDFD 原子返回唯一原进程句柄。child 不返回 Rust 或 libc：将私有 stdin/stdout/stderr、held ELF、启动通道、材料端、控制端固定映射到0..6，关闭所有>=7的描述符，然后等原 parent Init。held ELF及启动通道执行时关闭，材料和控制仅在5/6继承。最终用户的公开输出不得进入此白名单，即使 exec 阻塞也不应被 child 保留。
+
+Ready之前建立原 session、禁用 keepcaps、清空ambient、设置no_new_privs、清空补充组、设置三种GID/UID并清零capabilities；错误通过固定有界启动包返回，原child实际退出/wait仍由原owner确认。Ready与exec EOF不能释放全局bootstrap。父侧须先预留并持有原全局bootstrap、在成功birth后立即采用原pidfd，再恢复原线程mask；后续Rust原owner、原控制读取与实际产品broker接线尚待完成。此底层函数没有安装或认证接口，不能从用户参数直接执行镜像。隔离验收须用真实ELF、实际服务身份、私有FD和原pidfd wait，先复现旧原子出生机制缺少服务身份/双私有FD的行为，再测新入口；不把C层通过称为产品broker可用。
+
+root出生C层实际RED：旧原子入口exec后UID/GID0、补充组1、缺少双私有端点，原pidfd真实wait，属新监督合同缺失，不报告为旧扫描提权漏洞。新C入口LinuxARM静态ELF九场景9/0，包括三种服务身份、空组、空capabilities、no_new_privs、阻塞于Init前已关闭公开FD、原pidfd wait、原exec ENOEXEC及出生前拒绝；原容器移除。Zig现有0.16交叉编译两种GNU2.17对象，nm无未定义符号；不是glibc2.17运行或Linuxx86运行资格。新C函数已加入Linux构建，Rust父侧原owner/全局bootstrap和产品broker未接，不关闭父项。见linux_root_atomic_supervisor_birth/。
+
+7092a573私有reader真实原生补验：Linuxx86 MSRV job114422588240与LinuxARM job114422588302均成功，9项逐消息凭据/FD关闭/预算/EOF测试实际通过。全量CI另有macOS MSRV持锁夹具失败，原100ms标称持锁实测249.507584ms；不能视为全绿。见linux_control_reader_native_7092a573/。夹具在等待通知后再次睡满100ms，受控150ms唤醒延迟真实RED0/1，改为从原取锁时刻扣已过时间后GREEN3/0、仍保留原短/长竞争和60ms原请求断言。仅修夹具，不改250ms数据库、50ms能力或查询期限，不序列化CI、不禁用原门禁；新源码macOS原生待验收。见terminal_hold_deadline_no_renewal/。

@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "native_platform": "Linux ARM64",
+  "kernel_container_image": "sha256:a532724022429812ec797c285c1b540a644c15e248579c6bfdf12a8fbaab4964",
+  "compiler": "existing Zig 0.16.0; no installation",
+  "runtime_fixture_target": "aarch64-linux-musl static",
+  "baseline": "original CLONE_PIDFD C mechanism with fixed trusted fixture; missing dedicated identity and private endpoints, not a legacy scanner privilege vulnerability",
+  "baseline_behavior_failure_observed_before_implementation": true,
+  "native_cases_passed": 9,
+  "native_cases_failed": 0,
+  "gnu_217_objects_compiled": [
+    "x86_64-linux-gnu.2.17",
+    "aarch64-linux-gnu.2.17"
+  ],
+  "production_objects_undefined_symbols": [],
+  "x86_64_runtime_qualified": false,
+  "rust_parent_original_owner_integrated": false,
+  "product_broker_integrated": false,
+  "bootstrap_lifetime_qualified": false,
+  "services_installed": false,
+  "final_container_id": "dcff3e18ff1fa4c34c6f2788f6c12af3bc096720b821f80dfaf0616cb82c87e2",
+  "container_removed_inspect_no_such_object": true,
+  "all_born_children_waited_with_original_pidfd": true,
+  "source_sha256": {
+    "crates/diskgraph-engine/src/native_child/linux_supervisor_spawn.c": "a9ba6cc4370171996ac8749e645ed06eaaa8c4ac2d81f0b8726ed5e97ff3a2e9",
+    "crates/diskgraph-engine/src/native_child/linux_supervisor_spawn.h": "7790134bee8e89e1e60508ea2aee346cbaeaa5f4c4880b6673e3b09cea0da9f3",
+    "scripts/fixtures/linux_supervisor_birth/driver.c": "4c4badfb5d39438825e9073452397dd663af656fe341d434195f757284a6c4a9",
+    "scripts/fixtures/linux_supervisor_birth/role.c": "1411eefb6e24e098d105b0164e4961e1805b10a1f6dbc0a718f7caf3be176778",
+    "scripts/qualify_linux_supervisor_spawn.py": "14d215c1a87581da5bb27efb191d9530df50be5f8b4bd1d1b8acdc41c3b46a5f"
+  }
+}

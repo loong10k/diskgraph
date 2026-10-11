@@ -1,0 +1,16 @@
+{
+  "source_baseline": "7092a573e069d02df36178b084b46fa1d04063eb",
+  "original_native_job": 114422588176,
+  "original_native_nominal_hold_ms": 100,
+  "original_native_actual_hold_ms": 249.507584,
+  "original_native_terminal_ms": 255.7805,
+  "regression_injected_wake_delay_ms": 150,
+  "local_red": "0 passed / 1 failed: old fixture renews hold after notification delay",
+  "local_green": "3 passed / 0 failed: observed lock, original acquisition time, five contention scenarios",
+  "production_authorization_code_changed": false,
+  "database_window_ms": 250,
+  "capability_window_ms": 50,
+  "request_deadline_renewed": false,
+  "contention_test_scheduling_serialized_in_ci": false,
+  "new_source_native_macos_qualified": false
+}

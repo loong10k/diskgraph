@@ -1,0 +1,15 @@
+{
+  "source_sha": "7092a573e069d02df36178b084b46fa1d04063eb",
+  "ci_run": 38123371504,
+  "native_reader_tests_passed": {
+    "Linux x86_64 MSRV": 9,
+    "Linux ARM64 stable": 9
+  },
+  "jobs": {
+    "114422588240": "success",
+    "114422588302": "success"
+  },
+  "broker_integrated": false,
+  "whole_run_conclusion": "failure; 22 of 23 jobs succeeded; macOS MSRV failed contention fixture",
+  "windows_stable_and_msrv": "success"
+}
