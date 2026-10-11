@@ -31,7 +31,7 @@ pub(crate) fn dispatch(
         | Command::Children { .. }
         | Command::Top { .. }
         | Command::Explore { .. } => {
-            crate::node_commands::run(engine, cli, principal, authorizer, out)
+            crate::node_commands::run(engine, cli, principal, authorizer, out, deadline)
         }
         Command::Explain { .. } | Command::Related { .. } | Command::Impact { .. } => {
             crate::relation_commands::run(engine, cli, principal, authorizer, out, deadline)
@@ -43,7 +43,7 @@ pub(crate) fn dispatch(
             crate::comparison_commands::run(engine, cli, principal, authorizer, out, deadline)
         }
         Command::Search { .. } => {
-            crate::search_commands::run(engine, cli, principal, authorizer, out)
+            crate::search_commands::run(engine, cli, principal, authorizer, out, deadline)
         }
         Command::Doctor => crate::service_commands::run(engine, cli, out),
         Command::Serve { .. } => Err(diskgraph_core::BusinessError::InvalidArgument.into()),

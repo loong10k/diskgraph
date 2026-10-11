@@ -46,6 +46,47 @@ impl Engine {
         deadline: std::time::Instant,
         consumer: impl FnOnce(&SqliteSnapshotStore, &str, std::time::Instant) -> Result<T, EngineError>,
     ) -> Result<T, EngineError> {
+        self.with_revision_reader_expected_scope_until(
+            revision_id,
+            None,
+            principal,
+            authorizer,
+            deadline,
+            consumer,
+        )
+    }
+
+    /// 绑定调用方范围与revision实际归属，继承原期限并在编码后终检。
+    /// 参数：revision_id、scope 为请求资源，principal/authorizer 为原主体和能力，deadline 为原截止时间。
+    /// 返回：可信消费者结果或范围冲突、撤权、预算错误；消费者只能读取传入的快照。
+    pub fn with_authorized_revision_reader_for_scope_until<T>(
+        &self,
+        revision_id: &str,
+        scope: &ScopeId,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+        deadline: std::time::Instant,
+        consumer: impl FnOnce(&SqliteSnapshotStore, &str, std::time::Instant) -> Result<T, EngineError>,
+    ) -> Result<T, EngineError> {
+        self.with_revision_reader_expected_scope_until(
+            revision_id,
+            Some(scope),
+            principal,
+            authorizer,
+            deadline,
+            consumer,
+        )
+    }
+
+    fn with_revision_reader_expected_scope_until<T>(
+        &self,
+        revision_id: &str,
+        expected_scope: Option<&ScopeId>,
+        principal: &PrincipalId,
+        authorizer: &dyn Authorizer,
+        deadline: std::time::Instant,
+        consumer: impl FnOnce(&SqliteSnapshotStore, &str, std::time::Instant) -> Result<T, EngineError>,
+    ) -> Result<T, EngineError> {
         let expiry = authorizer.expires_at_unix_seconds();
         crate::authority_expiry::check_authority_expiry(expiry)?;
         let reader = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
@@ -53,6 +94,9 @@ impl Engine {
             .revision_ownership(revision_id)?
             .ok_or(BusinessError::PermissionDenied)?;
         let scope = ScopeId::new(scope).map_err(|_| BusinessError::PermissionDenied)?;
+        if expected_scope.is_some_and(|expected| expected != &scope) {
+            return Err(BusinessError::PermissionDenied.into());
+        }
         let control = self.control_until(deadline)?;
         // 在首次授权前绑定实际依赖；所有 SQL 仍使用请求最初的截止时间。
         let (withdrawal, generation) = control

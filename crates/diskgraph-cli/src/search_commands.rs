@@ -1,7 +1,7 @@
 //! CLI search_commands 的实际命令分发。来源：原生 main::dispatch。
 use crate::cli::Cli;
 use crate::command::Command;
-use crate::output::envelope_line;
+use crate::snapshot_reply;
 use diskgraph_core::{
     Authorizer, BusinessError, CursorContext, PagingCursor, PrincipalId, ScopeId,
 };
@@ -15,6 +15,7 @@ pub(crate) fn run(
     principal: &PrincipalId,
     authorizer: &dyn Authorizer,
     out: &mut Vec<String>,
+    deadline: std::time::Instant,
 ) -> Result<(), EngineError> {
     match &cli.command {
         Command::Search {
@@ -26,14 +27,14 @@ pub(crate) fn run(
         } => {
             let scope_id = ScopeId::new(scope.clone())
                 .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
-            let Some(revision) = engine.latest_revision(&scope_id)? else {
+            let Some(revision) = engine.latest_revision_until(&scope_id, deadline)? else {
                 return Err(EngineError::Business(BusinessError::NotIndexed));
             };
             // A cursor is only honored when it was issued for this same
             // principal, scope, revision, pattern, and sort order (Q-02).
             let pattern_binding = format!("pattern:{pattern}");
             let context = CursorContext {
-                principal_binding: &cli.principal,
+                principal_binding: principal.as_str(),
                 scope_id: scope_id.as_str(),
                 revision_id: &revision,
                 filter_binding: &pattern_binding,
@@ -45,40 +46,52 @@ pub(crate) fn run(
                 .map(|encoded| diskgraph_core::SearchCursor::decode(encoded, &context))
                 .transpose()
                 .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
-            engine.authorize_revision(Some(&scope_id), &revision, principal, authorizer)?;
-            let reader = engine.revision_reader()?;
-            let snapshot = reader.revision(&revision)?.snapshot_id;
-            let after = cursor
-                .as_ref()
-                .map(|cursor| (cursor.last_name.as_str(), cursor.last_id));
-            let (items, more) =
-                reader.search_page(&snapshot, pattern, after, *offset, (*limit).clamp(1, 100))?;
-            let consumed = cursor
-                .as_ref()
-                .map_or(*offset, |cursor| cursor.binding.offset)
-                .saturating_add(items.len() as u64);
-            let next_cursor = items.last().filter(|_| more).map(|last| {
-                diskgraph_core::SearchCursor {
-                    version: 2,
-                    binding: PagingCursor::issue(
-                        &context,
-                        pattern_binding.clone(),
-                        context.sort_binding,
-                        consumed,
-                    ),
-                    last_name: last.name.clone(),
-                    last_id: last.id,
-                }
-                .encode()
-            });
-            out.push(envelope_line(
-                engine,
-                Ok(serde_json::json!({
-                    "revision_id": revision,
-                    "items": items,
-                    "next_cursor": next_cursor,
-                })),
-            ));
+            let server = engine.server_id_until(deadline)?;
+            let encoded = engine.with_authorized_revision_reader_for_scope_until(
+                &revision,
+                &scope_id,
+                principal,
+                authorizer,
+                deadline,
+                |reader, snapshot, original| {
+                    let after = cursor
+                        .as_ref()
+                        .map(|cursor| (cursor.last_name.as_str(), cursor.last_id));
+                    let (items, more) = reader.search_page(
+                        snapshot,
+                        pattern,
+                        after,
+                        *offset,
+                        (*limit).clamp(1, 100),
+                    )?;
+                    let consumed = cursor
+                        .as_ref()
+                        .map_or(*offset, |cursor| cursor.binding.offset)
+                        .saturating_add(items.len() as u64);
+                    let next_cursor = items.last().filter(|_| more).map(|last| {
+                        diskgraph_core::SearchCursor {
+                            version: 2,
+                            binding: PagingCursor::issue(
+                                &context,
+                                pattern_binding.clone(),
+                                context.sort_binding,
+                                consumed,
+                            ),
+                            last_name: last.name.clone(),
+                            last_id: last.id,
+                        }
+                        .encode()
+                    });
+                    snapshot_reply::encode_data(
+                        server,
+                        &serde_json::json!({
+                            "revision_id": revision, "items": items, "next_cursor": next_cursor,
+                        }),
+                        std::time::Instant::now() >= original,
+                    )
+                },
+            )?;
+            out.push(encoded);
             Ok(())
         }
         _ => Err(EngineError::Business(BusinessError::InvalidArgument)),

@@ -317,3 +317,12 @@ For a positive target, CLI and MCP SHALL select review candidates through a dead
 - **THEN** ordinary revision readers may complete within the fixed 250ms database window; lock acquisition and SQL share that same absolute window
 - **AND** contention exceeding 250ms refuses results, and a shorter original request deadline caps waiting without renewal
 - **AND** capability callbacks retain their independent cooperative 50ms acceptance window; late permits, revocation, quarantine, cancellation and expiry still refuse protected data
+
+### Requirement: CLI narrow query continuous authorization
+
+Node、children、top、explore、search SHALL 继承 dispatch 原期限，使用 revision 实际归属与客户端 scope 一致的独立 reader，能力与当前数据库授权取交集，并在未发布响应编码后复检实时撤权。不得因原始期限耗尽创建新读期限；保持完整节点字段、Unicode 搜索语义与已有分页顺序。
+
+#### Scenario: Expired dispatch or terminal withdrawal
+- **GIVEN** 隔离真实数据库已发布属于该注册 scope 的合成元数据，主体此前有权限
+- **WHEN** 上述 CLI 命令使用已过期的原始期限，或编码终检时撤销该 scope
+- **THEN** 分别返回 BudgetExceeded 或 PermissionDenied，输出缓冲为空；正常权限时兼容字段与 Unicode 匹配保持一致。合成元数据回归不替代原生扫描或服务验收。

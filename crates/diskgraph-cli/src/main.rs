@@ -34,6 +34,8 @@ mod install_command;
 mod install_commands;
 mod installer;
 mod local;
+#[cfg(test)]
+mod narrow_query_authorization_tests;
 mod node_commands;
 mod operations_action;
 mod output;

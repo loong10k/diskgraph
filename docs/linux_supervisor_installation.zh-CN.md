@@ -23,3 +23,5 @@ python3 scripts/prepare_linux_supervisor_installation.py \
 查询示例：`diskgraph --json --supervisor-socket /var/lib/diskgraph-isolated/front.sock scope list`。前端只转交命令声明的参数，主体与数据目录由固定安装策略决定；未知参数、全局覆盖和超过4KiB的请求在出生前拒绝。结果保留原JSON和退出码，输出最多1MiB，资源权限仍由Engine核验。
 
 `scope show` 通过授权元数据入口读取：未授 MetadataRead、scope 撤销、原请求期限耗尽或末段能力回调超过50ms时拒绝，编码完成后的实时终检通过才交付根展示。可信内部 `Engine::scope` 保留，但不用于该公开读取入口。新增原生场景仍待 CI。
+
+CLI node、children、top、explore、search 共用dispatch原期限与独立授权reader，客户端scope必须匹配revision持久归属，编码后的数据经实时授权终检才交付；搜索游标绑定实际dispatch主体。隔离合成元数据回归覆盖这些处理器，仍需当前源码原生服务验收。过滤children与search保留既有页解码上限，本次不证明所有查询的严格raw字节或RSS上限。

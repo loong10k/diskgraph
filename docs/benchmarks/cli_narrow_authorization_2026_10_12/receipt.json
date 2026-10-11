@@ -1,0 +1,36 @@
+{
+  "base_commit": "bf4c2d7a93230e191c97f0419daf309298f431fe",
+  "source_sha256": {
+    "crates/diskgraph-cli/src/node_commands.rs": "2493b07f01a513ce2e4e6e723bbec553933be4e113ed4f97c1506c8d14e6bd76",
+    "crates/diskgraph-cli/src/search_commands.rs": "73be0171afe78719d0db96dddeb6799143e94baab92003267dacc612fd26506b",
+    "crates/diskgraph-cli/src/dispatch.rs": "f275d7045b556a219d73b630cde35b35eeab006d82c2578ebb3e432843cb7c56",
+    "crates/diskgraph-cli/src/main.rs": "e75cc4870e68a0c25f23e9411b6467275e4fd866b75f6841515a207a44dfc769",
+    "crates/diskgraph-cli/src/narrow_query_authorization_tests.rs": "e1f471d4219b24061632e9a58be85ef0c0be34b7db72566645234997d8ba6f56",
+    "crates/diskgraph-engine/src/revision_reader_authorization.rs": "2c952ab1e0519a81adfee7a3479aec52b1c560a85ef35d93926fa4c8395bfe48"
+  },
+  "red": {
+    "passed": 1,
+    "failed": 2,
+    "boundary": "Real CLI dispatch node escaped original expired deadline and lacked terminal revoke observation; loop stopped at first node failure, no claim all five reproduced individually."
+  },
+  "green": {
+    "passed": 7,
+    "failed": 0,
+    "boundary": "isolated registered scopes and actual staging/owned publication of synthetic metadata; all five dispatch paths exercised. No native scan substitution or installed-service claim."
+  },
+  "regressions": {
+    "scope": 4,
+    "routes": 3,
+    "cli_layout": 2,
+    "engine_layout": 6
+  },
+  "clippy": "macOS CLI/Engine all targets passed",
+  "fmt": "CLI/Engine passed",
+  "openspec": "strict passed",
+  "remaining": [
+    "Current source not yet in native CI",
+    "Children filtered pages and search retain existing limited page decoding; no claim all raw-row byte budgets complete",
+    "Independent service qualification across macOS/Linux/Windows remains open",
+    "No strict RSS or abnormal-I/O recovery completion claim"
+  ]
+}

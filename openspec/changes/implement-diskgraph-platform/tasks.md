@@ -442,3 +442,5 @@ CLI scope show真实越权修复：隔离实际Engine注册根、真实dispatch�
 a172b51a Linux x86 stable/MSRV原root门禁在实际安装准备拒绝debug成员超过64MiB处失败，未运行生成unit；traceback位于常用查询/业务失败与委托发送者场景返回之后，但无逐案receipt，不将该控制流推断称完整资格。改为同源码release实际构建产物并核验Cargo profile，安装64MiB/总256MiB预算保持；CI合同RED5/1→GREEN6/0。新增逐案立即日志，release安装与systemd仍待CI。见linux_installer_release_image_gate_2026_10_12。
 
 a172b51a macOS stable强制竞争门禁未形成合格150ms输入：五次实际持锁230.6–284.4ms，180ms原输入上界均未满足，原失败留证。测试短输入改为原绝对时刻的有限CPU等待，实际范围/五次上限/五场景和生产250/50ms不变；本机纯等待单元1/0、Engine Clippy通过，完整强制原生门禁尚待CI。Linux ARM原held-image检查累计原30秒超时，其ETXTBSY前端夹具4/0、实际doctor1/0已执行，但不得关闭root安装门禁；release方案尚待。见terminal_contention_precise_input_2026_10_12。
+
+CLI节点与搜索连续授权增量：隔离真实注册范围及合成owned发布经实际dispatch，旧node在原期限过期和缺终检时逃逸，RED1/2（循环首项即失败，不称五项各自复现）。五个命令改为共用原期限、实际revision/scope归属与独立reader，编码后沿现有250ms数据库/50ms能力终检；正常完整节点字段、目录顺序和Unicode搜索保持。当前7/0覆盖五命令的期限、撤权、无权限、晚能力及字段，另含scope不匹配消费者不进入、搜索游标绑定dispatch主体；scope4/0、固定CLI路由3/0、源码规范2/0+6/0、macOS Clippy/fmt及OpenSpec strict通过。children过滤页与search仍沿原页解码，不称全部raw字节准入已完成。原生CI与服务/异常I/O父项继续开放。见cli_narrow_authorization_2026_10_12/receipt.json。

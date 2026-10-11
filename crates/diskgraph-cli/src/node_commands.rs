@@ -1,146 +1,69 @@
-//! CLI node_commands 的实际命令分发。来源：原生 main::dispatch。
-use crate::authorization::require_metadata;
+//! CLI节点窄读共用原期限、实际revision归属与编码后的实时授权终检。
 use crate::cli::Cli;
 use crate::command::Command;
-use crate::output::envelope_line;
-use diskgraph_core::{Authorizer, BusinessError, PrincipalId, QueryBudget, ScopeId};
+use crate::snapshot_reply;
+use diskgraph_core::{Authorizer, BusinessError, PrincipalId, QueryReadBudget, ScopeId};
 use diskgraph_engine::{Engine, EngineError};
+use std::time::Instant;
 
-/// 执行本组真实业务命令，保持原授权、预算、响应与副作用顺序。
-/// 参数：本请求的解析参数及对应 Engine 依赖。返回：执行成功或原业务错误。
+/// 执行节点和目录页查询，编码成功且终检允许后才发布响应。
+/// 参数：原CLI命令、真实主体及能力、输出缓冲与dispatch原期限。返回：结果或预算/授权错误。
 pub(crate) fn run(
     engine: &Engine,
     cli: &Cli,
     principal: &PrincipalId,
     authorizer: &dyn Authorizer,
     out: &mut Vec<String>,
+    deadline: Instant,
 ) -> Result<(), EngineError> {
-    match &cli.command {
-        Command::Node { scope } => {
-            let scope_id = ScopeId::new(scope.clone())
-                .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
-            // A scope that does not exist is not_found, never a permission
-            // probe; only live scopes reach the authorization check.
-            engine.scope(&scope_id)?;
-            require_metadata(authorizer, principal, &scope_id)?;
-            let Some(revision) = engine.latest_revision(&scope_id)? else {
-                return Err(EngineError::Business(BusinessError::NotIndexed));
+    let scope = match &cli.command {
+        Command::Node { scope }
+        | Command::Children { scope, .. }
+        | Command::Top { scope, .. }
+        | Command::Explore { scope, .. } => scope,
+        _ => return Err(BusinessError::InvalidArgument.into()),
+    };
+    let scope = ScopeId::new(scope.clone()).map_err(|_| BusinessError::InvalidArgument)?;
+    let revision = engine
+        .latest_revision_until(&scope, deadline)?
+        .ok_or(BusinessError::NotIndexed)?;
+    let server = engine.server_id_until(deadline)?;
+    let encoded = engine.with_authorized_revision_reader_for_scope_until(
+        &revision, &scope, principal, authorizer, deadline, |reader, snapshot, original| {
+            let mut reads = QueryReadBudget::new(snapshot_reply::budget(), original)?;
+            let data = match &cli.command {
+                Command::Node { .. } => {
+                    let node = reader.root_node_with_budget(snapshot, &mut reads)?.ok_or(BusinessError::NotFound)?;
+                    let coverage = reader.snapshot_with_budget(snapshot, &mut reads)?.coverage;
+                    serde_json::json!({ "revision_id": revision, "node": node, "coverage": coverage })
+                }
+                Command::Children { parent_id, limit, offset, min_bytes, unknown_only, .. } => {
+                    if *unknown_only && min_bytes.is_some() { return Err(BusinessError::InvalidArgument.into()); }
+                    let (items, next_offset, unknown_count) = if *unknown_only {
+                        let (items, next) = reader.unknown_children_page(snapshot, *parent_id, *offset, (*limit).min(100))?;
+                        (items, next, 0)
+                    } else { reader.children_page(snapshot, *parent_id, *min_bytes, *offset, (*limit).min(100))? };
+                    serde_json::json!({ "revision_id": revision, "size_kind": "allocated", "items": items, "next_offset": next_offset, "unknown_size_count": unknown_count })
+                }
+                Command::Top { parent_id, limit, .. } => {
+                    let limit = (*limit).min(100);
+                    let (items, more, _) = reader.children_with_budget(snapshot, *parent_id, 0, limit, false, &mut reads)?;
+                    serde_json::json!({ "revision_id": revision, "size_kind": "allocated", "items": items, "truncated": more.then_some("node_limit") })
+                }
+                Command::Explore { node_id, max_nodes, .. } => {
+                    let limit = (*max_nodes).min(100);
+                    let node = reader.node_with_budget(snapshot, *node_id, &mut reads)?.ok_or(BusinessError::NotFound)?;
+                    let (children, more, _) = reader.children_with_budget(snapshot, *node_id, 0, limit as u64, false, &mut reads)?;
+                    let coverage = reader.snapshot_with_budget(snapshot, &mut reads)?.coverage;
+                    serde_json::json!({ "revision_id": revision, "node": node, "children": children, "coverage": coverage, "truncated": (more || limit == 0).then_some("node_limit") })
+                }
+                _ => return Err(BusinessError::InvalidArgument.into()),
             };
-            let root = engine.revision_root_node(&revision)?;
-            let coverage = engine.revision_snapshot(&revision)?.coverage;
-            out.push(envelope_line(
-                engine,
-                Ok(serde_json::json!({
-                    "revision_id": revision,
-                    "node": root,
-                    "coverage": coverage,
-                })),
-            ));
-            Ok(())
-        }
-        Command::Children {
-            scope,
-            parent_id,
-            limit,
-            offset,
-            min_bytes,
-            unknown_only,
-        } => {
-            let scope_id = ScopeId::new(scope.clone())
-                .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
-            // A scope that does not exist is not_found, never a permission
-            // probe; only live scopes reach the authorization check.
-            engine.scope(&scope_id)?;
-            require_metadata(authorizer, principal, &scope_id)?;
-            let Some(revision) = engine.latest_revision(&scope_id)? else {
-                return Err(EngineError::Business(BusinessError::NotIndexed));
-            };
-            if *unknown_only && min_bytes.is_some() {
-                return Err(EngineError::Business(BusinessError::InvalidArgument));
-            }
-            let (items, next_offset, unknown_count) = if *unknown_only {
-                let (items, next_offset) = engine
-                    .revision_unknown_children_page(&revision, *parent_id, *offset, *limit)?;
-                (items, next_offset, 0)
-            } else {
-                engine.revision_children_page(&revision, *parent_id, *min_bytes, *offset, *limit)?
-            };
-            out.push(envelope_line(
-                engine,
-                Ok(serde_json::json!({
-                    "revision_id": revision,
-                    "size_kind": "allocated",
-                    "items": items,
-                    "next_offset": next_offset,
-                    // Nodes whose size could not be reported are counted, not
-                    // silently dropped or treated as zero.
-                    "unknown_size_count": unknown_count,
-                })),
-            ));
-            Ok(())
-        }
-        Command::Top {
-            scope,
-            parent_id,
-            limit,
-        } => {
-            let scope_id = ScopeId::new(scope.clone())
-                .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
-            // A scope that does not exist is not_found, never a permission
-            // probe; only live scopes reach the authorization check.
-            engine.scope(&scope_id)?;
-            require_metadata(authorizer, principal, &scope_id)?;
-            let Some(revision) = engine.latest_revision(&scope_id)? else {
-                return Err(EngineError::Business(BusinessError::NotIndexed));
-            };
-            let (items, more) = engine.revision_top(&revision, *parent_id, *limit)?;
-            out.push(envelope_line(
-                engine,
-                Ok(serde_json::json!({
-                    "revision_id": revision,
-                    "size_kind": "allocated",
-                    "items": items,
-                    "truncated": more.then_some("node_limit"),
-                })),
-            ));
-            Ok(())
-        }
-        Command::Explore {
-            scope,
-            node_id,
-            max_depth,
-            max_nodes,
-        } => {
-            let scope_id = ScopeId::new(scope.clone())
-                .map_err(|_| EngineError::Business(BusinessError::InvalidArgument))?;
-            // A scope that does not exist is not_found, never a permission
-            // probe; only live scopes reach the authorization check.
-            engine.scope(&scope_id)?;
-            require_metadata(authorizer, principal, &scope_id)?;
-            let Some(revision) = engine.latest_revision(&scope_id)? else {
-                return Err(EngineError::Business(BusinessError::NotIndexed));
-            };
-            let budget = QueryBudget {
-                max_depth: *max_depth,
-                max_nodes: *max_nodes,
-                ..QueryBudget::default()
-            };
-            let page_limit = budget.max_nodes.min(100);
-            let (node, children, more) =
-                engine.revision_layer_page(&revision, *node_id, 0, page_limit)?;
-            let coverage = engine.revision_snapshot(&revision)?.coverage;
-            out.push(envelope_line(
-                engine,
-                Ok(serde_json::json!({
-                    "revision_id": revision,
-                    "node": node,
-                    "children": children,
-                    "coverage": coverage,
-                    "truncated": (more || page_limit == 0).then_some("node_limit"),
-                })),
-            ));
-            Ok(())
-        }
-        _ => Err(EngineError::Business(BusinessError::InvalidArgument)),
-    }
+            // 预算停止不能被误标为普通页末；本入口未定义可恢复raw截断游标，失败关闭。
+            if reads.stopped().is_some() { return Err(BusinessError::BudgetExceeded.into()); }
+            snapshot_reply::encode_data(server, &data, Instant::now() >= original)
+        },
+    )?;
+    out.push(encoded);
+    Ok(())
 }
