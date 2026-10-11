@@ -83,32 +83,17 @@ impl LinuxAtomicMessage {
     }
 
     /// 参数：self 是已收到的有界消息；返回：合法原生失败或固定Ready，拒绝未知字段组合。
+    #[cfg(test)]
     pub(super) fn verify(self) -> Result<(), ChildError> {
-        if self.kind == 1 && self.phase == 0 && self.error == 0 {
-            return Ok(());
-        }
-        if self.kind == 2 && (1..=11).contains(&self.phase) && (1..=4095).contains(&self.error) {
-            let context = match self.phase {
-                1 => "atomic child dup3",
-                2 => "atomic child close_range",
-                3 => "atomic child reset handler",
-                4 => "atomic child reset mask",
-                5 => "atomic child Init",
-                6 => "atomic child setsid",
-                7 => "atomic child no_new_privs",
-                8 => "atomic child seccomp",
-                9 => "atomic child Ready",
-                10 => "atomic child ACK",
-                _ => "atomic child execveat",
-            };
-            return Err(ChildError::io(
-                context,
-                io::Error::from_raw_os_error(self.error),
-            ));
-        }
-        Err(ChildError::io(
-            "atomic startup protocol",
-            io::Error::new(io::ErrorKind::InvalidData, "unexpected startup message"),
-        ))
+        super::linux_startup_role::LinuxStartupRole::Atomic
+            .verify(self.kind, self.phase, self.error)
+    }
+
+    /// 参数：role 是受信启动器固定角色；返回：该角色的 Ready 或原始启动错误。
+    pub(super) fn verify_role(
+        self,
+        role: super::linux_startup_role::LinuxStartupRole,
+    ) -> Result<(), ChildError> {
+        role.verify(self.kind, self.phase, self.error)
     }
 }

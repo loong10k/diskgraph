@@ -220,3 +220,6 @@ pub use linux_supervisor_process::LinuxSupervisorProcess;
 
 #[cfg(all(test, target_os = "linux"))]
 mod linux_supervisor_doctor_tests;
+
+#[cfg(any(target_os = "linux", test))]
+mod linux_startup_role;

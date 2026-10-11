@@ -192,14 +192,14 @@ impl LinuxSupervisorLauncher {
             );
             let child = owner.child.as_mut().expect("original pidfd adopted");
             child.configure().map_err(io::Error::other)?;
-            LinuxAtomicHandshake::run(child, deadline, &mut || Ok::<(), ()>(())).map_err(|error| {
-                match error {
+            LinuxAtomicHandshake::run_supervisor(child, deadline, &mut || Ok::<(), ()>(())).map_err(
+                |error| match error {
                     ChildSpawnError::Operation(error) => io::Error::other(error),
                     ChildSpawnError::Checkpoint { .. } => {
                         io::Error::new(io::ErrorKind::TimedOut, "original startup checkpoint")
                     }
-                }
-            })
+                },
+            )
         })();
         drop(self.image);
         match startup {

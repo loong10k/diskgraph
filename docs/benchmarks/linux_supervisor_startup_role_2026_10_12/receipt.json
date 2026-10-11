@@ -1,0 +1,58 @@
+{
+  "change": "implement-diskgraph-platform",
+  "host": "macOS ARM64",
+  "red": {
+    "passed": 1,
+    "failed": 1,
+    "failure": "supervisor credential error mislabeled as atomic seccomp"
+  },
+  "green": {
+    "decoder_tests": 4,
+    "source_layout_tests": 6,
+    "clippy": "passed engine all-targets on macOS",
+    "fmt": "passed",
+    "openspec": "passed"
+  },
+  "protocol": {
+    "bytes": 12,
+    "ordinary_phases": [
+      1,
+      11
+    ],
+    "supervisor_precise_phases": [
+      12,
+      18
+    ],
+    "errno_preserved": true
+  },
+  "native_linux": {
+    "status": "pending",
+    "socket_reset_tests_added": 2,
+    "c_spawn_not_executed_on_macOS": true
+  },
+  "actual_systemd_failure": {
+    "run": 38172485982,
+    "source": "37253b8dc6b17099eeee003e94cf9286806e015c",
+    "phase": 8,
+    "meaning": "credential drop (setgroups/setresgid/setresuid/capset); exact syscall not yet established",
+    "previous_diagnostic": "atomic child seccomp: EPERM",
+    "seccomp_failure_proven": false
+  },
+  "unmodified_contracts": [
+    "250ms database terminal window",
+    "50ms capability callback",
+    "original request deadline",
+    "pidfd retained ownership",
+    "service sandbox",
+    "no desktop installation"
+  ],
+  "source_sha256": {
+    "crates/diskgraph-engine/src/native_child/linux_startup_role.rs": "3251cb7ae742fab7b2331709024d08705b11db85539b3f01c916e894c52e3141",
+    "crates/diskgraph-engine/src/native_child/linux_atomic_message.rs": "87631104a6d3c5640dfa20ae2e4715ce299f473ea18bff5ab64999693e4a056e",
+    "crates/diskgraph-engine/src/native_child/linux_atomic_handshake.rs": "9edeabd0cb31d615f14afff96b1248ba948db0da898323a7dc7b467a89b90956",
+    "crates/diskgraph-engine/src/native_child/linux_supervisor_launcher.rs": "2ac7d4ecff280f2dde5d3fd1e9a0907111e2388ea3b1d7ef794a9d07bf9a04ee",
+    "crates/diskgraph-engine/src/native_child/linux_supervisor_spawn.c": "99a24fe247c8a14c7087e0904abad1d6d85e796455c51823dc17fbe405aae64c",
+    "crates/diskgraph-engine/src/native_child/linux_atomic_startup_reset_tests.rs": "cbd6b257a4dbeff11b82e2983f638a1d600a13d828842c2cdf2661accf1dd935",
+    "crates/diskgraph-engine/src/native_child/mod.rs": "50496900f0b95fd378aa47fb25cd61210660e0833738038b503e0b49d0c65940"
+  }
+}

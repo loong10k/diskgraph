@@ -125,3 +125,47 @@ fn retained_failure_has_bounded_inline_size() {
     assert!(std::mem::size_of::<LinuxAtomicLaunchFailure<ChildError>>() <= 128);
     assert!(std::mem::size_of::<LinuxAtomicLaunchFailure<std::io::Error>>() <= 128);
 }
+
+#[test]
+fn supervisor_credential_failure_survives_original_socket_reset() {
+    use super::linux_startup_role::LinuxStartupRole;
+    let parent = queued(Some([2, 15, libc::EPERM as u32]));
+    let received = LinuxAtomicHandshake::receive_role(
+        parent.as_raw_fd(),
+        Instant::now() + Duration::from_secs(5),
+        &mut || Ok::<_, ()>(()),
+        LinuxStartupRole::Supervisor,
+    );
+    let error = match received {
+        Ok(Some(Some(message))) => message
+            .verify_role(LinuxStartupRole::Supervisor)
+            .unwrap_err(),
+        Err(ChildSpawnError::Operation(error)) => error,
+        _ => panic!("original supervisor failure was lost"),
+    };
+    assert!(
+        error.to_string().contains("supervisor child setgroups"),
+        "{error}"
+    );
+    assert_eq!(
+        error.native_io_error().unwrap().raw_os_error(),
+        Some(libc::EPERM)
+    );
+}
+
+#[test]
+fn ordinary_reset_does_not_accept_supervisor_only_stage() {
+    let parent = queued(Some([2, 15, libc::EPERM as u32]));
+    let received = LinuxAtomicHandshake::receive(
+        parent.as_raw_fd(),
+        Instant::now() + Duration::from_secs(5),
+        &mut || Ok::<_, ()>(()),
+    );
+    match received {
+        Err(ChildSpawnError::Operation(error)) => assert_eq!(
+            error.native_io_error().unwrap().raw_os_error(),
+            Some(libc::ECONNRESET)
+        ),
+        _ => panic!("supervisor-only phase must not mask ordinary transport reset"),
+    }
+}

@@ -66,15 +66,15 @@ static __attribute__((noreturn)) void supervisor_child(const struct dg_superviso
     supervisor_checked(group, 4, 6);
     if (group != pid) supervisor_fail(4, 6, -EPERM);
     /* root身份不得带入角色：禁保留caps/ambient，并禁止exec重新取得setid或file capabilities。 */
-    supervisor_checked(dg_raw(SYS_prctl, PR_SET_KEEPCAPS, 0, 0, 0, 0, 0), 4, 7);
-    supervisor_checked(dg_raw(SYS_prctl, PR_CAP_AMBIENT, PR_CAP_AMBIENT_CLEAR_ALL, 0, 0, 0, 0), 4, 7);
-    supervisor_checked(dg_raw(SYS_prctl, PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0, 0), 4, 7);
-    supervisor_checked(dg_raw(SYS_setgroups, 0, 0, 0, 0, 0, 0), 4, 8);
-    supervisor_checked(dg_raw(SYS_setresgid, request->gid, request->gid, request->gid, 0, 0, 0), 4, 8);
-    supervisor_checked(dg_raw(SYS_setresuid, request->uid, request->uid, request->uid, 0, 0, 0), 4, 8);
+    supervisor_checked(dg_raw(SYS_prctl, PR_SET_KEEPCAPS, 0, 0, 0, 0, 0), 4, 12);
+    supervisor_checked(dg_raw(SYS_prctl, PR_CAP_AMBIENT, PR_CAP_AMBIENT_CLEAR_ALL, 0, 0, 0, 0), 4, 13);
+    supervisor_checked(dg_raw(SYS_prctl, PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0, 0), 4, 14);
+    supervisor_checked(dg_raw(SYS_setgroups, 0, 0, 0, 0, 0, 0), 4, 15);
+    supervisor_checked(dg_raw(SYS_setresgid, request->gid, request->gid, request->gid, 0, 0, 0), 4, 16);
+    supervisor_checked(dg_raw(SYS_setresuid, request->uid, request->uid, request->uid, 0, 0, 0), 4, 17);
     const struct __user_cap_header_struct capabilities_header = {_LINUX_CAPABILITY_VERSION_3, 0};
     const struct __user_cap_data_struct capabilities[2] = {{0, 0, 0}, {0, 0, 0}};
-    supervisor_checked(dg_raw(SYS_capset, (long)&capabilities_header, (long)&capabilities, 0, 0, 0, 0), 4, 8);
+    supervisor_checked(dg_raw(SYS_capset, (long)&capabilities_header, (long)&capabilities, 0, 0, 0, 0), 4, 18);
     const struct dg_supervisor_message ready = {1, 0, 0};
     long sent = dg_raw(SYS_sendto, 4, (long)&ready, sizeof(ready), MSG_NOSIGNAL | MSG_DONTWAIT, 0, 0);
     supervisor_checked(sent, 4, 9);
