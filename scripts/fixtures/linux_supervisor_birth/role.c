@@ -135,13 +135,30 @@ int main(int argc, char **argv) {
     int image_closed = fcntl(3, F_GETFD) == -1 && errno == EBADF;
     int startup_closed = fcntl(4, F_GETFD) == -1 && errno == EBADF;
     int whitelist = image_closed && startup_closed;
-    for (int fd = 7; fd < 128; ++fd) {
+    int held_worker = argc == 3 && strcmp(argv[1], "held_worker") == 0;
+    int worker_ok = 1;
+    int path_denied = 0;
+    if (held_worker) {
+        // 路径必须拒绝，原已打开只读FD仍可读；只检查隔离synthetic镜像，不读取业务文件。
+        int reopened = open(argv[2], O_RDONLY | O_CLOEXEC | O_NOFOLLOW);
+        path_denied = reopened < 0 && errno == EACCES;
+        if (reopened >= 0) close(reopened);
+        char bytes[15] = {0};
+        int flags = fcntl(7, F_GETFD);
+        worker_ok = path_denied && flags >= 0 && pread(7, bytes, sizeof(bytes), 0) == 15 &&
+            memcmp(bytes, "DG_HELD_WORKER\n", 15) == 0 && pread(7, bytes, 1, 15) == 0 &&
+            fcntl(7, F_SETFD, flags | FD_CLOEXEC) == 0;
+    }
+    for (int fd = held_worker ? 8 : 7; fd < 128; ++fd) {
         int status = fcntl(fd, F_GETFD);
         whitelist = whitelist && status == -1 && errno == EBADF;
     }
     int no_new_privileges = prctl(PR_GET_NO_NEW_PRIVS, 0, 0, 0, 0) == 1;
-    int passed = identities && endpoints && cap_ok && no_new_privileges && whitelist;
-    printf("{\"passed\":%s,\"uid\":%u,\"gid\":%u,\"groups\":%d,\"private_endpoints\":%s,\"capabilities_empty\":%s,\"whitelist\":%s,\"no_new_privs\":%s}\n",
+    int passed = identities && endpoints && cap_ok && no_new_privileges && whitelist && worker_ok;
+    if (held_worker)
+        printf("{\"passed\":%s,\"held_worker_read\":%s,\"worker_path_eacces\":%s}\n",
+            passed ? "true" : "false", worker_ok ? "true" : "false", path_denied ? "true" : "false");
+    else printf("{\"passed\":%s,\"uid\":%u,\"gid\":%u,\"groups\":%d,\"private_endpoints\":%s,\"capabilities_empty\":%s,\"whitelist\":%s,\"no_new_privs\":%s}\n",
         passed ? "true" : "false", getuid(), getgid(), getgroups(0, NULL),
         endpoints ? "true" : "false", cap_ok ? "true" : "false",
         whitelist ? "true" : "false", no_new_privileges ? "true" : "false");

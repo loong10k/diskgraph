@@ -8,6 +8,8 @@ use std::time::Instant;
 /// 不认证对端，不生成出生资格；调用方须从已认证出生路径移交原未克隆通道。
 #[must_use = "retain the original owner despite control failure or pending retirement"]
 pub struct SupervisorControlOwner {
+    #[cfg(test)]
+    pub(crate) after_retirement_poll: Option<Box<dyn FnOnce() + Send>>,
     owner: SupervisorOwner,
     writer: UnixControlWriter,
     ready_attempted: bool,
@@ -22,6 +24,8 @@ impl SupervisorControlOwner {
     /// 返回：保持两者完整寿命的接线；不发送消息，也不克隆或转移原 pending 内存。
     pub fn new(owner: SupervisorOwner, writer: UnixControlWriter) -> Self {
         Self {
+            #[cfg(test)]
+            after_retirement_poll: None,
             owner,
             writer,
             ready_attempted: false,
@@ -141,7 +145,23 @@ impl SupervisorControlOwner {
             return Err(crate::EngineError::from(BusinessError::Conflict).into());
         }
         // 控制断线/超时不能阻断同一原 owner 的实际退休；不能用通道成功代替物理回收。
-        if !self.owner.poll_retirement(deadline)? {
+        let retired = self.owner.poll_retirement(deadline)?;
+        #[cfg(test)]
+        if let Some(after_poll) = self.after_retirement_poll.take() {
+            after_poll();
+        }
+        // 本轮清理或调度已用完期限时，尚未开始的版本2通知留待下一有限轮。
+        // 不重试已发生的发送失败，也不刷新版本1原固定期限或公共请求授权。
+        if self.writer.is_lifecycle()
+            && self.control_failure.is_none()
+            && !cancel.load(std::sync::atomic::Ordering::Acquire)
+            && Instant::now() >= deadline
+        {
+            return Ok(SupervisorControlProgress::Pending {
+                control_failure: None,
+            });
+        }
+        if !retired {
             if !self.pending_attempted {
                 self.pending_attempted = true;
                 let _ = self.send(

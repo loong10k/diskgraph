@@ -219,7 +219,7 @@ impl LinuxBroker {
             nonce[..16].copy_from_slice(uuid::Uuid::new_v4().as_bytes());
             nonce[16..].copy_from_slice(uuid::Uuid::new_v4().as_bytes());
             let request = serde_json::to_vec(&serde_json::json!({
-                "schema_version":3,"control_fd":6,"nonce":hex::encode(nonce),
+                "schema_version":3,"control_fd":6,"worker_fd":7,"nonce":hex::encode(nonce),
                 "service_uid":self.config.service_uid,"service_gid":self.config.service_gid,"frontend_uid":self.config.frontend_uid,
                 "state_root":self.config.state_dir,"data_dir":self.config.data_dir,"worker_path":self.config.worker_path,
                 "worker_sha256":self.config.worker_sha256,"worker_bytes":self.worker.metadata()?.len(),"deadline":stamp
@@ -252,6 +252,18 @@ impl LinuxBroker {
                 args,
                 environment,
                 (self.config.service_uid, self.config.service_gid),
+            )?
+            .with_worker_image(
+                self.worker.try_clone()?,
+                &crate::ScanWorkerHostConfig::from_expected_image(
+                    hex::decode(&self.config.worker_sha256)
+                        .map_err(io::Error::other)?
+                        .try_into()
+                        .map_err(|_| io::Error::other("invalid worker digest"))?,
+                    self.worker.metadata()?.len(),
+                )
+                .map_err(io::Error::other)?,
+                deadline,
             )?;
             let raw = unsafe {
                 libc::openat(

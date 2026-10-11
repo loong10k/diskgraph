@@ -63,3 +63,13 @@ executor资源owner只持原Engine、原ScanWorkerRecovery及Windows原ProbeReco
 已实施ExecutorParts/ExecutorResourceOwner，并在现有SupervisorOwner中复用真实退休逻辑。对应对象归入supervision目录，mod.rs仅声明与重导出，原crate根公开路径保持兼容。4项新增真实资源夹具、47项监督回归、6项源码规范及Engine all-targets Clippy通过；API RED是新类型缺失的编译错误，未称作运行时行为失败。
 
 本机完整Engine/CLI/MCP尝试未通过：99个测试二进制汇总1227通过、370失败、23忽略，30个目标失败。固定macOS root安装目录不存在，driver镜像未配置，原日志包含显式前置条件失败及Unsupported；未穷尽归因，不能据此宣称没有其他问题。未安装桌面服务或修改固定安装。原始日志及源码摘要见docs/benchmarks/executor_resource_separation_2026_10_12，资源拆分后的三平台完整CI仍待运行，产品跨进程接线仍未完成。
+
+### 原worker句柄交付验收
+
+root出生层可在固定FD7交付原已核验只读worker句柄，不接受客户FD或路径；guardian旧七FD出生仍保持原白名单。worker句柄必须与七项出生材料互不别名，出生前拒绝低FD或错误访问模式。受信材料包含FD7选择并绑定原JSON摘要，接收方恢复CLOEXEC、核对原普通文件和独立完整摘要，不通过worker_path重新打开。旧版本无此字段保持原受信路径兼容，未知版本或其他FD号拒绝。
+
+真实exec验收：root只读镜像路径对降权角色精确EACCES，原FD仍可读取完整预期内容；额外FD均关闭，原pidfd实际wait。角色读取失败不能伪造完成。此交付只给固定worker镜像，不给业务文件DAC绕过能力；用户executor、镜像隐私和LSM仍需整体准入。
+
+## 生命周期通知耗尽本轮期限的验收补充
+
+版本2的真实资源退休和通知共用有限轮询期限。当资源仍Pending且本轮期限已耗尽时，不得开始新的通知尝试或永久锁存发送超时；下一轮由调用方提供新的有限期限后，沿用原会话和序列发送。原版本1固定期限不刷新，控制取消和已开始发送后的失败不得重试。资源已退休后也适用未开始通知的延后规则，未发送完成帧不能返回Complete。此补充不增加公共请求预算，不代替原child接收和wait验收。

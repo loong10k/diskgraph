@@ -10,6 +10,7 @@ pub(super) struct LinuxSupervisorAbi {
     pub(super) environment: *const *const c_char,
     pub(super) group_count: u32,
     pub(super) groups: *const u32,
+    pub(super) worker_fd: i32,
 }
 
 unsafe extern "C" {

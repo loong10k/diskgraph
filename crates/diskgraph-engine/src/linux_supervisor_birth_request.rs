@@ -23,6 +23,8 @@ pub(crate) struct LinuxSupervisorBirthRequest {
     pub(crate) control_fd: Option<u32>,
     #[serde(default)]
     pub(crate) service_gid: Option<u32>,
+    #[serde(default)]
+    pub(crate) worker_fd: Option<u32>,
 }
 
 impl LinuxSupervisorBirthRequest {
@@ -61,7 +63,12 @@ impl LinuxSupervisorBirthRequest {
             (3, Some(6), Some(gid)) => valid_id(gid),
             _ => false,
         };
+        let valid_worker = matches!(
+            (request.schema_version, request.worker_fd),
+            (1..=3, None) | (3, Some(7))
+        );
         if !valid_control
+            || !valid_worker
             || !valid_id(request.service_uid)
             || !valid_id(request.frontend_uid)
             || request.service_uid == request.frontend_uid

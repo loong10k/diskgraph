@@ -43,7 +43,7 @@ static int send_kind(int fd, uint32_t kind) {
     return send(fd, &message, sizeof(message), MSG_NOSIGNAL) == (ssize_t)sizeof(message);
 }
 int main(int argc, char **argv) {
-    if (argc != 3) return 40;
+    if (argc != 3 && argc != 4) return 40;
     int input = open("/dev/null", O_RDONLY | O_CLOEXEC);
     int output[2], errors[2], startup[2], materials[2], control[2], leak[2];
     if (input < 0 || pipe2(output, O_CLOEXEC) || pipe2(errors, O_CLOEXEC) || pipe2(leak, O_CLOEXEC | O_NONBLOCK)) abort();
@@ -65,7 +65,22 @@ int main(int argc, char **argv) {
     if (!strcmp(argv[2], "missing_groups")) request.group_count = 1;
     if (!strcmp(argv[2], "oversized_groups")) { request.group_count = 65537; request.groups = executor_groups; }
     if (!strcmp(argv[2], "sentinel_group")) { executor_groups[0] = UINT32_MAX; request.group_count = 1; request.groups = executor_groups; }
-    char *args[] = {argv[1], supplementary ? "supplementary" : NULL, NULL}; char *environment[] = {NULL};
+    int held_worker = !strcmp(argv[2], "held_worker");
+    if (held_worker) {
+        if (argc != 4) return 40;
+        int worker = open(argv[3], O_RDONLY | O_CLOEXEC | O_NOFOLLOW);
+        if (worker < 0) abort();
+        request.worker_fd = high(worker); close(worker);
+    }
+    if (!strcmp(argv[2], "low_worker")) request.worker_fd = 3;
+    if (!strcmp(argv[2], "aliased_worker")) request.worker_fd = request.fds[3];
+    if (!strcmp(argv[2], "writable_worker")) {
+        int writable = open("/dev/null", O_RDWR | O_CLOEXEC);
+        if (writable < 0) abort();
+        request.worker_fd = high(writable); close(writable);
+    }
+    char *args[] = {argv[1], supplementary ? "supplementary" : held_worker ? "held_worker" : NULL,
+        held_worker ? argv[3] : NULL, NULL}; char *environment[] = {NULL};
     request.argv = args; request.envp = environment;
     /* 仅本次隔离driver拒绝setgroups；真实child必须报告降权阶段并保留原pidfd退休。 */
     int denied_groups = !strcmp(argv[2], "denied_groups");
@@ -95,6 +110,7 @@ int main(int argc, char **argv) {
         return !strcmp(argv[2], "clean") ? 41 : 0;
     }
     for (int n = 0; n < 7; ++n) if (n != 6 || request.fds[6] != request.fds[5]) close(request.fds[n]);
+    if (request.worker_fd >= 10) close(request.worker_fd);
     for (int n = 0; n < 7; ++n) close(source[n]);
     close(leak[1]);
     /* 原child停在Init之前；公开FD必须已关闭，不以exec完成或子退出代替。 */

@@ -28,11 +28,31 @@ pub struct LinuxSupervisorLauncher {
     groups: Vec<u32>,
     pipes: LinuxAtomicPipes,
     extra: [OwnedFd; 2],
+    worker: Option<OwnedFd>,
     materials: UnixDatagram,
     controls: UnixStream,
 }
 
 impl LinuxSupervisorLauncher {
+    /// 参数：worker为root原镜像，expected为独立安装预期，deadline为原期限；返回：固定FD7交付准备。
+    /// 完整摘要与只读模式先于槽认领；不接收客户路径，不提供业务文件权限绕过能力。
+    pub fn with_worker_image(
+        mut self,
+        worker: File,
+        expected: &crate::ScanWorkerHostConfig,
+        deadline: Instant,
+    ) -> io::Result<Self> {
+        if self.worker.is_some() {
+            return Err(io::Error::other("worker image already bound"));
+        }
+        let image = super::linux_held_worker_image::LinuxHeldWorkerImage::verify(
+            worker, expected, deadline,
+        )
+        .map_err(io::Error::other)?
+        .into_file();
+        self.worker = Some(duplicate(image.as_raw_fd())?);
+        Ok(self)
+    }
     /// 参数：原核验镜像、固定参数/环境及原连接内核Unix身份；返回：保留辅助组的出生材料。
     /// 仅组件准备，不接通产品executor；LSM上下文、镜像隐私及原guardian责任仍须宿主准入。
     pub fn prepare_user_executor(
@@ -81,6 +101,7 @@ impl LinuxSupervisorLauncher {
             groups: Vec::new(),
             pipes,
             extra,
+            worker: None,
             materials,
             controls,
         })
@@ -155,6 +176,7 @@ impl LinuxSupervisorLauncher {
             environment: environment.as_ptr(),
             group_count: self.groups.len() as u32,
             groups: self.groups.as_ptr(),
+            worker_fd: self.worker.as_ref().map_or(0, AsRawFd::as_raw_fd),
         };
         let mut mask = LinuxAtomicSignalMask::new();
         let mut pidfd = -1;
@@ -189,6 +211,7 @@ impl LinuxSupervisorLauncher {
         owner.child = Some(unsafe { child_slot.assume_init() });
         owner.born = true;
         drop(self.extra);
+        drop(self.worker);
         let startup = (|| -> io::Result<()> {
             mask.restore().map_err(io::Error::other)?;
             let peer = LinuxSupervisorPeer::from_host(pid as i32, self.identity.0, self.identity.1)

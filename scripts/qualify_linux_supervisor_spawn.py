@@ -74,15 +74,23 @@ def qualify(driver, role, output, baseline=None):
         malformed = root / 'malformed_role'
         malformed.write_bytes(b'not an ELF image\n')
         malformed.chmod(0o555)
+        worker = root / 'worker'
+        worker.write_bytes(b'DG_HELD_WORKER\n')
+        worker.chmod(0o511)
         errors = {'root_uid': 1, 'root_gid': 1, 'sentinel_uid': 1, 'sentinel_gid': 1,
                   'aliased_fd': 22, 'low_fd': 22, 'nonroot': 1,
-                  'missing_groups': 22, 'oversized_groups': 22, 'sentinel_group': 22}
-        for case in ('clean', 'supplementary', *errors, 'bad_image', 'denied_groups', 'signal_after_ready'):
-            exit_code, stdout, stderr = run_driver([str(root / 'driver'), str(malformed if case == 'bad_image' else root / 'role'), case], root, case == 'nonroot')
+                  'missing_groups': 22, 'oversized_groups': 22, 'sentinel_group': 22,
+                  'low_worker': 22, 'aliased_worker': 22, 'writable_worker': 22}
+        for case in ('clean', 'supplementary', 'held_worker', *errors, 'bad_image', 'denied_groups', 'signal_after_ready'):
+            arguments = [str(root / 'driver'), str(malformed if case == 'bad_image' else root / 'role'), case]
+            if case == 'held_worker': arguments.append(str(worker))
+            exit_code, stdout, stderr = run_driver(arguments, root, case == 'nonroot')
             records = [json.loads(line) for line in stdout.splitlines()]
             if case in ('clean', 'supplementary'):
                 passed = exit_code == 0 and records[0]['passed'] and records[-1]['original_pidfd_waited'] and records[-1]['public_eof_before_init'] and records[-1]['exit_code'] == 0
                 passed = passed and records[0]['groups'] == (2 if case == 'supplementary' else 0)
+            elif case == 'held_worker':
+                passed = exit_code == 0 and records[0] == {'held_worker_read': True, 'worker_path_eacces': True, 'passed': True} and records[-1]['original_pidfd_waited'] and records[-1]['public_eof_before_init']
             elif case == 'signal_after_ready':
                 passed = exit_code == 0 and len(records) == 3 and records[0] == {'original_pidfd_signal_sent': True, 'signal_errno': 0} and records[-1]['original_pidfd_waited'] and records[-1]['public_eof_before_init'] and not records[-1]['handshake'] and not records[-1]['exited_normally'] and records[-1]['exit_code'] == 9
             elif case == 'denied_groups':

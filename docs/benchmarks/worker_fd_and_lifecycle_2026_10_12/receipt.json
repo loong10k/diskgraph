@@ -1,0 +1,59 @@
+{
+  "source_parent": "8fe2d1e697f8a6bca9460390291de8429528b5fc",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/native_child/linux_supervisor_spawn.c": "c42eeadfa3b7bf18b300d55e9276a0121b80c7182b1f70ede0e8246ee8869a32",
+    "crates/diskgraph-engine/src/native_child/linux_supervisor_spawn.h": "959ee2c8399316a6ae9adeb5ee15c05db5ac67738c3b9adb6f153867fb3f98df",
+    "crates/diskgraph-engine/src/native_child/linux_held_worker_image.rs": "ec599dc336233511da4f6f73f57f2dda70c1ffd66b5a65e6fe1094c4fcef03bb",
+    "crates/diskgraph-engine/src/supervisor_control_owner.rs": "27559f93d4d044d6d31501c427009abebd3d8c8cbde19bd2afef538f26a38019",
+    "crates/diskgraph-engine/src/supervisor_control_owner_tests.rs": "e2ffedd0bfbaf04d81c6fc44caa0581a81f6c30b34d3c7fbb9ed09a2822b0154",
+    "crates/diskgraph-engine/src/supervisor_control_progress.rs": "ee2452695b2654c0151f4b72b444fadb2372a64f345c5bb42d281d8063c78de1",
+    "crates/diskgraph-engine/src/supervisor_service/linux_broker.rs": "cfec6bdd887d23a92a89b6b29837b975480e62d87b151bd68fb8e8abca427360",
+    "crates/diskgraph-engine/src/linux_supervisor_birth.rs": "537f00c8f8d7b5e8325e4f55981805758c101501b35fb5debe889dea6356e8ba"
+  },
+  "native_c": {
+    "actual_kernel": "isolated Linux ARM64 container",
+    "behavioral_red_exit": 42,
+    "green_cases": {
+      "clean": 0,
+      "supplementary": 0,
+      "held_worker": 0,
+      "root_uid": 0,
+      "root_gid": 0,
+      "sentinel_uid": 0,
+      "sentinel_gid": 0,
+      "low_fd": 0,
+      "aliased_fd": 0,
+      "missing_groups": 0,
+      "oversized_groups": 0,
+      "sentinel_group": 0,
+      "low_worker": 0,
+      "aliased_worker": 0,
+      "writable_worker": 0,
+      "denied_groups": 42,
+      "signal_after_ready": 0
+    },
+    "not_run_locally": [
+      "nonroot",
+      "bad_image",
+      "Linux Rust product constructor with worker FD7"
+    ]
+  },
+  "macos_tests": {
+    "supervisor_control_owner": {
+      "passed": 10,
+      "failed": 0
+    },
+    "source_layout": {
+      "passed": 6,
+      "failed": 0
+    },
+    "engine_all_targets_clippy": "passed"
+  },
+  "qualification_limits": [
+    "Linux CI 38182709032 source22880 retirement notification failed; new fix needs original native constructor requalification",
+    "macOS Intel related budget failure undiagnosed",
+    "guardian and real customer executor product routing not complete",
+    "macOS and Windows OS identity supervisor routing not qualified",
+    "not a production readiness receipt"
+  ]
+}

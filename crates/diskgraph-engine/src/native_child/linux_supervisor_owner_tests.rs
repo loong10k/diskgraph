@@ -113,6 +113,7 @@ struct SupervisorRequest {
     environment: *const *const c_char,
     group_count: u32,
     groups: *const u32,
+    worker_fd: i32,
 }
 
 unsafe extern "C" {
@@ -167,6 +168,7 @@ fn birth() -> (LinuxAtomicChild, OwnedFd) {
         environment: environment.as_ptr(),
         group_count: 0,
         groups: std::ptr::null(),
+        worker_fd: 0,
     };
     // 唯一处置槽在内核出生前分配；到原 fd 接管之间没有断言、回调或可失败操作。
     let mut slot = Box::<LinuxAtomicChild>::new_uninit();

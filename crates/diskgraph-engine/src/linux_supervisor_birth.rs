@@ -20,6 +20,7 @@ pub struct LinuxSupervisorBirth {
     namespace: LinuxSupervisorNamespace,
     deadline: Instant,
     control: Option<crate::recovery_control::UnixControlWriter>,
+    worker: Option<std::fs::File>,
 }
 
 impl LinuxSupervisorBirth {
@@ -116,6 +117,21 @@ impl LinuxSupervisorBirth {
                 BusinessError::PermissionDenied
             }
         })?;
+        let worker = if let Some(worker_fd) = request.worker_fd {
+            let flags = unsafe { libc::fcntl(worker_fd as i32, libc::F_GETFD) };
+            if flags < 0 {
+                return Err(BusinessError::PermissionDenied.into());
+            }
+            // 原root通道已认证固定FD选择；立即采用并恢复CLOEXEC，后续准入失败也关闭同一File。
+            let original = unsafe { OwnedFd::from_raw_fd(worker_fd as i32) };
+            if unsafe { libc::fcntl(worker_fd as i32, libc::F_SETFD, flags | libc::FD_CLOEXEC) } < 0
+            {
+                return Err(std::io::Error::last_os_error().into());
+            }
+            Some(std::fs::File::from(original))
+        } else {
+            None
+        };
         // 接收耗时从原 ClockStamp 再次扣除，不能由角色启动重新获得完整 30 秒。
         let deadline = request.deadline.adopt(Duration::from_secs(30))?;
         let namespace = LinuxSupervisorNamespace::from_host(
@@ -142,6 +158,7 @@ impl LinuxSupervisorBirth {
             namespace,
             deadline,
             control,
+            worker,
         }))
     }
 
@@ -197,15 +214,23 @@ impl LinuxSupervisorBirth {
             .map_err(|_| BusinessError::PermissionDenied)?;
         let expected =
             ScanWorkerHostConfig::from_expected_image(digest, self.request.worker_bytes)?;
-        let mut image = OpenOptions::new()
-            .read(true)
-            .custom_flags(libc::O_NOFOLLOW | libc::O_CLOEXEC | libc::O_NONBLOCK)
-            .open(&self.request.worker_path)?;
-        crate::verify_supervisor_birth_image::verify_supervisor_birth_image(
-            &mut image,
-            &expected,
-            self.deadline,
-        )?;
+        let image = if let Some(original) = self.worker.take() {
+            // FD选择已绑定原JSON/root通道；只采用固定原FD，不以路径重新打开。
+            crate::native_child::LinuxHeldWorkerImage::verify(original, &expected, self.deadline)?
+                .into_file()
+        } else {
+            // 已批准的旧可信出生兼容；新的FD路径绝不失败后降级到这里。
+            let mut image = OpenOptions::new()
+                .read(true)
+                .custom_flags(libc::O_NOFOLLOW | libc::O_CLOEXEC | libc::O_NONBLOCK)
+                .open(&self.request.worker_path)?;
+            crate::verify_supervisor_birth_image::verify_supervisor_birth_image(
+                &mut image,
+                &expected,
+                self.deadline,
+            )?;
+            image
+        };
         let host =
             ScanWorkerHost::new_until(image, expected, runtime, self.deadline, &mut || Ok(()))?;
         Ok(crate::LinuxSupervisorAdmittedHost {

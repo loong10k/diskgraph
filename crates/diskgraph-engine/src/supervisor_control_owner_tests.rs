@@ -269,3 +269,64 @@ fn repeated_ready_latches_protocol_failure_without_releasing_original_owner() {
     );
     assert_eq!(read_frames(&mut receiver).len(), 1);
 }
+
+#[test]
+fn lifecycle_expired_round_defers_unstarted_notification_without_poisoning_channel() {
+    expired_lifecycle_round(true);
+}
+
+#[test]
+fn lifecycle_retired_resources_defer_unstarted_completion_on_expired_round() {
+    expired_lifecycle_round(false);
+}
+
+fn expired_lifecycle_round(pending: bool) {
+    let (_dir, parts, registry) = crate::supervisor_binding_tests::fixture();
+    let original = pending.then(|| registry.reserve().unwrap());
+    let (sender, mut receiver) = UnixStream::pair().unwrap();
+    receiver.set_nonblocking(true).unwrap();
+    let mut control = SupervisorControlOwner::new(
+        owner(parts),
+        UnixControlWriter::new_lifecycle(sender, [7; 32]).unwrap(),
+    );
+    let cancel = AtomicBool::new(false);
+    control.ready_lifecycle(&cancel, deadline()).unwrap();
+    control
+        .foreground_ended_lifecycle(0, false, &cancel, deadline())
+        .unwrap();
+    let until = Instant::now() + Duration::from_millis(20);
+    // 原池真实轮询之后模拟调度停顿，确保耗尽的是通知阶段而非入口检查。
+    control.after_retirement_poll = Some(Box::new(move || {
+        std::thread::sleep(until.saturating_duration_since(Instant::now()));
+    }));
+    assert_eq!(
+        control.poll_retirement(until, &cancel).unwrap(),
+        SupervisorControlProgress::Pending {
+            control_failure: None
+        }
+    );
+    drop(original);
+    assert_eq!(
+        control.poll_retirement(deadline(), &cancel).unwrap(),
+        SupervisorControlProgress::Complete
+    );
+    let mut bytes = Vec::new();
+    let mut buffer = [0; 4096];
+    loop {
+        match receiver.read(&mut buffer) {
+            Ok(0) => break,
+            Ok(count) => bytes.extend_from_slice(&buffer[..count]),
+            Err(error) if error.kind() == ErrorKind::WouldBlock => break,
+            Err(error) => panic!("private control read failed: {error}"),
+        }
+    }
+    let frames = ControlReceiver::new_lifecycle([7; 32])
+        .push(&bytes)
+        .unwrap();
+    assert_eq!(frames.len(), 3);
+    assert_eq!(frames[2].sequence, 2);
+    assert!(matches!(
+        frames[2].notification,
+        ControlNotification::CleanupComplete {}
+    ));
+}

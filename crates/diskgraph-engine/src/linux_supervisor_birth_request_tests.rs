@@ -34,6 +34,34 @@ fn valid_birth_material_preserves_original_configuration() {
 }
 
 #[test]
+fn original_worker_descriptor_is_fixed_and_lifecycle_bound() {
+    let mut value = request();
+    value["schema_version"] = json!(3);
+    value["control_fd"] = json!(6);
+    value["service_gid"] = json!(1000);
+    value["worker_fd"] = json!(7);
+    let parsed = LinuxSupervisorBirthRequest::parse(&serde_json::to_vec(&value).unwrap()).unwrap();
+    assert_eq!(parsed.worker_fd, Some(7));
+    for worker_fd in [
+        json!(0),
+        json!(3),
+        json!(5),
+        json!(6),
+        json!(8),
+        json!(u32::MAX),
+        json!("7"),
+    ] {
+        value["worker_fd"] = worker_fd;
+        assert!(LinuxSupervisorBirthRequest::parse(&serde_json::to_vec(&value).unwrap()).is_err());
+    }
+    value["worker_fd"] = json!(7);
+    for version in [1, 2, 4] {
+        value["schema_version"] = json!(version);
+        assert!(LinuxSupervisorBirthRequest::parse(&serde_json::to_vec(&value).unwrap()).is_err());
+    }
+}
+
+#[test]
 fn malformed_birth_policy_is_refused_before_touching_paths() {
     for (key, value) in [
         ("schema_version", json!(2)),

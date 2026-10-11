@@ -19,7 +19,8 @@ _Static_assert(sizeof(struct dg_supervisor_message) == 12, "fixed startup messag
 _Static_assert(offsetof(struct dg_supervisor_request, argv) == 40, "supervisor pointer offset");
 _Static_assert(offsetof(struct dg_supervisor_request, group_count) == 56, "supervisor group count offset");
 _Static_assert(offsetof(struct dg_supervisor_request, groups) == 64, "supervisor groups offset");
-_Static_assert(sizeof(struct dg_supervisor_request) == 72, "supervisor request native64 layout");
+_Static_assert(offsetof(struct dg_supervisor_request, worker_fd) == 72, "supervisor worker offset");
+_Static_assert(sizeof(struct dg_supervisor_request) == 80, "supervisor request native64 layout");
 
 static __attribute__((noreturn)) void supervisor_exit(void) {
     dg_raw(SYS_exit_group, 127, 0, 0, 0, 0, 0);
@@ -51,7 +52,9 @@ static __attribute__((noreturn)) void supervisor_child(const struct dg_superviso
         supervisor_checked(result, error_fd, 1);
         if (target == 4) error_fd = 4;
     }
-    supervisor_checked(dg_raw(SYS_close_range, 7, UINT32_MAX, 0, 0, 0, 0), 4, 2);
+    if (request->worker_fd)
+        supervisor_checked(dg_raw(SYS_dup3, request->worker_fd, 7, 0, 0, 0, 0), 4, 1);
+    supervisor_checked(dg_raw(SYS_close_range, request->worker_fd ? 8 : 7, UINT32_MAX, 0, 0, 0, 0), 4, 2);
     const struct dg_supervisor_action action = {0, 0, 0, 0};
     for (int signal = 1; signal <= 64; ++signal) {
         if (signal == SIGKILL || signal == SIGSTOP) continue;
@@ -104,6 +107,14 @@ long dg_linux_supervisor_spawn(const struct dg_supervisor_request *request,
         if (request->fds[index] < 10) return -EINVAL;
         for (int previous = 0; previous < index; ++previous)
             if (request->fds[index] == request->fds[previous]) return -EINVAL;
+    }
+    if (request->worker_fd) {
+        if (request->worker_fd < 10) return -EINVAL;
+        for (int index = 0; index < 7; ++index)
+            if (request->worker_fd == request->fds[index]) return -EINVAL;
+        long flags = dg_raw(SYS_fcntl, request->worker_fd, F_GETFL, 0, 0, 0, 0);
+        if (flags < 0) return flags;
+        if ((flags & O_ACCMODE) != O_RDONLY || (flags & O_PATH)) return -EINVAL;
     }
     const uint64_t blocked = UINT64_MAX;
     long result = dg_raw(SYS_rt_sigprocmask, SIG_SETMASK, (long)&blocked, (long)old_mask, 8, 0, 0);

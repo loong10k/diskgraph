@@ -178,6 +178,8 @@ mod linux_supervisor_abi;
 ))]
 mod linux_supervisor_launch_error;
 
+#[cfg(target_os = "linux")]
+mod linux_held_worker_image;
 #[cfg(all(
     target_os = "linux",
     any(target_arch = "x86_64", target_arch = "aarch64"),
@@ -185,6 +187,8 @@ mod linux_supervisor_launch_error;
     target_endian = "little"
 ))]
 mod linux_supervisor_launcher;
+#[cfg(target_os = "linux")]
+pub(crate) use linux_held_worker_image::LinuxHeldWorkerImage;
 
 #[cfg(all(
     target_os = "linux",

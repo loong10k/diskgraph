@@ -4,7 +4,7 @@ use crate::recovery_control::ControlError;
 /// 只有 Complete 同时表示原 owner 已退休且完成帧完整写入；仍不代替 broker 的实际接收及原 child wait。
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum SupervisorControlProgress {
-    /// 原资源仍 Pending，控制错误不能释放原责任。
+    /// 原资源仍 Pending，或版本2完成通知尚未开始交付；控制错误不能释放原责任。
     Pending {
         control_failure: Option<ControlError>,
     },
