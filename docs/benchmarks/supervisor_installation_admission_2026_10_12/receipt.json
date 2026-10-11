@@ -1,0 +1,44 @@
+{
+  "scope": "fixed Linux installer configuration and original root image admission; not full broker/service qualification",
+  "configuration_behavioral_red": {
+    "passed": 1,
+    "failed": 2,
+    "cause": [
+      "unsupported schema accepted",
+      "oversized JSON accepted"
+    ]
+  },
+  "local_platform": "macOS ARM64",
+  "focused_tests": {
+    "passed": 5,
+    "failed": 0
+  },
+  "source_layout": {
+    "passed": 6,
+    "failed": 0
+  },
+  "workflow_tests": {
+    "passed": 5,
+    "failed": 0
+  },
+  "clippy_passed": true,
+  "root_shell_syntax_passed": true,
+  "embedded_python_programs_compiled": 6,
+  "linux_root_image_and_config_native_test_executed": false,
+  "linux_test_body_not_compiled_on_macOS": true,
+  "not_completed": [
+    "product public broker executable and original namespaces",
+    "actual Pending owner frontend exit",
+    "macOS and Windows independent services",
+    "install upgrade rollback qualification",
+    "current source full CI"
+  ],
+  "source_sha256": {
+    "crates/diskgraph-engine/src/supervisor_service/installation_config.rs": "67e1e830a86b76c4f2e75a3de56c3e0718dfe92a28e535055d3da4cb7ccd0006",
+    "crates/diskgraph-engine/src/supervisor_service/held_installation_image.rs": "5397c096de192d6e8cb944f1d9ec91458760d0139df6f0013483bbdca45af829",
+    "crates/diskgraph-engine/src/supervisor_service/mod.rs": "541b8b67618c4f049772151de37d485f882b7a226d9b689446821eb35ccd3d80",
+    "crates/diskgraph-engine/src/supervisor_service/installation_config_tests.rs": "3f9ba5793d02656ce2fd820366c71bd8fd046235b9eeefd54d84f6a05d76ac11",
+    "crates/diskgraph-engine/src/supervisor_service/root_installation_path.rs": "c9bc346f770f589d609496b6af9a8c45f491c529281efef980a8b0d5d43294c0",
+    "crates/diskgraph-engine/src/supervisor_service/held_installation_image_tests.rs": "feb25ca13a4a8f775852dad714f904b961ada8ab1a9396d676c7551bc9f17774"
+  }
+}

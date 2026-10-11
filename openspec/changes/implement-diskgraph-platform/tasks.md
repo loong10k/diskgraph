@@ -420,3 +420,6 @@ CLI真实输出次序修复：原业务失败在host.execute退休完成后才�
 
 
 126cc4ce CI终态19/23成功，五平台包成功；Windows MSRV成功，stable Store失败为150ms夹具未进入真实COMMIT回调，Engine767/0/8。修正该错误优先级夹具：2秒原请求准备窗口，要求真实COMMIT进入期限前、同一期限后拒绝，生产250/50ms窗口未改；本机Store期限回归10/0，新原生待验收。独立UID前端夹具4/0只证明C输入输出角色；新增真实Rust CLI doctor原Child EOF/wait顺序需Linux CI，服务父项保持开放。见commit_hook_fixture_windows_126及actual_cli_doctor_vertical_2026_10_12。
+
+
+固定安装准入增量：配置行为RED1/2（schema与4KiB拒绝缺失）→本机配置/原File摘要资格5/0；root逐组件no-follow、单链接普通文件、原64KiB完整摘要、元数据变更拒绝与原期限已实现。Linux格式按POSIX原文本解释，避免Windows宿主路径语义改变协议。源码门禁6/0、Engine all-target Clippy、CI契约5/0、shell语法及六段Python编译通过。新增真实root镜像/配置正向与链接/可写/超限负向门禁未原生执行；公开broker二进制、原Pending退出、三平台服务安装父项保持开放。见supervisor_installation_config.md及supervisor_installation_admission_2026_10_12。

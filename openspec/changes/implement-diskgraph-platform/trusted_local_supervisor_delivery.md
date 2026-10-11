@@ -1,6 +1,6 @@
 # 可信本地 supervisor 的生产接入
 
-事实源仍为 implement-diskgraph-platform。正式 Q-02 将本地 CLI 视为 trusted local；root broker/独立服务 UID 是后续未批准的额外加固选择，不能仅凭设计稿成为产品必选依赖。保留原远程 token∩DB、固定受信镜像、出生绑定私有 IPC、原期限、跨进程容量、异常 ACTIVE 保留与真实恢复完成条件。此方案不声明抵御任意恶意同 UID 本地进程，也不安装系统服务。
+事实源仍为 implement-diskgraph-platform。正式 Q-02 将本地 CLI 视为 trusted local；用户已另行批准三平台独立监督服务及安装产物，本轮仅隔离验收，不安装桌面系统服务。root broker/独立服务 UID 的产品接线和原生资格仍未全部实现，不能仅凭设计稿宣称完成。保留原远程 token∩DB、固定受信镜像、出生绑定私有 IPC、原期限、跨进程容量、异常 ACTIVE 保留与真实恢复完成条件。
 
 ## 容量域的增量验收
 

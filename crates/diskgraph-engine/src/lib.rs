@@ -2,6 +2,7 @@
 
 #[cfg(all(test, any(target_os = "linux", target_os = "macos", windows)))]
 mod native_scan_engine_fixture;
+pub mod supervisor_service;
 
 #[cfg(test)]
 mod admin_policy_lookup_tests;

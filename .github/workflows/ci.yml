@@ -848,6 +848,15 @@ jobs:
             cli_image="$(cat "$fixture/diskgraph.path")" || exit $?
             worker_image="$(cat "$fixture/diskgraph-scan-worker.path")" || exit $?
             sudo env DG_LINUX_SUPERVISOR_ROLE="$fixture/role" DG_LINUX_SUPERVISOR_CLI="$cli_image" DG_LINUX_SUPERVISOR_WORKER="$worker_image" "$test_binary" "$doctor_case" --ignored --exact --nocapture || exit $?
+            image_case="supervisor_service::held_installation_image_tests::root_installer_original_image_accepts_exact_digest_and_rejects_aliases"
+            "$test_binary" "$image_case" --ignored --exact --list > "$fixture/image-tests.list" || exit $?
+            python3 - "$fixture/image-tests.list" "$image_case" <<'PYTHON' || exit $?
+          import sys
+          names = [line.split(': test')[0] for line in open(sys.argv[1]) if line.rstrip().endswith(': test')]
+          if names != [sys.argv[2]]:
+              raise SystemExit('current Engine binary must contain root installation image/config qualification')
+          PYTHON
+            sudo env DG_LINUX_SUPERVISOR_CLI="$cli_image" "$test_binary" "$image_case" --ignored --exact --nocapture || exit $?
           } 2>&1 | tee "$fixture/qualification.log"
       - name: Preserve Linux root atomic supervisor birth primitive
         if: ${{ always() && runner.os == 'Linux' && (steps.linux_supervisor_spawn.outcome == 'success' || steps.linux_supervisor_spawn.outcome == 'failure') }}
