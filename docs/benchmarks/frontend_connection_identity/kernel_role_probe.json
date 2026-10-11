@@ -1,0 +1,70 @@
+{
+  "rows": [
+    {
+      "mode": "plain",
+      "kernel_peer": [
+        6,
+        23112,
+        23112
+      ],
+      "actual_message_credentials": [
+        6,
+        23112,
+        23112
+      ],
+      "passcred_inherited": true,
+      "delivered_fd_closed": false,
+      "child_exit": 0,
+      "original_child_waited": true
+    },
+    {
+      "mode": "deny",
+      "kernel_peer": [
+        7,
+        23113,
+        23113
+      ],
+      "actual_message_credentials": null,
+      "passcred_inherited": true,
+      "delivered_fd_closed": false,
+      "child_exit": 0,
+      "original_child_waited": true
+    },
+    {
+      "mode": "delegate",
+      "kernel_peer": [
+        8,
+        23112,
+        23112
+      ],
+      "actual_message_credentials": [
+        9,
+        23112,
+        23112
+      ],
+      "passcred_inherited": true,
+      "delivered_fd_closed": false,
+      "child_exit": 0,
+      "original_child_waited": true
+    },
+    {
+      "mode": "rights",
+      "kernel_peer": [
+        10,
+        23112,
+        23112
+      ],
+      "actual_message_credentials": [
+        10,
+        23112,
+        23112
+      ],
+      "passcred_inherited": true,
+      "delivered_fd_closed": true,
+      "child_exit": 0,
+      "original_child_waited": true
+    }
+  ],
+  "rust_frontend_auth_qualified": false,
+  "full_broker_qualified": false
+}

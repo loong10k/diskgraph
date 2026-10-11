@@ -10,6 +10,9 @@
 #include <sys/prctl.h>
 #include <sys/syscall.h>
 #include <sys/types.h>
+#include <sys/un.h>
+#include <sys/wait.h>
+#include <poll.h>
 #include <unistd.h>
 
 /* 固定ELF夹具，不创建Engine或授予任意命令；观察真正exec后的身份与白名单。 */
@@ -24,6 +27,47 @@ static int notification(unsigned version, unsigned sequence, const char *value) 
 }
 
 int main(int argc, char **argv) {
+    if (argc == 4 && strcmp(argv[1], "frontend") == 0) {
+        /* 真实公开连接测试角色：连接者与逐消息发送者可故意不同；不创建Engine或监督owner。 */
+        int connection = socket(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0);
+        struct sockaddr_un address = {.sun_family = AF_UNIX};
+        if (connection < 0 || strlen(argv[2]) >= sizeof(address.sun_path)) return 8;
+        memcpy(address.sun_path, argv[2], strlen(argv[2]) + 1);
+        if (connect(connection, (struct sockaddr *)&address, sizeof(address)) != 0) return 8;
+        const char input[] = "DG_FRONT_INPUT\n";
+        int proof[2] = {-1, -1};
+        if (strcmp(argv[3], "rights") == 0) {
+            if (pipe2(proof, O_CLOEXEC) != 0) return 8;
+            char auxiliary[CMSG_SPACE(sizeof(int))]; memset(auxiliary, 0, sizeof(auxiliary));
+            struct iovec vector = {.iov_base = (void *)input, .iov_len = sizeof(input) - 1};
+            struct msghdr message = {.msg_iov = &vector, .msg_iovlen = 1, .msg_control = auxiliary, .msg_controllen = sizeof(auxiliary)};
+            struct cmsghdr *header = CMSG_FIRSTHDR(&message);
+            header->cmsg_level = SOL_SOCKET; header->cmsg_type = SCM_RIGHTS; header->cmsg_len = CMSG_LEN(sizeof(int));
+            memcpy(CMSG_DATA(header), &proof[1], sizeof(int));
+            if (sendmsg(connection, &message, MSG_NOSIGNAL) != (ssize_t)sizeof(input) - 1) return 8;
+            close(proof[1]);
+        } else if (strcmp(argv[3], "delegate") == 0) {
+            pid_t writer = fork();
+            if (writer < 0) return 8;
+            if (writer == 0) _exit(send(connection, input, sizeof(input) - 1, MSG_NOSIGNAL) == (ssize_t)sizeof(input) - 1 ? 0 : 8);
+            int status; if (waitpid(writer, &status, 0) != writer || !WIFEXITED(status) || WEXITSTATUS(status) != 0) return 8;
+        } else {
+            ssize_t sent = send(connection, input, sizeof(input) - 1, MSG_NOSIGNAL);
+            if (sent != (ssize_t)sizeof(input) - 1 && errno != EPIPE && errno != ECONNRESET) return 8;
+        }
+        shutdown(connection, SHUT_WR);
+        struct pollfd waiting = {.fd = connection, .events = POLLIN | POLLHUP};
+        if (poll(&waiting, 1, 5000) <= 0) return 8;
+        char output[64]; ssize_t received = recv(connection, output, sizeof(output), 0);
+        if (strcmp(argv[3], "plain") == 0 && (received != 15 || memcmp(output, "DG_FRONT_OUTPUT", 15) != 0)) return 8;
+        if (strcmp(argv[3], "plain") != 0 && (received > 0 || (received < 0 && errno != ECONNRESET))) return 8;
+        if (proof[0] >= 0) {
+            waiting.fd = proof[0]; waiting.revents = 0;
+            if (poll(&waiting, 1, 5000) <= 0 || read(proof[0], output, 1) != 0) return 8;
+            printf("{\"unexpected_fd_closed\":true}\n"); close(proof[0]);
+        }
+        close(connection); return 0;
+    }
     struct __user_cap_header_struct header = {_LINUX_CAPABILITY_VERSION_3, 0};
     struct __user_cap_data_struct data[2] = {{0}, {0}};
     int cap_ok = syscall(SYS_capget, &header, data) == 0;

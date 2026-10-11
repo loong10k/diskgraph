@@ -399,3 +399,5 @@ e49ee361完整CI终态：38149478669已完成19/23成功、4失败、0取消，�
 公共输出失败EOF补验：真实超时/取消后socket仍未关闭回归RED0/1，失败时同步关闭公共端并保留原交付错误后GREEN3/0；源规范6/0、workspace Clippy、显式10包fmt与OpenSpec通过。69931541 Linux x86 stable/MSRV两份原job确认六项真实root owner均6/0（含修正屏障及原启动期限过期后的生命周期），两job总体失败来自已定位的退出码夹具错误，不能把子门禁通过叫做整体CI通过，也不能用于证明新增公共EOF接线。
 
 公共输入接线增量：原非阻塞Unix控制端增加至多4096字节有界完整写、原deadline/取消、部分写按实际字节推进及失败关闭；Linux父侧公开write_stdin_until/finish_stdin，结束后禁止新输入，输入EOF绝不代替原wait/私有确认。首次新测试无法编译因API缺失，明确不算行为RED；实施后本机3/0、旧Unix输入9/0、源码规范6/0及workspace Clippy通过。新第七项Rust root门禁要求字节一致、stdin/public EOF后pidfd仍存活且ACTIVE占用；原生尚待CI。固定C角色单独在LinuxARM隔离容器真实执行身份/FD白名单、分片20字节与EOF、通知后仍活着、原材料屏障和Popen wait通过，仅资格夹具证据，不能替代Rust原子出生或服务验收。见foreground_input_delivery/。
+
+公共连接身份接线增量：LinuxFrontendConnection以固定受信配置UID核对原SO_PEERCRED，再逐笔绑定SCM_CREDENTIALS的PID/UID/GID；listener先启用SO_PASSCRED，拒绝缺少预配置，4096字节原缓冲与取消/期限/错误锁存，半关闭仍可完成输出。辅助消息校验由原私有reader提取共用，保持先关闭额外FD再检查取消和原错误语义。四项真实Rust资格（正确身份/不同UID/同UID转交PID变化/意外FD关闭）已纳入root原生CI；本机不能运行Linux分支，不记红绿通过。隔离LinuxARM C客户端/内核四场景通过，仅验证夹具行为及内核事实；公共broker/安装信任与服务父项继续开放。见frontend_connection_identity/。

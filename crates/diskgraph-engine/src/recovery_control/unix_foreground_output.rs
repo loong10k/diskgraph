@@ -13,6 +13,11 @@ pub struct UnixForegroundOutput {
 }
 
 impl UnixForegroundOutput {
+    /// 参数：无；返回：内部借用的原FD数值或已关闭状态，不复制或交付描述符所有权。
+    #[cfg(target_os = "linux")]
+    pub(crate) fn raw_fd(&self) -> Option<std::os::fd::RawFd> {
+        self.stream.as_ref().map(AsRawFd::as_raw_fd)
+    }
     /// 参数：stream为宿主已准入且不共享的原公共输出端；返回：有限非阻塞输出owner或原错误。
     pub fn new(stream: UnixStream) -> io::Result<Self> {
         stream.set_nonblocking(true)?;

@@ -818,6 +818,15 @@ jobs:
               raise SystemExit('original Engine binary must contain all seven owner qualification tests')
           PYTHON
             sudo env DG_LINUX_SUPERVISOR_ROLE="$fixture/role" "$test_binary" native_child::linux_supervisor_owner_tests:: --ignored --nocapture || exit $?
+            "$test_binary" recovery_control::linux_frontend_connection_tests:: --ignored --list > "$fixture/frontend-tests.list" || exit $?
+            python3 - "$fixture/frontend-tests.list" <<'PYTHON' || exit $?
+          import sys
+          names = [line.split(': test')[0] for line in open(sys.argv[1]) if line.rstrip().endswith(': test')]
+          expected = {'recovery_control::linux_frontend_connection_tests::' + name for name in ('original_frontend_identity_and_half_close_keep_exact_output', 'other_frontend_uid_is_rejected_before_input', 'transferred_connection_does_not_inherit_original_sender_identity', 'unexpected_frontend_fd_is_closed_and_rejected')}
+          if set(names) != expected or len(names) != 4:
+              raise SystemExit('original Engine binary must contain all four frontend credential tests')
+          PYTHON
+            sudo env DG_LINUX_SUPERVISOR_ROLE="$fixture/role" "$test_binary" recovery_control::linux_frontend_connection_tests:: --ignored --nocapture || exit $?
           } 2>&1 | tee "$fixture/qualification.log"
       - name: Preserve Linux root atomic supervisor birth primitive
         if: ${{ always() && runner.os == 'Linux' && (steps.linux_supervisor_spawn.outcome == 'success' || steps.linux_supervisor_spawn.outcome == 'failure') }}

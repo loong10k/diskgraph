@@ -1,7 +1,7 @@
 use super::{ControlError, ControlFrame, ControlReceiver, LinuxControlRead};
 use crate::recovery_slot::LinuxSupervisorPeer;
 use std::collections::VecDeque;
-use std::os::fd::{AsRawFd, FromRawFd, OwnedFd};
+use std::os::fd::AsRawFd;
 use std::os::unix::net::UnixStream;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Instant;
@@ -167,53 +167,13 @@ impl LinuxControlReader {
             };
         }
         // 接收后先处置所有已交付 FD；即使此时取消/过期或凭据错误也不能泄漏。
-        let mut credentials = None;
-        let mut valid = true;
-        let mut header = unsafe { libc::CMSG_FIRSTHDR(&message) };
-        while !header.is_null() {
-            let base = unsafe { libc::CMSG_LEN(0) } as usize;
-            let length = unsafe { (*header).cmsg_len };
-            let offset = (header as usize).checked_sub(control.as_ptr() as usize);
-            if length < base
-                || !offset.is_some_and(|start| {
-                    start.checked_add(length).is_some_and(|end| {
-                        end <= message.msg_controllen && end <= std::mem::size_of_val(&control)
-                    })
-                })
-            {
-                valid = false;
-                break;
-            }
-            let length = length - base;
-            let level = unsafe { (*header).cmsg_level };
-            let kind = unsafe { (*header).cmsg_type };
-            let data = unsafe { libc::CMSG_DATA(header) };
-            if level == libc::SOL_SOCKET && kind == libc::SCM_RIGHTS {
-                valid = false;
-                for index in 0..length / std::mem::size_of::<libc::c_int>() {
-                    let fd =
-                        unsafe { std::ptr::read_unaligned(data.cast::<libc::c_int>().add(index)) };
-                    if fd >= 0 {
-                        drop(unsafe { OwnedFd::from_raw_fd(fd) });
-                    }
-                }
-            } else if level == libc::SOL_SOCKET
-                && kind == libc::SCM_CREDENTIALS
-                && length == std::mem::size_of::<libc::ucred>()
-            {
-                if credentials.is_some() {
-                    valid = false;
-                }
-                credentials = Some(unsafe { std::ptr::read_unaligned(data.cast::<libc::ucred>()) });
-            } else {
-                valid = false;
-            }
-            header = unsafe { libc::CMSG_NXTHDR(&message, header) };
-        }
+        let credentials = super::linux_message_credentials::inspect_credentials(
+            &message,
+            control.as_ptr() as usize,
+            std::mem::size_of_val(&control),
+        );
         self.check(cancel)?;
-        if !valid || message.msg_flags & (libc::MSG_TRUNC | libc::MSG_CTRUNC) != 0 {
-            return Err(ControlError::Protocol);
-        }
+        let credentials = credentials?;
         if count == 0 {
             self.receiver.end_of_stream()?;
             self.ended = true;

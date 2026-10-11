@@ -24,3 +24,22 @@ UnixForegroundOutput只持有公共输出，不认证客户、不释放恢复资
 输入接线增量：Linux父侧write_stdin_until提供最多4096字节原输入块、原deadline/取消检查、按实际发送量推进和失败关闭；finish_stdin只关闭原输入，不能据此释放child或ACTIVE。共用UnixControlChannel新测试3/0及旧输入回归9/0在本机通过。第七项root原生验收已定义，要求逐字节输入及stdin EOF、公共EOF、原pidfd仍活着和ACTIVE保留，最后仍须原材料屏障/原wait才能CLEAN；尚未原生执行Rust接线。
 
 未完成：公共broker启动和认证、完整公开MCP stdio转发的产品接线、stderr交付与有界恢复诊断、前端真实进程退出、HTTP部署生命周期、macOS/Windows服务及安装链。不得将本组件称为完整有限前台退出或生产服务。
+
+## Linux公共连接认证接线
+
+LinuxFrontendConnection接受原公共连接及受信部署配置中的非root UID。原listener必须在accept之前启用SO_PASSCRED；构造核对SO_PEERCRED的UID并绑定原PID/UID/GID，每笔recvmsg再比较实际SCM_CREDENTIALS，防止连接转交后沿用创建者身份。固定4096字节缓冲、不分配整条请求，辅助FD由共用校验先关闭再拒绝；错误锁存并关闭公共端，失败不得转成输出owner。输入半关闭允许先完成原输出。
+
+```mermaid
+flowchart TD
+    L[原listener先启用SO_PASSCRED] --> A[accept原连接]
+    A --> U{固定配置UID与原内核连接者一致}
+    U -->|否| X[拒绝并关闭连接]
+    U -->|是| P[绑定原PID UID GID]
+    P --> M[单笔有界recvmsg]
+    M --> F{辅助FD或逐消息身份异常}
+    F -->|是| X
+    F -->|否| B[借用原4096字节输入块]
+    B -. 产品接线待完成 .-> E[现有CLI MCP授权与原监督owner]
+```
+
+组件不提供socket目录/安装者信任，不授予Engine管理员或远程token能力。现有HTTP/SSE请求授权仍需原token与实时数据库权限交集。四项Rust原生资格测试已定义并纳入CI，当前未执行新源码；隔离LinuxARM的C客户端与内核探针已验证测试角色、SO_PASSCRED继承、同UID不同发送PID及意外FD关闭，只是资格夹具证据。

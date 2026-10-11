@@ -1,4 +1,16 @@
 //! 私有恢复控制协议；协议校验不证明原生资源回收或前端已经有限退出。
+#[cfg(target_os = "linux")]
+mod frontend_read;
+#[cfg(target_os = "linux")]
+mod linux_frontend_connection;
+#[cfg(all(test, target_os = "linux"))]
+mod linux_frontend_connection_tests;
+#[cfg(target_os = "linux")]
+mod linux_message_credentials;
+#[cfg(target_os = "linux")]
+pub use frontend_read::FrontendRead;
+#[cfg(target_os = "linux")]
+pub use linux_frontend_connection::LinuxFrontendConnection;
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 mod unix_foreground_output;
 #[cfg(any(target_os = "linux", target_os = "macos"))]

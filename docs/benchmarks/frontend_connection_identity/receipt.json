@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "local_platform": "macOS ARM64",
+  "source_layout": {
+    "passed": 6,
+    "failed": 0,
+    "ignored": 0
+  },
+  "workspace_clippy_passed": true,
+  "explicit_workspace_fmt_passed": true,
+  "linux_rust_auth_native_qualified": false,
+  "linux_rust_shared_credentials_native_revalidated": false,
+  "kernel_role_probe": {
+    "platform": "Linux ARM64",
+    "cases": 4,
+    "passed": 4,
+    "qualifies_rust_implementation": false
+  },
+  "root_ci_required_auth_case_count": 4,
+  "full_broker_qualified": false,
+  "installation_trust_qualified": false,
+  "three_platform_services_qualified": false,
+  "desktop_services_installed": false,
+  "source_sha256": {
+    "crates/diskgraph-engine/src/recovery_control/linux_message_credentials.rs": "2e9d4f20ead0d0d20fc8c6c5525c9ef4aba381bbbc4a10b1eecb9bc392711d1d",
+    "crates/diskgraph-engine/src/recovery_control/linux_control_reader.rs": "9d9385fbbe6cffda760e79e238b873d7bb6ffc4733ca5ff5a0fdc44899c68e2d",
+    "crates/diskgraph-engine/src/recovery_control/linux_frontend_connection.rs": "aafca0ddb9924b5d1c0219fbc0b34e2124c28f39dfb40bc6e576812de216dfd8",
+    "crates/diskgraph-engine/src/recovery_control/linux_frontend_connection_tests.rs": "06df0c431c7b437df53e66fa29259037bb1035769395e47f13612c23a6f14b94",
+    "crates/diskgraph-engine/src/recovery_control/frontend_read.rs": "e2932fdc374b91a6e17394dce3832388231115fab3ca684bc7bf11dcb3a78381",
+    "crates/diskgraph-engine/src/recovery_control/unix_foreground_output.rs": "7076f371ea31deef15042d897a27b243e25e7aa79f54b9ab97b375400cb67440",
+    "crates/diskgraph-engine/src/recovery_control/mod.rs": "e98e3dcd7b0e321335d032c4683d53a8974f1c8e12fef5c10c85d3f672044046",
+    "scripts/fixtures/linux_supervisor_birth/role.c": "21175cc84f336097fde63400268cbc4f00976e65e9a31880f64498e5f6a8d078",
+    ".github/workflows/ci.yml": "c3c4e3224701fcb69f81a8efbd0cc4f9c9c86b64c4c8cff857622ebb48cb3e95"
+  }
+}
