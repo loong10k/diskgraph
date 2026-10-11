@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "native_failure": {
+    "run": 38149478669,
+    "job": 114499740619,
+    "artifact": 11706880091,
+    "commit": "e49ee361db37ca02abaf80236aad577f4a65b42a",
+    "case": "100ms nominal hold with 150ms injected wake delay",
+    "terminal_ms": 259.745208,
+    "actual_hold_unavailable": true,
+    "conclusion": "failed; actual hold was not recorded before assertion, do not claim environmental-only failure"
+  },
+  "change": "join original holder after capturing query and terminal elapsed; preserve same test cases, verdicts and budgets",
+  "local_platform": "macOS ARM64",
+  "local_test": {
+    "passed": 1,
+    "failed": 0,
+    "ignored": 0
+  },
+  "database_ms": 250,
+  "capability_ms": 50,
+  "request_ms_short": 60,
+  "fixed_native_ci_passed": false,
+  "source_sha256": {
+    "crates/diskgraph-engine/src/revision_reader_lock_gap_tests.rs": "41ec12e7442b472ea5e7de633be0711e1a4d7c278f08bdf840a1adf97aca2664"
+  }
+}

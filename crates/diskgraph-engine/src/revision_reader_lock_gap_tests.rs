@@ -94,6 +94,7 @@ fn terminal_reader_waits_for_brief_contention_but_keeps_its_observation_window()
         let held_elapsed = std::sync::Mutex::new(None);
         let observed_wait = std::sync::atomic::AtomicBool::new(false);
         std::thread::scope(|threads| {
+            let held_thread = RefCell::new(None);
             let policy = Contended {
                 calls: Cell::new(0),
                 terminal_started: Cell::new(None),
@@ -105,7 +106,7 @@ fn terminal_reader_waits_for_brief_contention_but_keeps_its_observation_window()
                     let observed_wait = &observed_wait;
                     let engine = &engine;
                     let held_elapsed = &held_elapsed;
-                    threads.spawn(move || {
+                    let original_thread = threads.spawn(move || {
                         let held = engine.control_store().unwrap();
                         let held_started = Instant::now();
                         tx.send(()).unwrap();
@@ -126,6 +127,7 @@ fn terminal_reader_waits_for_brief_contention_but_keeps_its_observation_window()
                         drop(held);
                         *held_elapsed.lock().unwrap() = Some(held_started.elapsed());
                     });
+                    *held_thread.borrow_mut() = Some(original_thread);
                     rx.recv_timeout(Duration::from_secs(2)).unwrap();
                 },
             };
@@ -138,11 +140,14 @@ fn terminal_reader_waits_for_brief_contention_but_keeps_its_observation_window()
                 |_, _, _| Ok(()),
             );
             let elapsed = policy.terminal_started.get().unwrap().elapsed();
+            let request_elapsed = started.elapsed();
+            // 固定查询时长后再join同一持锁线程；诊断须包含实际持锁时长，不能把尚未写入的None当作短竞争。
+            held_thread.borrow_mut().take().unwrap().join().unwrap();
             let timing = format!(
                 "hold_ms={hold_ms}, request_ms={request_ms}, allowed={allowed}, wake_delay_ms={wake_delay_ms}, actual_hold={:?}, callback={:?}, terminal={elapsed:?}, request={:?}",
                 *held_elapsed.lock().unwrap(),
                 policy.callback_elapsed.get(),
-                started.elapsed(),
+                request_elapsed,
             );
             eprintln!("terminal_contention: {timing}; result={result:?}");
             assert_eq!(policy.calls.get(), 2);
