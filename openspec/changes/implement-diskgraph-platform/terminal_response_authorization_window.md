@@ -17,3 +17,9 @@ The adapter retains its existing cancellation gates. This finalizer introduces n
 - Windows stable's separate COMMIT-lock fixture passes locally, but its original Windows failure remains unresolved. Its assertion now includes the actual result, elapsed time and lock witness; no deadline or acceptance condition is relaxed.
 
 后续门禁：候选提交的真实 CLI/MCP/FFI 与 Linux/Windows/macOS CI；Windows COMMIT 失败原因确认；监督进程交接、前台有限退出与最终跨平台性能验收。此记录不勾选生产完成。
+
+## scope 元数据撤权见证的末段窗口
+
+用户已批准数据库终检窗口为250ms，能力回调仍为50ms。scope show 在能力与实时授权复验之后，还须观察原撤权见证和授权代次；该阶段的控制锁等待与SQL必须共用 `min(原请求期限, 当前时间+250ms)`，不能继续消耗整次请求的剩余预算，也不能续期原请求或交付迟到结果。
+
+隔离验收使用同一真实Engine控制锁：末段能力与实时SQL完成后，让另一线程持有原控制锁直到被测请求返回；请求原期限2秒。旧路径实际等待2.000秒后拒绝，回归失败。修复必须在独立终检窗口拒绝、原持锁线程被显式回收、已编码结果不交付；保持现有撤权、到期、迟到能力及正常结果回归。此项不替代原生服务和三平台父门禁。

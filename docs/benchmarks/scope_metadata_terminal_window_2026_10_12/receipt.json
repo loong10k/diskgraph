@@ -1,0 +1,35 @@
+{
+  "base_commit": "30513a7f",
+  "scope": "scope metadata final withdrawal witness control lock and SQL",
+  "request_deadline_ms": 2000,
+  "database_window_ms": 250,
+  "capability_window_ms": 50,
+  "red": "actual lock waited 2.000257041s; elapsed assertion failed",
+  "green_elapsed_us": 251219,
+  "local_tests": {
+    "terminal_lock": {
+      "passed": 1,
+      "failed": 0
+    },
+    "cli_scope_show": {
+      "passed": 4,
+      "failed": 0
+    },
+    "engine_source_layout": {
+      "passed": 6,
+      "failed": 0
+    }
+  },
+  "checks": {
+    "engine_cli_clippy": "passed",
+    "fmt": "passed",
+    "openspec_strict": "passed"
+  },
+  "native_ci_for_candidate": "not run yet; existing run 38179170488 is previous 2a6e2db6 source",
+  "production_ready": false,
+  "source_sha256": {
+    "crates/diskgraph-engine/src/scope_metadata_query.rs": "5ffeeaf0981851b6fd3f8ef69452ce83890ae4c63f79860df410ea1ce64f160b",
+    "crates/diskgraph-engine/src/scope_metadata_terminal_tests.rs": "6067efabce4926c5c18bbe3ac9c6489566a7fd9c7e158c805e6c3be3941a8e22",
+    "crates/diskgraph-engine/src/terminal_authorization_windows.rs": "ee33b2fab3d46dec4e37c989059c84f6f093309f6611874e8dd9576dbfcc25ec"
+  }
+}
