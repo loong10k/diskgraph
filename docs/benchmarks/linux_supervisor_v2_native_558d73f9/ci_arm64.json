@@ -1,0 +1,370 @@
+{
+  "schema_version": 1,
+  "scope": "authenticated Linux doctor birth and original retirement notification only",
+  "public_broker_qualified": false,
+  "pending_frontend_exit_qualified": false,
+  "services_registered": false,
+  "fixture_ancestry": {
+    "/": {
+      "uid": 0,
+      "mode": 493,
+      "is_directory": true
+    },
+    "/var": {
+      "uid": 0,
+      "mode": 493,
+      "is_directory": true
+    },
+    "/var/lib": {
+      "uid": 0,
+      "mode": 493,
+      "is_directory": true
+    },
+    "/opt": {
+      "uid": 0,
+      "mode": 511,
+      "is_directory": true
+    }
+  },
+  "images": {
+    "diskgraph": {
+      "bytes": 106399720,
+      "sha256": "4e4af8a2ceddb9bacf8fb1076dc332ce7a8d7e158fe4daafcb381d63c0403105"
+    },
+    "diskgraph-scan-worker": {
+      "bytes": 19321224,
+      "sha256": "36b0c3a136ca383f27460741272b449f5b04c553cffbbcc71689c55d1142092b"
+    }
+  },
+  "cases": [
+    {
+      "case": "clean",
+      "passed": true,
+      "exit_code": 0,
+      "error_code": null,
+      "elapsed_seconds": 1.5375978800000212,
+      "data_born": true,
+      "slot_record": "DGSL01C\n",
+      "stdout": "{\"api_version\":2,\"ok\":true,\"server_id\":\"srv-41b9a33e-f100-49a3-8a31-5e7b1b58bd43\",\"coverage\":null,\"data\":{\"checks\":[{\"check\":\"graph_store\",\"message\":\"present at /var/lib/diskgraph-birth-lpuz1vu3/clean/data/database/diskgraph.sqlite\",\"severity\":\"ok\"},{\"check\":\"control_store\",\"message\":\"present at /var/lib/diskgraph-birth-lpuz1vu3/clean/data/database/diskgraph-control.sqlite\",\"severity\":\"ok\"},{\"check\":\"server_identity\",\"message\":\"srv-41b9a33e-f100-49a3-8a31-5e7b1b58bd43\",\"severity\":\"ok\"},{\"check\":\"authorization\",\"message\":\"an ungranted principal sees no scope\",\"severity\":\"ok\"},{\"check\":\"capacity\",\"message\":\"data directory holds 769272 bytes\",\"severity\":\"ok\"},{\"check\":\"capabilities\",\"message\":\"13 tools served in profile read-full; 26 catalog families not yet delivered\",\"severity\":\"ok\"}],\"data_dir\":\"/var/lib/diskgraph-birth-lpuz1vu3/clean/data/database\",\"healthy\":true,\"served\":{\"profile\":\"read-full\",\"tools\":[\"diskgraph_status\",\"diskgraph_snapshots\",\"diskgraph_changes\",\"diskgraph_growth\",\"diskgraph_explore\",\"diskgraph_search\",\"diskgraph_node\",\"diskgraph_children\",\"diskgraph_top\",\"diskgraph_related\",\"diskgraph_explain\",\"diskgraph_impact\",\"diskgraph_candidates\"]}},\"warnings\":[],\"truncated\":false}\n",
+      "stderr": "",
+      "original_child_waited": true,
+      "private_frames": [
+        {
+          "version": 1,
+          "session": [
+            191,
+            235,
+            228,
+            103,
+            200,
+            225,
+            56,
+            27,
+            215,
+            52,
+            211,
+            184,
+            157,
+            211,
+            207,
+            115,
+            201,
+            39,
+            0,
+            157,
+            129,
+            161,
+            7,
+            118,
+            7,
+            175,
+            243,
+            203,
+            210,
+            255,
+            4,
+            50
+          ],
+          "sequence": 0,
+          "notification": {
+            "kind": "ready"
+          }
+        },
+        {
+          "version": 1,
+          "session": [
+            191,
+            235,
+            228,
+            103,
+            200,
+            225,
+            56,
+            27,
+            215,
+            52,
+            211,
+            184,
+            157,
+            211,
+            207,
+            115,
+            201,
+            39,
+            0,
+            157,
+            129,
+            161,
+            7,
+            118,
+            7,
+            175,
+            243,
+            203,
+            210,
+            255,
+            4,
+            50
+          ],
+          "sequence": 1,
+          "notification": {
+            "kind": "foreground_ended",
+            "exit_code": 0,
+            "panicked": false
+          }
+        },
+        {
+          "version": 1,
+          "session": [
+            191,
+            235,
+            228,
+            103,
+            200,
+            225,
+            56,
+            27,
+            215,
+            52,
+            211,
+            184,
+            157,
+            211,
+            207,
+            115,
+            201,
+            39,
+            0,
+            157,
+            129,
+            161,
+            7,
+            118,
+            7,
+            175,
+            243,
+            203,
+            210,
+            255,
+            4,
+            50
+          ],
+          "sequence": 2,
+          "notification": {
+            "kind": "cleanup_complete"
+          }
+        }
+      ],
+      "actual_control_credentials": [
+        [
+          24546,
+          23111,
+          23111
+        ]
+      ]
+    },
+    {
+      "case": "active_slot",
+      "passed": true,
+      "exit_code": 8,
+      "error_code": "recovery_unconfirmed",
+      "elapsed_seconds": 1.4916571879999765,
+      "data_born": false,
+      "slot_record": "DGSL01A\n",
+      "stdout": "{\"api_version\":2,\"coverage\":null,\"error\":{\"code\":\"recovery_unconfirmed\",\"exit_code\":8,\"message\":\"recovery_unconfirmed (exit 8)\"},\"ok\":false,\"truncated\":false,\"warnings\":[]}\n",
+      "stderr": "diskgraph: startup stage=recovery_reservation failed\ndiskgraph: engine startup failed\n",
+      "original_child_waited": true,
+      "private_frames": [],
+      "actual_control_credentials": []
+    },
+    {
+      "case": "forged_role",
+      "passed": true,
+      "exit_code": 3,
+      "error_code": "permission_denied",
+      "elapsed_seconds": 0.006606564999970033,
+      "data_born": false,
+      "slot_record": "DGSL01C\n",
+      "stdout": "{\"api_version\":2,\"coverage\":null,\"error\":{\"code\":\"permission_denied\",\"exit_code\":3,\"message\":\"permission_denied (exit 3)\"},\"ok\":false,\"truncated\":false,\"warnings\":[]}\n",
+      "stderr": "diskgraph: engine startup failed\n",
+      "original_child_waited": true,
+      "private_frames": [],
+      "actual_control_credentials": []
+    },
+    {
+      "case": "wrong_session",
+      "passed": true,
+      "exit_code": 3,
+      "error_code": "permission_denied",
+      "elapsed_seconds": 0.0065344649999588,
+      "data_born": false,
+      "slot_record": "DGSL01C\n",
+      "stdout": "{\"api_version\":2,\"coverage\":null,\"error\":{\"code\":\"permission_denied\",\"exit_code\":3,\"message\":\"permission_denied (exit 3)\"},\"ok\":false,\"truncated\":false,\"warnings\":[]}\n",
+      "stderr": "diskgraph: engine startup failed\n",
+      "original_child_waited": true,
+      "private_frames": [],
+      "actual_control_credentials": []
+    },
+    {
+      "case": "wrong_sender",
+      "passed": true,
+      "exit_code": 3,
+      "error_code": "permission_denied",
+      "elapsed_seconds": 0.006429679000007127,
+      "data_born": false,
+      "slot_record": "DGSL01C\n",
+      "stdout": "{\"api_version\":2,\"coverage\":null,\"error\":{\"code\":\"permission_denied\",\"exit_code\":3,\"message\":\"permission_denied (exit 3)\"},\"ok\":false,\"truncated\":false,\"warnings\":[]}\n",
+      "stderr": "diskgraph: engine startup failed\n",
+      "original_child_waited": true,
+      "private_frames": [],
+      "actual_control_credentials": []
+    },
+    {
+      "case": "expired",
+      "passed": true,
+      "exit_code": 7,
+      "error_code": "budget_exceeded",
+      "elapsed_seconds": 0.0063937529999975595,
+      "data_born": false,
+      "slot_record": "DGSL01C\n",
+      "stdout": "{\"api_version\":2,\"coverage\":null,\"error\":{\"code\":\"budget_exceeded\",\"exit_code\":7,\"message\":\"budget_exceeded (exit 7)\"},\"ok\":false,\"truncated\":false,\"warnings\":[]}\n",
+      "stderr": "diskgraph: engine startup failed\n",
+      "original_child_waited": true,
+      "private_frames": [],
+      "actual_control_credentials": []
+    },
+    {
+      "case": "wrong_image",
+      "passed": true,
+      "exit_code": 9,
+      "error_code": "conflict",
+      "elapsed_seconds": 1.4891443899999786,
+      "data_born": false,
+      "slot_record": "DGSL01C\n",
+      "stdout": "{\"api_version\":2,\"coverage\":null,\"error\":{\"code\":\"conflict\",\"exit_code\":9,\"message\":\"conflict (exit 9)\"},\"ok\":false,\"truncated\":false,\"warnings\":[]}\n",
+      "stderr": "diskgraph: engine startup failed\n",
+      "original_child_waited": true,
+      "private_frames": [],
+      "actual_control_credentials": []
+    },
+    {
+      "case": "wrong_data",
+      "passed": true,
+      "exit_code": 3,
+      "error_code": "permission_denied",
+      "elapsed_seconds": 0.006824535000077958,
+      "data_born": false,
+      "slot_record": "DGSL01C\n",
+      "stdout": "{\"api_version\":2,\"coverage\":null,\"error\":{\"code\":\"permission_denied\",\"exit_code\":3,\"message\":\"permission_denied (exit 3)\"},\"ok\":false,\"truncated\":false,\"warnings\":[]}\n",
+      "stderr": "diskgraph: engine startup failed\n",
+      "original_child_waited": true,
+      "private_frames": [],
+      "actual_control_credentials": []
+    },
+    {
+      "case": "aliased_control",
+      "passed": true,
+      "exit_code": 3,
+      "error_code": "permission_denied",
+      "elapsed_seconds": 0.0062826240000504185,
+      "data_born": false,
+      "slot_record": "DGSL01C\n",
+      "stdout": "{\"api_version\":2,\"coverage\":null,\"error\":{\"code\":\"permission_denied\",\"exit_code\":3,\"message\":\"permission_denied (exit 3)\"},\"ok\":false,\"truncated\":false,\"warnings\":[]}\n",
+      "stderr": "diskgraph: engine startup failed\n",
+      "original_child_waited": true,
+      "private_frames": [],
+      "actual_control_credentials": []
+    },
+    {
+      "case": "stdio_control",
+      "passed": true,
+      "exit_code": 3,
+      "error_code": "permission_denied",
+      "elapsed_seconds": 0.006662705000053393,
+      "data_born": false,
+      "slot_record": "DGSL01C\n",
+      "stdout": "{\"api_version\":2,\"coverage\":null,\"error\":{\"code\":\"permission_denied\",\"exit_code\":3,\"message\":\"permission_denied (exit 3)\"},\"ok\":false,\"truncated\":false,\"warnings\":[]}\n",
+      "stderr": "diskgraph: engine startup failed\n",
+      "original_child_waited": true,
+      "private_frames": [],
+      "actual_control_credentials": []
+    },
+    {
+      "case": "legacy_control",
+      "passed": true,
+      "exit_code": 3,
+      "error_code": "permission_denied",
+      "elapsed_seconds": 0.006203837000043677,
+      "data_born": false,
+      "slot_record": "DGSL01C\n",
+      "stdout": "{\"api_version\":2,\"coverage\":null,\"error\":{\"code\":\"permission_denied\",\"exit_code\":3,\"message\":\"permission_denied (exit 3)\"},\"ok\":false,\"truncated\":false,\"warnings\":[]}\n",
+      "stderr": "diskgraph: engine startup failed\n",
+      "original_child_waited": true,
+      "private_frames": [],
+      "actual_control_credentials": []
+    },
+    {
+      "case": "wrong_type_control",
+      "passed": true,
+      "exit_code": 3,
+      "error_code": "permission_denied",
+      "elapsed_seconds": 0.006456302000060532,
+      "data_born": false,
+      "slot_record": "DGSL01C\n",
+      "stdout": "{\"api_version\":2,\"coverage\":null,\"error\":{\"code\":\"permission_denied\",\"exit_code\":3,\"message\":\"permission_denied (exit 3)\"},\"ok\":false,\"truncated\":false,\"warnings\":[]}\n",
+      "stderr": "diskgraph: engine startup failed\n",
+      "original_child_waited": true,
+      "private_frames": [],
+      "actual_control_credentials": []
+    },
+    {
+      "case": "wrong_gid",
+      "passed": true,
+      "exit_code": 3,
+      "error_code": "permission_denied",
+      "elapsed_seconds": 0.006323740999960137,
+      "data_born": false,
+      "slot_record": "DGSL01C\n",
+      "stdout": "{\"api_version\":2,\"coverage\":null,\"error\":{\"code\":\"permission_denied\",\"exit_code\":3,\"message\":\"permission_denied (exit 3)\"},\"ok\":false,\"truncated\":false,\"warnings\":[]}\n",
+      "stderr": "diskgraph: engine startup failed\n",
+      "original_child_waited": true,
+      "private_frames": [],
+      "actual_control_credentials": []
+    },
+    {
+      "case": "supplementary_groups",
+      "passed": true,
+      "exit_code": 3,
+      "error_code": "permission_denied",
+      "elapsed_seconds": 0.00593691000005947,
+      "data_born": false,
+      "slot_record": "DGSL01C\n",
+      "stdout": "{\"api_version\":2,\"coverage\":null,\"error\":{\"code\":\"permission_denied\",\"exit_code\":3,\"message\":\"permission_denied (exit 3)\"},\"ok\":false,\"truncated\":false,\"warnings\":[]}\n",
+      "stderr": "diskgraph: engine startup failed\n",
+      "original_child_waited": true,
+      "private_frames": [],
+      "actual_control_credentials": []
+    }
+  ],
+  "passed": true
+}

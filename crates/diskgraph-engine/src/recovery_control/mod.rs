@@ -18,3 +18,15 @@ pub use unix_control_writer::UnixControlWriter;
 mod unix_control_reader;
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 pub use unix_control_reader::UnixControlReader;
+
+#[cfg(target_os = "linux")]
+mod linux_control_read;
+#[cfg(target_os = "linux")]
+mod linux_control_reader;
+#[cfg(target_os = "linux")]
+pub use linux_control_read::LinuxControlRead;
+#[cfg(target_os = "linux")]
+pub use linux_control_reader::LinuxControlReader;
+
+#[cfg(all(test, target_os = "linux"))]
+mod linux_control_reader_tests;

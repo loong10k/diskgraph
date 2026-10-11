@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "implementation": "Linux per-message credential reader for future original-child broker",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/recovery_control/linux_control_read.rs": "718f2aed9644f12237787e2cf71cb8171dfa956903316f7999da921113fb6a5f",
+    "crates/diskgraph-engine/src/recovery_control/linux_control_reader.rs": "7f4d1cef6a7a6e0630613c137b94681f5e967c5f49d1ff13ac8ed414faee1417",
+    "crates/diskgraph-engine/src/recovery_control/linux_control_reader_tests.rs": "624ac8990dbe6ac3972cb4f9faff1b0a003559d6babc0121720b463804325014"
+  },
+  "platform": "macOS ARM64",
+  "source_layout_tests_passed": 6,
+  "cli_compatibility_tests_passed": 9,
+  "macos_engine_cli_all_target_clippy": "passed",
+  "linux_branch_compiled": false,
+  "native_linux_reader_tests_executed": false,
+  "linux_reader_tests_defined": 9,
+  "native_tdd_red_green_evidence": "not available on macOS; no red/green result claimed",
+  "public_broker_integrated": false,
+  "original_child_bootstrap_qualified": false,
+  "service_parent_complete": false
+}

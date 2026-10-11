@@ -1,6 +1,6 @@
 # Linux 监督 doctor 出生接线
 
-状态：已接入 Engine/CLI 构造；d76ad70f 的 Linux ARM64 release 归档在隔离环境通过八场景构造验收。当前全量 CI 仍有夹具及 Windows 待核验项；公共 broker、原 child 全局容量寿命、私有退休确认和有限前端退出未完成，不关闭监督服务父项。
+状态：已接入 Engine/CLI 构造、原 owner 与 v2 私有退休通知；558d73f9 的三平台 CI 38122312895 正在验收；同源码 release 归档已在隔离 Linux ARM64 环境通过 v2 全部14场景，完整 CI 尚无终态。d76ad70f 的八场景和69b30d9b的22/23全量结果仅适用于各自源码。公共 broker、原 child 全局容量寿命、broker 完整退休确认和有限前端退出未完成，不关闭监督服务父项。
 
 ```mermaid
 flowchart TD
@@ -13,16 +13,20 @@ flowchart TD
     N --> S[固定服务 UID 槽预留]
     S --> E[原期限构造 Engine 与原 Recovery]
     E --> D[既有 doctor 业务]
-    D --> O[原 SupervisorOwner 真实退休]
-    O -->|Pending| O
-    O -->|原资源完成| C[CLEAN，释放原命名空间]
+    D --> F[v2 私有 ForegroundEnded]
+    F --> O[原 SupervisorControlOwner 持有原退休责任]
+    O -->|Pending，最多一次通知| O
+    O -->|原资源完成| C[CLEAN，保留原命名空间至退出]
+    C --> P{原期限内私有 Complete 写入}
+    P -->|成功| W[退出，仍需 broker 核验原 child wait]
+    P -->|失败| U[退出，退休未确认；不得释放 broker bootstrap]
 ```
 
 两个内部环境值只指定原启动 JSON 和唯一继承的私有 FD。环境自身不授予资格：JSON 原字节 SHA 必须由原父进程的真实 root UID/GID/PID 内核消息凭据确认，接收身份必须为已绑定的非 root 专用 UID。JSON 限4KiB，字段严格拒绝未知键，固定版本、不同服务/前端 UID、64位十六进制 nonce/摘要、绝对无别名定位与64MiB镜像上限。所有认证和身份失败在 Engine/数据库之前拒绝；既有普通本地入口保持兼容，配置内部角色后的错误绝不回退。
 
 私有描述符须为已连接未命名 AF_UNIX datagram，拒绝 stdio、普通文件、stream 和其他 socket domain，采用后立即恢复 CLOEXEC。原 ClockStamp 采用两次扣除实际认证成本；之后构造仍取调用方原期限的较小值。namespace 及三原对象在预留、构造、出生前撤销和 SupervisorOwner 退休完整期间保留。root 出生材料指定镜像与数据目录，不采用旧环境镜像配置，客户端 argv 不得替换数据目录。内部角色当前仅接既有 `--json doctor`，禁止转交 serve 或其他命令。
 
-root 内核凭据不代替固定 broker 的发行、镜像与生命周期信任。当前没有公共 broker、全局 bootstrap owner、退休私有确认协议或有限前端退出；仍等原资源退休再返回。不得把本构造组件称为独立服务已部署或恢复完成。本轮不安装桌面服务。
+root 内核凭据不代替固定 broker 的发行、镜像与生命周期信任。当前 v2 已发送原 owner 绑定的退休私有通知，但尚无公共 broker、全局 bootstrap owner、broker 对私有通知与原 child wait 的完整确认或有限前端退出；仍等原资源退休再返回。不得把本构造组件称为独立服务已部署或恢复完成。本轮不安装桌面服务。
 
 证据：`docs/benchmarks/linux_supervisor_birth_constructor/receipt.json`。旧0e90二进制在Linux隔离专用UID运行时忽略新角色标记，创建了数据库，为新协议缺失RED，不把它报告成旧CLI提权漏洞。八场景在旧二进制实际执行1通过/7拒绝失败，全部原child已wait、原容器已移除；此处只证明新协议缺失。共享解析真实RED1/2→GREEN3/0；macOS兼容host9/0、两包全目标Clippy通过。这些不编译Linux条件分支、不替代Linux验收。新增原生脚本对当前实际镜像完成CLEAN、ACTIVE、伪造角色、错误session、非root实际发送者、过期材料、错误镜像、数据定位替换八个场景；只有它在当前Linux源码构建后运行通过才能关闭对应子门禁。
 
@@ -67,3 +71,15 @@ CLI v2 在实际 Engine 构造、ACTIVE 及原 SupervisorOwner 绑定后发送 R
 v2 原材料新增必须绑定的非 root 主GID，缺失、0、保留哨兵均拒绝；出生前核对实际 real/effective GID，并要求补充组已清空。root broker 须在出生层先清空补充组再设置主GID/UID，不能将有root组权限的进程仅凭非root UID视为专用服务。v1 无新增字段的可信兼容路径保持。缺失GID真实RED0/1→共享解析GREEN6/0，规范6/0、两包Clippy通过；Linux条件运行尚待验收。原生脚本新增主GID0和补充root组的实际反例，总14场景，不据本机解析通过关闭原生或服务父门禁。证据见linux_supervisor_primary_group/。
 
 69b30d9b 原CI已终态22/23成功，仅LinuxARM原握手reset测试失败；两个Windows全量和macOS Intel通过，Linuxx86两套v1构造门禁通过。该旧源码结果不证明新v2代码资格，也不证明先前Windows494ms失败根因已消失。完整终态见ci_69b30d9b_terminal/。Linux7 ARM隔离内核三种packet各1000次探针均观察到先reset再packet/EOF，未复现原CI异常，生产断言及预算未修改；待新诊断提供实际异常状态。见linux_startup_reset_order_probe/。
+
+## 558d73f9 Linux ARM64 v2 真实二进制验收
+
+原CI package job 114419466265通过，checkout为558d73f9，原job、归档摘要文件与实际下载归档三者SHA一致（ba6c358857c14de4523ff5e954906746c99aabd3c36dbc62804b6d8098879238）。在已有LinuxARM容器镜像、禁网、256MiB/1CPU/64进程隔离环境执行该归档的真实CLI/worker，14场景全部通过。正常路径真实完成三帧、原child逐消息凭据以及CLEAN；错误主GID和补充root组均在数据库出生前PermissionDenied，其他身份、期限、FD与镜像反例保持原精确错误。所有原child已wait，原容器已移除，没有注册或安装桌面服务。
+
+证据：docs/benchmarks/linux_supervisor_v2_native_558d73f9/。此验收关闭LinuxARM doctor v2出生和原owner私有通知子项；不代替Linuxx86、macOS、Windows的监督服务、公有broker、原child全局bootstrap寿命、异常I/O下有限前台退出或完整CI，不关闭父项。
+
+## broker 私有读取接线验收（实施中）
+
+Linux 生产接收器必须使用实际 recvmsg 的每笔 SCM_CREDENTIALS 核对原 child PID/UID/GID，不能用 socketpair 创建者 SO_PEERCRED 或帧自报身份替代。原端点须在发送前启用 SO_PASSCRED；未准备端点拒绝准入。身份验证先于 ControlReceiver 解析，夹带 SCM_RIGHTS 或截断控制材料必须关闭全部可见句柄并永久拒绝。每次 poll 只执行一笔固定4096字节读取，不在公共 broker 的单次轮询中等待；Pending、完整帧、协议确认 EOF 分别表示。原绝对期限、取消、会话、顺序、累计字节与帧预算保持，任何错误锁存。确认 EOF 不释放 bootstrap；仍须原 child owner 的真实 wait 与完整资源退休。原生反例包括不同 PID/UID/GID、同创建者但不同实际发送进程、附加 FD、未准备端点、缺失 Complete 的 EOF、取消与过期。本机 macOS 无法执行 Linux 条件分支，不伪造红绿结果；该子项等待同源码原生 Linux 测试。
+
+558d73f9进一步原生证据：CI Linux x86_64 job114419400736和ARM64 job114419400694各自root出生夹具14/14，原始结果另存ci_x86_64.json/ci_arm64.json。Linuxx86任务在后续Clippy因cli_engine_host.rs嵌套条件失败，按相同短路语义合并条件，不禁用lint、不改预算或测试。旧reset测试在本轮两个平台全量Engine测试已通过，但该次未复现不视为前次根因已修复。完整CI未终态；新reader源码不受本证据覆盖。

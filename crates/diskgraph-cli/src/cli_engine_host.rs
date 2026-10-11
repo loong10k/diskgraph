@@ -54,10 +54,10 @@ impl CliEngineHost {
                 namespace.reserve(deadline).map(Some).map_err(slot_error)
             })?;
             opened.namespace_guard = Some(namespace);
-            if let Some(control) = control {
-                if let Err(error) = opened.attach_control(control, deadline) {
-                    return opened.execute(|_| Err(error));
-                }
+            if let Some(control) = control
+                && let Err(error) = opened.attach_control(control, deadline)
+            {
+                return opened.execute(|_| Err(error));
             }
             return opened.finish_open_until(deadline);
         }

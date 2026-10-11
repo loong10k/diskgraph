@@ -363,3 +363,7 @@ Windows revision回调夹具：将新revision全部材料由逐条autocommit改�
 Linux v2 doctor出生已接原控制描述符／原owner退休通知：解析RED0/1→本机GREEN4/0，兼容CLI9/0、源码规范6/0、Engine/CLI全目标Clippy与格式通过。Linux条件编译与12场景原生执行待CI；公共broker、bootstrap原child寿命、有限客户端EOF、MCP与其他平台服务仍未实现。69b LinuxARM原reset顺序测试失败保持，新增观测诊断不视为修复。见linux_supervisor_birth_constructor.md及docs/benchmarks/linux_supervisor_control_v2/receipt.json。
 
 v2服务组身份增量：补绑定非root主GID、实际real/effective组及空补充组，缺失GID回归RED0/1→共享GREEN6/0、规范6/0、两包Clippy通过；原生14场景待新CI。69b旧源码CI终态22/23成功，LinuxARM reset原断言仍失败，保留具体差距；新源码服务父门禁继续开放。详见linux_supervisor_birth_constructor.md及对应原始证据。
+
+- 558d73f9验收补记：LinuxARM release归档经原job独立SHA核对，隔离实际v2 doctor 14/14；原child全部wait且容器移除。关闭该平台构造/私有通知子验收，服务父项、其他平台与全量CI仍开放。证据：`docs/benchmarks/linux_supervisor_v2_native_558d73f9/`。
+
+Linux broker接收组件实施：recvmsg逐笔PID/UID/GID、原准备端点、CLOEXEC、附加FD关闭拒绝、截断拒绝及固定单次poll已编码，9项原生测试已定义但本机macOS不能运行Linux分支。源码规范6/0、兼容CLI9/0、两包Clippy通过；不声称Linux红绿、不勾选broker或服务父项。另保留558d73f9 Linux双架构14/14原生CI结果和Linux条件Clippy原失败，并修正等价条件表达。见linux_control_reader_component/与linux_supervisor_v2_native_558d73f9/。

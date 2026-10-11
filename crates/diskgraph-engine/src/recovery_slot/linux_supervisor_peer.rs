@@ -24,7 +24,7 @@ impl LinuxSupervisorPeer {
 
     /// 比较内核消息凭据与出生时绑定的对端，不据此认证可执行镜像。
     /// 参数：actual 为内核交付的凭据；返回：PID、UID、GID 全部相同才为 true。
-    pub(super) fn matches(&self, actual: &libc::ucred) -> bool {
+    pub(crate) fn matches(&self, actual: &libc::ucred) -> bool {
         self.pid == actual.pid && self.uid == actual.uid && self.gid == actual.gid
     }
 }
