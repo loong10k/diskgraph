@@ -294,7 +294,7 @@ fn socket_sse_expires_with_its_authenticated_token() {
     )
     .unwrap();
     let auth = Authenticator::new(AuthConfig::single("issuer", "aud", b"test-key"));
-    let token = TokenMinter::new(b"test-key").mint(&TokenClaims {
+    let setup_claims = TokenClaims {
         issuer: "issuer".into(),
         audience: "aud".into(),
         subject: "expiring".into(),
@@ -302,28 +302,36 @@ fn socket_sse_expires_with_its_authenticated_token() {
             .duration_since(UNIX_EPOCH)
             .unwrap()
             .as_secs()
-            + 3,
+            + 300,
         scope: Some("scope:admin".into()),
-    });
+    };
+    let setup_token = TokenMinter::new(b"test-key").mint(&setup_claims);
     service
         .engine()
-        .bootstrap_local_admin(&auth.authenticate(Some(&token)).unwrap().principal)
+        .bootstrap_local_admin(&auth.authenticate(Some(&setup_token)).unwrap().principal)
         .unwrap();
     let listener = TcpListener::bind("127.0.0.1:0").unwrap();
     let address = listener.local_addr().unwrap();
-    std::thread::spawn(move || {
-        let _ = http::serve_authenticated(
-            service,
-            listener,
-            &HttpLimits::default(),
-            Some(&auth),
-            std::io::sink(),
-        );
-    });
+    let runtime = diskgraph_mcp::HttpServerRuntime::start(
+        service,
+        listener,
+        http::ServerConfig::modern(HttpLimits::default(), http::Security::local(Some(&auth))),
+        std::io::sink(),
+    )
+    .unwrap();
     let mut stream = TcpStream::connect(address).unwrap();
     stream
         .set_read_timeout(Some(Duration::from_secs(3)))
         .unwrap();
+    // 数据库授权与原服务准备完成后才签发短期 token，避免把准备耗时计入到期验收。
+    let token = TokenMinter::new(b"test-key").mint(&TokenClaims {
+        expires_at_unix_seconds: SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_secs()
+            + 3,
+        ..setup_claims
+    });
     stream
         .write_all(
             format!(
@@ -343,7 +351,13 @@ fn socket_sse_expires_with_its_authenticated_token() {
             Err(error) => panic!("expired stream did not close: {error}"),
         }
     }
-    assert!(String::from_utf8_lossy(&header).starts_with("HTTP/1.1 200"));
+    assert!(
+        String::from_utf8_lossy(&header).starts_with("HTTP/1.1 200"),
+        "SSE admission response after {:?}: {}",
+        started.elapsed(),
+        String::from_utf8_lossy(&header)
+    );
+    runtime.stop_and_join().unwrap().unwrap();
 }
 
 #[test]

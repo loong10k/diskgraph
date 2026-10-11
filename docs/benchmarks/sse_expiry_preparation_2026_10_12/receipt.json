@@ -1,0 +1,23 @@
+{
+  "change": "Sign the same 3 second SSE token after database grants, server startup and TCP connection; own and join the original HTTP runtime. Preserve 3 second read and 6 second close limits.",
+  "prior_windows_failure": "HTTP 200 assertion; actual HTTP response absent, early expiry remains an inference",
+  "local_targeted_test": {
+    "passed": 0,
+    "failed": 1,
+    "reason": "Business(Unsupported): no trusted native scan host configured; not an expiry behavior failure"
+  },
+  "prior_ci": {
+    "run": 38153105527,
+    "source": "69931541820df6ebb2bfb4380a059ef81a10fee7",
+    "success": 18,
+    "failure": 5
+  },
+  "intel_remaining": "Actual control lock held 281.440661ms; 250ms observation correctly returned BudgetExceeded at 251.714006ms; fixture expected success from nominal 100ms. Native timing gate remains failed; no production budget increased.",
+  "new_native_ci_passed": false,
+  "checks": {
+    "targeted_clippy": true,
+    "mcp_fmt": true,
+    "openspec_strict": true,
+    "diff_check": true
+  }
+}
