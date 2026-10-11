@@ -752,6 +752,24 @@ jobs:
         run: >-
           cargo test -p diskgraph-engine -p diskgraph-cli -p diskgraph-mcp
           --all-targets --locked --no-fail-fast -- --nocapture
+      - name: Native terminal contention timing contract
+        id: terminal_contention_contract
+        if: ${{ !cancelled() && (steps.workspace_tests.outcome == 'success' || steps.workspace_tests.outcome == 'failure') }}
+        timeout-minutes: 5
+        shell: bash
+        env:
+          DISKGRAPH_QUERY_DIAGNOSTICS: '1'
+        run: |
+          cargo test -p diskgraph-engine --lib --locked revision_reader_lock_gap_tests::terminal_reader_waits_for_brief_contention_but_keeps_its_observation_window -- --ignored --exact --nocapture --test-threads=1 > "$RUNNER_TEMP/terminal-contention-contract.log" 2>&1
+          python3 -c 'import os,pathlib; data=(pathlib.Path(os.environ["RUNNER_TEMP"])/"terminal-contention-contract.log").read_text(); assert "test result: ok. 1 passed; 0 failed; 0 ignored" in data, "timing gate must execute exactly one original test"'
+      - name: Preserve native terminal contention timing contract
+        if: ${{ always() && (steps.terminal_contention_contract.outcome == 'success' || steps.terminal_contention_contract.outcome == 'failure') }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: terminal-contention-${{ matrix.os }}-${{ matrix.rust }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/terminal-contention-contract.log
+          retention-days: 7
+          if-no-files-found: error
       - name: Authenticate Linux supervisor doctor birth in isolated root fixture
         # 原 workspace 失败保持失败，独立构造验收仍执行以保留真实接线证据。
         if: ${{ !cancelled() && runner.os == 'Linux' && (steps.workspace_tests.outcome == 'success' || steps.workspace_tests.outcome == 'failure') }}

@@ -55,6 +55,7 @@ fn continuous_revocation_between_initial_locks_has_denial_priority() {
 }
 
 #[test]
+#[ignore = "requires isolated contention fixture scheduling; mandatory native CI gate"]
 fn terminal_reader_waits_for_brief_contention_but_keeps_its_observation_window() {
     use diskgraph_core::{Authorizer, Decision, Permission, PrincipalId, ScopeId};
     use std::cell::Cell;

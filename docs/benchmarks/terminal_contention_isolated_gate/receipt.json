@@ -1,0 +1,22 @@
+{
+  "original_source": "0294c5c2323097204ea5c7834ced3a4eddb6ec79",
+  "ci_run": 38145393829,
+  "job_id": 114487551944,
+  "original_engine_results": {
+    "passed": 790,
+    "failed": 1,
+    "ignored": 14
+  },
+  "local_isolated_test_results": {
+    "passed": 1,
+    "failed": 0,
+    "ignored": 0
+  },
+  "all_original_positive_and_negative_cases_retained": true,
+  "database_window_ms": 250,
+  "capability_window_ms": 50,
+  "workspace_concurrency_changed": false,
+  "concurrent_request_tests_changed": false,
+  "native_isolated_gate_qualified": false,
+  "all_platforms_must_run_explicit_test_gate": true
+}
