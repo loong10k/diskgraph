@@ -35,11 +35,19 @@ impl Engine {
         let expiry = authorizer.expires_at_unix_seconds();
         check_authority_expiry(expiry)?;
         let mut reads = QueryReadBudget::new(budget, deadline)?;
-        let reader = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
+        let reader =
+            crate::authorization_phase_diagnostic::observe("relation_initial_reader", || {
+                SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)
+                    .map_err(EngineError::from)
+            })?;
         #[cfg(test)]
         crate::relation_query_diagnostics_tests::mark("reader_open");
-        let owner = reader
-            .revision_ownership_with_budget(revision, &mut reads)?
+        let owner =
+            crate::authorization_phase_diagnostic::observe("relation_initial_ownership", || {
+                reader
+                    .revision_ownership_with_budget(revision, &mut reads)
+                    .map_err(EngineError::from)
+            })?
             .ok_or(BusinessError::PermissionDenied)?;
         let scope = ScopeId::new(owner.1.clone()).map_err(|_| BusinessError::PermissionDenied)?;
         let control = self.control_until(deadline)?;
@@ -53,14 +61,16 @@ impl Engine {
             })
             .map_err(terminal_control_error)?;
         drop(control);
-        self.authorize_revision_owner_until(
-            revision,
-            Some(owner),
-            expected_scope,
-            principal,
-            authorizer,
-            deadline,
-        )?;
+        crate::authorization_phase_diagnostic::observe("relation_initial_authorization", || {
+            self.authorize_revision_owner_until(
+                revision,
+                Some(owner),
+                expected_scope,
+                principal,
+                authorizer,
+                deadline,
+            )
+        })?;
         #[cfg(test)]
         crate::relation_query_diagnostics_tests::mark("initial_authorization");
         // 必需目标与消费者共用最初余额；准备失败同样进入真实范围的末段授权。
@@ -137,9 +147,16 @@ impl Engine {
                 let timely =
                     self.observe_terminal_relation(authorizer, principal, &scope, expiry)?;
                 ownership()?;
-                if !timely {
-                    return Err(EngineError::Business(BusinessError::BudgetExceeded));
-                }
+                crate::authorization_phase_diagnostic::observe(
+                    "relation_terminal_capability",
+                    || {
+                        if timely {
+                            Ok(())
+                        } else {
+                            Err(EngineError::Business(BusinessError::BudgetExceeded))
+                        }
+                    },
+                )?;
                 Ok(())
             })();
             withdrawals.prioritize_terminal_budget(self, observed)

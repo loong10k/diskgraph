@@ -1,0 +1,22 @@
+{
+  "original_ci_run": 38182709032,
+  "original_source": "22880d69d7c91a32ded1e095fad9b9240a93c28d",
+  "failure": "macOS Intel stdio related returned budget_exceeded with empty budget phase list",
+  "source_sha256": "02be137cf29b16330752b99d792b784aaa45202fb9f551a86ce2fd6a6d853ff7",
+  "change": "add fixed phase labels at initial reader, ownership, authorization and late capability result; preserve original budgets, results and denial priority",
+  "diagnostic_unit_tests": {
+    "passed": 6,
+    "failed": 0
+  },
+  "relation_regression": {
+    "passed": 9,
+    "failed": 8,
+    "all_eight_fail_at": "relation_request_tests.rs:110 Business(Unsupported), native scan fixture unavailable locally"
+  },
+  "clippy": "passed",
+  "limits": [
+    "Intel runtime cause still unconfirmed",
+    "native CI must rerun fixture-based regressions",
+    "not a production qualification"
+  ]
+}
