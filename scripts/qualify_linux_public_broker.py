@@ -140,6 +140,44 @@ def actual_broker(args, mode):
             original_dispose(server)
 
 
+def wire_query(args, mode):
+    """实际原时钟doctor正控及单字段负控；负例不得创建Engine或认领原槽。"""
+    with tempfile.TemporaryDirectory(prefix="dg-wire-", dir="/var/lib") as folder:
+        root = Path(folder)
+        os.chmod(root, 0o755)
+        state, data, config = prepare(root, args)
+        helper = root / "wire_client.py"
+        shutil.copyfile(Path(__file__).with_name("qualify_linux_broker_wire_client.py"), helper)
+        os.chmod(helper, 0o555)
+        server = subprocess.Popen([str(root / "broker"), "--config", str(root / "config.json"), "--once"],
+                                  env={}, cwd=root, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        frontend = None
+        try:
+            started = time.monotonic()
+            while not Path(config["socket_path"]).exists() or (Path(config["socket_path"]).stat().st_mode & 0o777) != 0o666:
+                assert time.monotonic() - started < 30, "original wire startup never bound"
+                assert server.poll() is None, server.communicate()
+                time.sleep(0.005)
+            frontend = subprocess.Popen([sys.executable, str(helper),
+                                         config["socket_path"], mode],
+                                        preexec_fn=lowered, env={}, cwd=root, stdin=subprocess.DEVNULL,
+                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout, stderr = frontend.communicate(timeout=35)
+            assert frontend.returncode == 0, (stdout, stderr)
+            row = json.loads(stdout)
+            server_stdout, server_stderr = server.communicate(timeout=35)
+            assert server.returncode == 0, (server_stdout, server_stderr)
+            assert (data / "diskgraph-control.sqlite").exists() == (mode == "doctor")
+            for name in ("bootstrap.slot", "uid_23111.slot"):
+                assert (state / name).read_bytes() == b"DGSL01C\n"
+            return {**row, "original_server_wait_consumed": True,
+                    "database_not_born": mode != "doctor", "original_slots_clean": True}
+        finally:
+            if frontend is not None:
+                original_dispose(frontend)
+            original_dispose(server)
+
+
 def delegated_sender(args, lower):
     # root创建的真实listener被移交：SO_PEERCRED仍呈现创建者，实际发送PID/UID必须另行拒绝。
     with tempfile.TemporaryDirectory(prefix="dg-peer-", dir="/var/lib") as folder:
@@ -334,6 +372,7 @@ def main():
         raise SystemExit("requires explicit isolated root acceptance; never installs desktop service")
     rows = [actual_broker(args, mode) for mode in ("clean", "active", "bad_digest", "scope_list", "snapshots", "unknown_job")]
     rows += [delegated_sender(args, lower) for lower in (False, True)]
+    rows += [wire_query(args, mode) for mode in ("doctor", "override", "unknown_command", "duplicate", "bad_numeric", "write", "unknown_field")]
     if args.mcp is not None:
         rows.append(prepared_installation(args))
     receipt = {"passed": len(rows), "failed": 0, "actual_product_binaries": True, "system_service_installed": args.systemd,

@@ -68,7 +68,7 @@ def load_file(test, name, path):
 
 
 class PackageFixture(unittest.TestCase):
-    """真实临时三文件及旧 CLI；GNU 使用版本节夹具，不代表可执行程序。"""
+    """真实平台包文件及旧 CLI；GNU四镜像使用版本节夹具，不代表可执行程序。"""
 
     def setUp(self):
         temporary = tempfile.TemporaryDirectory(prefix="diskgraph-package-unit-")
@@ -90,6 +90,8 @@ class PackageFixture(unittest.TestCase):
                 name: abi_fixture.fixture(["GLIBC_2.17"], machine) + name.encode("ascii")
                 for name in NAMES
             }
+        if self.target.endswith("-unknown-linux-gnu"):
+            self.payloads["diskgraph-supervisor"] = abi_fixture.fixture(["GLIBC_2.17"], machine) + b"broker"
         for name, payload in self.payloads.items():
             (self.bin_dir / name).write_bytes(payload)
         self.old_cli = self.work / ("old-diskgraph" + SUFFIX)
@@ -140,7 +142,7 @@ class PackageFixture(unittest.TestCase):
 class PackageCompositionTests(PackageFixture):
     """旧 main 的 helper 遗漏须是实际组成失败，外部 native 流程由边界替身观察，不执行真实平台验收。"""
 
-    def test_archive_contains_three_exact_artifacts_and_verified_manifest(self):
+    def test_archive_contains_platform_exact_artifacts_and_verified_manifest(self):
         package = self.actual_package()
         calls = []
 
@@ -174,7 +176,7 @@ class PackageCompositionTests(PackageFixture):
                 stream.extractall(extracted, filter="data")
         packaged = extracted / ("diskgraph-" + self.target)
         packaged_bin = packaged / "bin"
-        self.assertEqual({path.name for path in packaged_bin.iterdir()}, set(NAMES) | {MANIFEST_NAME})
+        self.assertEqual({path.name for path in packaged_bin.iterdir()}, set(self.payloads) | {MANIFEST_NAME})
         for name, payload in self.payloads.items():
             self.assertEqual((packaged_bin / name).read_bytes(), payload)
             self.assertEqual((self.bin_dir / name).read_bytes(), payload)
@@ -188,7 +190,7 @@ class PackageCompositionTests(PackageFixture):
             "accept-readonly-load.py",
         ])
         for _, files, _, _ in calls:
-            self.assertEqual(set(files), set(NAMES) | {MANIFEST_NAME})
+            self.assertEqual(set(files), set(self.payloads) | {MANIFEST_NAME})
             for name, payload in self.payloads.items():
                 self.assertEqual(files[name], payload)
             self.assert_manifest(json.loads(files[MANIFEST_NAME]))
@@ -359,6 +361,26 @@ class TimeoutDiagnosticTests(PackageFixture):
             for path in retained:
                 # 这里没有真实子进程，测试拥有全部临时文件。
                 shutil.rmtree(path, ignore_errors=True)
+
+
+class GnuPackageCompositionTests(PackageCompositionTests, TimeoutDiagnosticTests):
+    """在任意宿主核验GNU四镜像组成及失败诊断；不执行ELF夹具。"""
+
+    def setUp(self):
+        for key, value in [("native_target", lambda: "x86_64-unknown-linux-gnu"),
+                           ("SUFFIX", ""),
+                           ("NAMES", ("diskgraph", "diskgraph-mcp", "diskgraph-scan-worker"))]:
+            patcher = mock.patch.object(sys.modules[__name__], key, value)
+            patcher.start()
+            self.addCleanup(patcher.stop)
+        super().setUp()
+
+    def actual_package(self):
+        package = super().actual_package()
+        patcher = mock.patch.object(package, "SUFFIX", "")
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        return package
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,16 @@
+{
+  "source": "a172b51a",
+  "ci_run": 38168994137,
+  "original_failure_job": 114557503581,
+  "failure": "GNU production gate correctly required broker; old PackageFixture omitted fourth image; two FileNotFoundError before build",
+  "negative_control": "removed fixture broker bytes in isolated Python module, same two errors; production gate unchanged",
+  "green": {
+    "package_fixture_tests": 15,
+    "wire_fixture_and_cleanup_tests": 5
+  },
+  "new_wire_native_cases": 7,
+  "native_wire_cases": "not yet run",
+  "actual_gnu_release_package": "not yet qualified",
+  "desktop_service_installed": false,
+  "full_platform_production_ready": false
+}
