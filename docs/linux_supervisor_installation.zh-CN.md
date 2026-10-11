@@ -18,7 +18,7 @@ python3 scripts/prepare_linux_supervisor_installation.py \
 
 前端执行 `diskgraph --json --supervisor-socket /var/lib/diskgraph-isolated/front.sock doctor`。原30秒包含连接、认证帧、输出和终态后的真实 EOF。前端结束不释放恢复容量；原监督 owner 实际退休且两个原槽变为 CLEAN 后才能重新准入。
 
-生成的 unit 禁止自动重启；异常失败保留 ACTIVE，由显式恢复流程处理。重启进程或删除 socket 不能证明资源退休。隔离 CI 门禁检查实际安装镜像和 unit 静态语法，并在临时 Linux runner 用随机独占名称运行该生成 unit；通过原槽 FD 确认两个 CLEAN 后才正常停止。停止失败则保留 unit、安装树和原记录。静态语法检查不能代替这项运行门禁；新增运行场景尚待原生验收。本轮未安装桌面服务，生产启用仍需原生服务生命周期验收。
+生成的 unit 禁止自动重启；异常失败保留 ACTIVE，由显式恢复流程处理。重启进程或删除 socket 不能证明资源退休。隔离 CI 门禁检查实际安装镜像和 unit 静态语法，并在临时 Linux runner 用随机独占名称运行该生成 unit；通过原槽 FD 确认两个 CLEAN 后才正常停止。停止失败则保留 unit、安装树和原记录。静态语法检查不能代替这项运行门禁；源码 `2a6e2db6` 的生成服务场景已在 CI38179170488 的 Linux x86 stable/MSRV 与 ARM64 stable 通过，各公开 broker 原回执均为18通过、0失败；这些结果覆盖普通 doctor 退休，不覆盖注入不可回收 I/O 的 owner。本轮未安装桌面服务，生产启用仍需原生服务生命周期验收。
 
 查询示例：`diskgraph --json --supervisor-socket /var/lib/diskgraph-isolated/front.sock scope list`。前端只转交命令声明的参数，主体与数据目录由固定安装策略决定；未知参数、全局覆盖和超过4KiB的请求在出生前拒绝。结果保留原JSON和退出码，输出最多1MiB，资源权限仍由Engine核验。
 
@@ -30,4 +30,4 @@ CLI扫描任务status按任务真实scope检查OperationView与实时授权交�
 
 CLI过滤children（含未知大小）和search在拥有字符串、解码旧负载之前准入SQLite实际列成本；原始页超预算时即使最终响应很小也返回budget_exceeded，不生成局部游标。explore将父节点计入max_nodes。隔离20万行release检查证明解码量随页变化且目录索引保留，不代表原生扫描、RSS上限或延迟SLA。
 
-生成的 systemd unit 将 root broker 能力上界收窄为 `CAP_SETUID CAP_SETGID CAP_KILL`，ambient 仅显式保留 `CAP_SETUID`；出生角色执行业务镜像前清空 ambient 与有效能力。原生验收先观察实际 MainPID 的 `CapEff`、`CapBnd` 均为 `0xe0`、`CapAmb` 为 `0x80`，再执行原前端请求，并检查原 owner 退休与 CLEAN 记录。此项修复已复现的 SETUID 缺失导致的启动拒绝；隔离 C 测试不能单独证明生成服务合格，当前源码的真实服务验收仍待 CI。
+生成的 systemd unit 将 root broker 能力上界收窄为 `CAP_SETUID CAP_SETGID CAP_KILL`，ambient 仅显式保留 `CAP_SETUID`；出生角色执行业务镜像前清空 ambient 与有效能力。原生验收先观察实际 MainPID 的 `CapEff`、`CapBnd` 均为 `0xe0`、`CapAmb` 为 `0x80`，再执行原前端请求，并检查原 owner 退休与 CLEAN 记录。此项修复已复现的 SETUID 缺失导致的启动拒绝；隔离 C 测试不能单独证明生成服务合格，源码 `2a6e2db6` 的真实服务能力检查已在三个 Linux 矩阵通过，见[原生回执](benchmarks/linux_systemd_minimal_capabilities_native_2026_10_12/native_matrix.json)。后续 scope 撤权见证改动和完整服务生命周期仍须分别验收。

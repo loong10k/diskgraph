@@ -1,0 +1,161 @@
+{
+  "source_sha": "2a6e2db60104e676a88b83e3538e25fa747304eb",
+  "run_id": 38179170488,
+  "matrices": [
+    {
+      "platform": "x86_msrv",
+      "job_id": 114587860136,
+      "artifact_id": 11716879880,
+      "passed": 18,
+      "failed": 0,
+      "original_systemd_observation": {
+        "pid": 28358,
+        "properties": {
+          "MainPID": "28358",
+          "CapabilityBoundingSet": "cap_kill cap_setgid cap_setuid",
+          "AmbientCapabilities": "cap_setuid",
+          "AppArmorProfile": "",
+          "NoNewPrivileges": "yes",
+          "SystemCallFilter": "~",
+          "RestrictAddressFamilies": "AF_UNIX",
+          "RestrictNamespaces": "no"
+        },
+        "status": {
+          "Uid": "0\t0\t0\t0",
+          "Gid": "0\t0\t0\t0",
+          "CapInh": "0000000000000080",
+          "CapPrm": "00000000000000e0",
+          "CapEff": "00000000000000e0",
+          "CapBnd": "00000000000000e0",
+          "CapAmb": "0000000000000080",
+          "NoNewPrivs": "1",
+          "Seccomp": "2",
+          "Seccomp_filters": "2"
+        },
+        "status_truncated": false,
+        "lsm_label": "unconfined"
+      },
+      "generated_service": {
+        "mode": "actual_prepared_installation",
+        "frontend_exit": 0,
+        "original_broker_wait_consumed": true,
+        "static_unit_verified": true,
+        "systemd_service_started": true,
+        "repeat_install_refused": true,
+        "systemd_runtime": {
+          "generated_unit_started": true,
+          "actual_frontend_exit": 0,
+          "original_slot_fds_clean_before_stop": true,
+          "desktop_service_installed": false,
+          "boot_enable_performed": false
+        }
+      },
+      "raw_sha256": "182ab87c9945ec637f6323aa5d5d84fd08d91e4361e0e7a5bdefe52cabfe1256"
+    },
+    {
+      "platform": "x86_stable",
+      "job_id": 114587860081,
+      "artifact_id": 11717179299,
+      "passed": 18,
+      "failed": 0,
+      "original_systemd_observation": {
+        "pid": 32705,
+        "properties": {
+          "MainPID": "32705",
+          "CapabilityBoundingSet": "cap_kill cap_setgid cap_setuid",
+          "AmbientCapabilities": "cap_setuid",
+          "AppArmorProfile": "",
+          "NoNewPrivileges": "yes",
+          "SystemCallFilter": "~",
+          "RestrictAddressFamilies": "AF_UNIX",
+          "RestrictNamespaces": "no"
+        },
+        "status": {
+          "Uid": "0\t0\t0\t0",
+          "Gid": "0\t0\t0\t0",
+          "CapInh": "0000000000000080",
+          "CapPrm": "00000000000000e0",
+          "CapEff": "00000000000000e0",
+          "CapBnd": "00000000000000e0",
+          "CapAmb": "0000000000000080",
+          "NoNewPrivs": "1",
+          "Seccomp": "2",
+          "Seccomp_filters": "2"
+        },
+        "status_truncated": false,
+        "lsm_label": "unconfined"
+      },
+      "generated_service": {
+        "mode": "actual_prepared_installation",
+        "frontend_exit": 0,
+        "original_broker_wait_consumed": true,
+        "static_unit_verified": true,
+        "systemd_service_started": true,
+        "repeat_install_refused": true,
+        "systemd_runtime": {
+          "generated_unit_started": true,
+          "actual_frontend_exit": 0,
+          "original_slot_fds_clean_before_stop": true,
+          "desktop_service_installed": false,
+          "boot_enable_performed": false
+        }
+      },
+      "raw_sha256": "4fde760830e90380788a5945c6484fab4d3196709638e6b54870e815a6c3f378"
+    },
+    {
+      "platform": "arm_stable",
+      "job_id": 114587860276,
+      "artifact_id": 11717470534,
+      "passed": 18,
+      "failed": 0,
+      "original_systemd_observation": {
+        "pid": 31014,
+        "properties": {
+          "MainPID": "31014",
+          "CapabilityBoundingSet": "cap_kill cap_setgid cap_setuid",
+          "AmbientCapabilities": "cap_setuid",
+          "AppArmorProfile": "",
+          "NoNewPrivileges": "yes",
+          "SystemCallFilter": "~",
+          "RestrictAddressFamilies": "AF_UNIX",
+          "RestrictNamespaces": "no"
+        },
+        "status": {
+          "Uid": "0\t0\t0\t0",
+          "Gid": "0\t0\t0\t0",
+          "CapInh": "0000000000000080",
+          "CapPrm": "00000000000000e0",
+          "CapEff": "00000000000000e0",
+          "CapBnd": "00000000000000e0",
+          "CapAmb": "0000000000000080",
+          "NoNewPrivs": "1",
+          "Seccomp": "2",
+          "Seccomp_filters": "2"
+        },
+        "status_truncated": false,
+        "lsm_label": "unconfined"
+      },
+      "generated_service": {
+        "mode": "actual_prepared_installation",
+        "frontend_exit": 0,
+        "original_broker_wait_consumed": true,
+        "static_unit_verified": true,
+        "systemd_service_started": true,
+        "repeat_install_refused": true,
+        "systemd_runtime": {
+          "generated_unit_started": true,
+          "actual_frontend_exit": 0,
+          "original_slot_fds_clean_before_stop": true,
+          "desktop_service_installed": false,
+          "boot_enable_performed": false
+        }
+      },
+      "raw_sha256": "6ce4be0753d9b3dc51a9e1a298fa8b512e77efcc4113827c3513775af0b5691e"
+    }
+  ],
+  "qualification_scope": "original generated Linux service capabilities and ordinary doctor retirement only",
+  "active_pending_owner_injected": false,
+  "macos_windows_service_qualified": false,
+  "later_scope_window_commit_qualified": false,
+  "production_ready": false
+}

@@ -26,3 +26,5 @@ Python 回归先失败 18 通过/1 失败，缺少明确能力配置。实现与
 CI38179170488、源码2a6e2db60104e676a88b83e3538e25fa747304eb、原job114587860136的原生监督步骤成功。已下载并逐字段核对原artifact11716879880：实际systemd MainPID CapEff/CapBnd/CapPrm=0xe0，CapAmb/CapInh=0x80，NoNewPrivs=1，Seccomp=2。实际生成unit启动，原frontend doctor退出0，原槽FD在stop之前CLEAN，未boot-enable、未安装桌面服务。该环境原phase17缺SETUID失败已修复，公开broker18场景通过、0失败。
 
 原完整回执、能力观察和原日志保留在 docs/benchmarks/linux_systemd_minimal_capabilities_native_2026_10_12/。只关闭此Linux x86 MSRV生成服务的能力与普通退休子验收；整轮CI尚未结束，运行中异常Pending owner未注入，macOS/Windows服务以及后续e21e80d1终检窗口候选均不能由此证明。三平台和异常I/O父项仍不勾选。
+
+Linux x86 stable原job114587860081/artifact11717179299和ARM64 stable原job114587860276/artifact11717470534已同样逐字段验收：两者均18/0、实际能力0xe0/ambient0x80、生成unit doctor成功、原槽在stop前CLEAN。与MSRV原回执一起保留于上述目录/native_matrix.json。此更新仍不证明异常Pending owner、macOS/Windows服务或后续scope终检候选。

@@ -1,0 +1,194 @@
+{
+  "passed": 18,
+  "failed": 0,
+  "actual_product_binaries": true,
+  "system_service_installed": true,
+  "desktop_service_installed": false,
+  "isolated_runner_only": true,
+  "active_pending_owner_injected": false,
+  "platform": "Linux",
+  "cases": [
+    {
+      "mode": "clean",
+      "frontend_exit": 0,
+      "server_exit": 0,
+      "frontend_stdout_eof": true,
+      "original_broker_wait_consumed": true,
+      "bootstrap_record": "DGSL01C",
+      "json_ok": true,
+      "direct_business_result_matched": false
+    },
+    {
+      "mode": "active",
+      "frontend_exit": 8,
+      "server_exit": 0,
+      "frontend_stdout_eof": true,
+      "original_broker_wait_consumed": true,
+      "bootstrap_record": "DGSL01A",
+      "json_ok": false,
+      "direct_business_result_matched": false
+    },
+    {
+      "mode": "bad_digest",
+      "server_exit": 10,
+      "socket_not_born": true,
+      "database_not_born": true
+    },
+    {
+      "mode": "scope_list",
+      "frontend_exit": 0,
+      "server_exit": 0,
+      "frontend_stdout_eof": true,
+      "original_broker_wait_consumed": true,
+      "bootstrap_record": "DGSL01C",
+      "json_ok": true,
+      "direct_business_result_matched": true
+    },
+    {
+      "mode": "snapshots",
+      "frontend_exit": 2,
+      "server_exit": 0,
+      "frontend_stdout_eof": true,
+      "original_broker_wait_consumed": true,
+      "bootstrap_record": "DGSL01C",
+      "json_ok": false,
+      "direct_business_result_matched": true
+    },
+    {
+      "mode": "unknown_job",
+      "frontend_exit": 4,
+      "server_exit": 0,
+      "frontend_stdout_eof": true,
+      "original_broker_wait_consumed": true,
+      "bootstrap_record": "DGSL01C",
+      "json_ok": false,
+      "direct_business_result_matched": true
+    },
+    {
+      "mode": "scope_show",
+      "frontend_exit": 0,
+      "server_exit": 0,
+      "frontend_stdout_eof": true,
+      "original_broker_wait_consumed": true,
+      "bootstrap_record": "DGSL01C",
+      "json_ok": true,
+      "direct_business_result_matched": true
+    },
+    {
+      "mode": "scope_show_revoked",
+      "frontend_exit": 3,
+      "server_exit": 0,
+      "frontend_stdout_eof": true,
+      "original_broker_wait_consumed": true,
+      "bootstrap_record": "DGSL01C",
+      "json_ok": false,
+      "direct_business_result_matched": true
+    },
+    {
+      "mode": "delegated_same_root_uid_sender",
+      "root_listener_original_pid": 32590,
+      "actual_sender_original_pid": 32620,
+      "frontend_exit": 10,
+      "stdout_bytes": 0,
+      "original_sender_wait_consumed": true
+    },
+    {
+      "mode": "delegated_nonroot_sender",
+      "root_listener_original_pid": 32590,
+      "actual_sender_original_pid": 32622,
+      "frontend_exit": 10,
+      "stdout_bytes": 0,
+      "original_sender_wait_consumed": true
+    },
+    {
+      "mode": "doctor",
+      "status": 0,
+      "original_public_eof": true,
+      "valid_linux_clock": true,
+      "public_output_bytes": 1158,
+      "original_server_wait_consumed": true,
+      "database_not_born": false,
+      "original_slots_clean": true
+    },
+    {
+      "mode": "override",
+      "status": 10,
+      "original_public_eof": true,
+      "valid_linux_clock": true,
+      "public_output_bytes": 0,
+      "original_server_wait_consumed": true,
+      "database_not_born": true,
+      "original_slots_clean": true
+    },
+    {
+      "mode": "unknown_command",
+      "status": 10,
+      "original_public_eof": true,
+      "valid_linux_clock": true,
+      "public_output_bytes": 0,
+      "original_server_wait_consumed": true,
+      "database_not_born": true,
+      "original_slots_clean": true
+    },
+    {
+      "mode": "duplicate",
+      "status": 10,
+      "original_public_eof": true,
+      "valid_linux_clock": true,
+      "public_output_bytes": 0,
+      "original_server_wait_consumed": true,
+      "database_not_born": true,
+      "original_slots_clean": true
+    },
+    {
+      "mode": "bad_numeric",
+      "status": 10,
+      "original_public_eof": true,
+      "valid_linux_clock": true,
+      "public_output_bytes": 0,
+      "original_server_wait_consumed": true,
+      "database_not_born": true,
+      "original_slots_clean": true
+    },
+    {
+      "mode": "write",
+      "status": 10,
+      "original_public_eof": true,
+      "valid_linux_clock": true,
+      "public_output_bytes": 0,
+      "original_server_wait_consumed": true,
+      "database_not_born": true,
+      "original_slots_clean": true
+    },
+    {
+      "mode": "unknown_field",
+      "status": 10,
+      "original_public_eof": true,
+      "valid_linux_clock": true,
+      "public_output_bytes": 0,
+      "original_server_wait_consumed": true,
+      "database_not_born": true,
+      "original_slots_clean": true
+    },
+    {
+      "mode": "actual_prepared_installation",
+      "frontend_exit": 0,
+      "original_broker_wait_consumed": true,
+      "static_unit_verified": true,
+      "systemd_service_started": true,
+      "repeat_install_refused": true,
+      "systemd_runtime": {
+        "generated_unit_started": true,
+        "actual_frontend_exit": 0,
+        "original_slot_fds_clean_before_stop": true,
+        "desktop_service_installed": false,
+        "boot_enable_performed": false
+      }
+    }
+  ],
+  "binary_sha256": {
+    "cli": "e4d8bec3d019f79d98953fe09516ce9959c24ad9fec92103fef2dbe013cfd277",
+    "worker": "572b0aa3454b8d7c00cf4bc168c766947441b075a09682b18c03932bfd8e2679",
+    "broker": "4264cb547d7191b144ece61d714a1e5725381609676e9892a04fddeab3906349"
+  }
+}
