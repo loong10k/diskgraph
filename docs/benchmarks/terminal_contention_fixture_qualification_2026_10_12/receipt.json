@@ -25,5 +25,18 @@
     "ignored_case_executed_separately": true
   },
   "local_clippy_passed": true,
-  "fixed_native_qualification_passed": false
+  "fixed_native_qualification_passed": false,
+  "second_native_failure": {
+    "run": 38156890357,
+    "job": 114521668662,
+    "platform": "macOS Intel stable",
+    "source": "126cc4ce4d3380a4ba4d7e9fe15a21190cab499e",
+    "injected_wake_ms": 150,
+    "nominal_hold_ms": 100,
+    "recorded_hold_ms": 280.36603,
+    "terminal_ms": 250.516398,
+    "result": "BudgetExceeded",
+    "sse_expiry_test_passed": true,
+    "fixed_native_qualification_passed": false
+  }
 }
