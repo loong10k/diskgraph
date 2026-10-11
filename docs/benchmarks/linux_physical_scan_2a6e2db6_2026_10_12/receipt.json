@@ -1,0 +1,211 @@
+{
+  "run_id": 38179170488,
+  "job_id": 114587860081,
+  "artifact_id": 11718135365,
+  "candidate_sha": "2a6e2db60104e676a88b83e3538e25fa747304eb",
+  "baseline_sha": "2a2f8281f9f211b6632bdb26afdcd4a4fb21a44d",
+  "retained_verified_artifacts": [
+    "20000-wide-filesystem.stderr",
+    "20000-wide-filesystem.stdout",
+    "20000-wide-round1-baseline.json",
+    "20000-wide-round1-baseline.stderr",
+    "20000-wide-round1-baseline.stdout",
+    "20000-wide-round1-candidate.json",
+    "20000-wide-round1-candidate.stderr",
+    "20000-wide-round1-candidate.stdout",
+    "20000-wide-round2-baseline.json",
+    "20000-wide-round2-baseline.stderr",
+    "20000-wide-round2-baseline.stdout",
+    "20000-wide-round2-candidate.json",
+    "20000-wide-round2-candidate.stderr",
+    "20000-wide-round2-candidate.stdout",
+    "200000-wide-filesystem.stderr",
+    "200000-wide-filesystem.stdout",
+    "200000-wide-round1-baseline.json",
+    "200000-wide-round1-baseline.stderr",
+    "200000-wide-round1-baseline.stdout",
+    "200000-wide-round1-candidate.json",
+    "200000-wide-round1-candidate.stderr",
+    "200000-wide-round1-candidate.stdout",
+    "200000-wide-round2-baseline.json",
+    "200000-wide-round2-baseline.stderr",
+    "200000-wide-round2-baseline.stdout",
+    "200000-wide-round2-candidate.json",
+    "200000-wide-round2-candidate.stderr",
+    "200000-wide-round2-candidate.stdout",
+    "300-deep-filesystem.stderr",
+    "300-deep-filesystem.stdout",
+    "300-deep-round1-baseline.json",
+    "300-deep-round1-baseline.stderr",
+    "300-deep-round1-baseline.stdout",
+    "300-deep-round1-candidate.json",
+    "300-deep-round1-candidate.stderr",
+    "300-deep-round1-candidate.stdout",
+    "300-deep-round2-baseline.json",
+    "300-deep-round2-baseline.stderr",
+    "300-deep-round2-baseline.stdout",
+    "300-deep-round2-candidate.json",
+    "300-deep-round2-candidate.stderr",
+    "300-deep-round2-candidate.stdout",
+    "baseline-archive.stderr",
+    "baseline-build.stderr",
+    "baseline-build.stdout",
+    "baseline-fetch.stderr",
+    "baseline-fetch.stdout",
+    "baseline-measured-source.json",
+    "baseline-object.stderr",
+    "baseline-object.stdout",
+    "baseline-original-source.json",
+    "candidate-archive.stderr",
+    "candidate-build.stderr",
+    "candidate-build.stdout",
+    "candidate-measured-source.json",
+    "candidate-object.stderr",
+    "candidate-object.stdout",
+    "candidate-original-source.json",
+    "candidate-worker-build.stderr",
+    "candidate-worker-build.stdout",
+    "cargo-version.stderr",
+    "cargo-version.stdout",
+    "rustc.stderr",
+    "rustc.stdout"
+  ],
+  "physical_scan_pairs": [
+    {
+      "case": "20000-wide",
+      "measurements": [
+        {
+          "label": "baseline",
+          "round": 1,
+          "scan_seconds": 3.228216812,
+          "process_scan_high_water_rss_bytes": 54894592,
+          "reaped_child_scan_high_water_rss_bytes": 0,
+          "database_bytes": 63381504,
+          "wal_bytes": 12392
+        },
+        {
+          "label": "candidate",
+          "round": 1,
+          "scan_seconds": 2.91817651,
+          "process_scan_high_water_rss_bytes": 54894592,
+          "reaped_child_scan_high_water_rss_bytes": 8171520,
+          "database_bytes": 63406080,
+          "wal_bytes": 12392
+        },
+        {
+          "label": "candidate",
+          "round": 2,
+          "scan_seconds": 2.913139307,
+          "process_scan_high_water_rss_bytes": 54894592,
+          "reaped_child_scan_high_water_rss_bytes": 8171520,
+          "database_bytes": 63406080,
+          "wal_bytes": 12392
+        },
+        {
+          "label": "baseline",
+          "round": 2,
+          "scan_seconds": 3.248170235,
+          "process_scan_high_water_rss_bytes": 54894592,
+          "reaped_child_scan_high_water_rss_bytes": 0,
+          "database_bytes": 63381504,
+          "wal_bytes": 12392
+        }
+      ]
+    },
+    {
+      "case": "200000-wide",
+      "measurements": [
+        {
+          "label": "baseline",
+          "round": 1,
+          "scan_seconds": 34.738870726,
+          "process_scan_high_water_rss_bytes": 204984320,
+          "reaped_child_scan_high_water_rss_bytes": 0,
+          "database_bytes": 636403712,
+          "wal_bytes": 12392
+        },
+        {
+          "label": "candidate",
+          "round": 1,
+          "scan_seconds": 30.704336505,
+          "process_scan_high_water_rss_bytes": 203317248,
+          "reaped_child_scan_high_water_rss_bytes": 58212352,
+          "database_bytes": 636428288,
+          "wal_bytes": 12392
+        },
+        {
+          "label": "candidate",
+          "round": 2,
+          "scan_seconds": 30.680405497,
+          "process_scan_high_water_rss_bytes": 203980800,
+          "reaped_child_scan_high_water_rss_bytes": 58109952,
+          "database_bytes": 636428288,
+          "wal_bytes": 12392
+        },
+        {
+          "label": "baseline",
+          "round": 2,
+          "scan_seconds": 34.482243557,
+          "process_scan_high_water_rss_bytes": 204771328,
+          "reaped_child_scan_high_water_rss_bytes": 0,
+          "database_bytes": 636403712,
+          "wal_bytes": 12392
+        }
+      ]
+    },
+    {
+      "case": "300-deep",
+      "measurements": [
+        {
+          "label": "baseline",
+          "round": 1,
+          "scan_seconds": 0.110077432,
+          "process_scan_high_water_rss_bytes": 54894592,
+          "reaped_child_scan_high_water_rss_bytes": 0,
+          "database_bytes": 3387392,
+          "wal_bytes": 12392
+        },
+        {
+          "label": "candidate",
+          "round": 1,
+          "scan_seconds": 0.15507547,
+          "process_scan_high_water_rss_bytes": 54894592,
+          "reaped_child_scan_high_water_rss_bytes": 3207168,
+          "database_bytes": 3411968,
+          "wal_bytes": 12392
+        },
+        {
+          "label": "candidate",
+          "round": 2,
+          "scan_seconds": 0.156287091,
+          "process_scan_high_water_rss_bytes": 54894592,
+          "reaped_child_scan_high_water_rss_bytes": 3354624,
+          "database_bytes": 3411968,
+          "wal_bytes": 12392
+        },
+        {
+          "label": "baseline",
+          "round": 2,
+          "scan_seconds": 0.109678746,
+          "process_scan_high_water_rss_bytes": 54894592,
+          "reaped_child_scan_high_water_rss_bytes": 0,
+          "database_bytes": 3387392,
+          "wal_bytes": 12392
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "Same runner and pre-created roots; caches are not dropped or claimed cold.",
+    "Host and reaped child RSS are separate high waters; their sum is conservative and not simultaneous live RSS.",
+    "Historical baseline uses its original Engine entry; candidate uses explicit process host, with distinct adapter fingerprints.",
+    "Database lengths and signed deltas are logical file sizes, not physical write bytes.",
+    "Query phase includes preserved explicit rebuildable fixture evidence insertion.",
+    "Qualification is persisted Linux capture; Unsupported is failure, not a performance result.",
+    "Two alternating rounds describe this host only; no performance improvement threshold."
+  ],
+  "raw_receipt_sha256": "46305cc1845a6d391fc3054f8e1570ef4d829a4289cf262f3b5f0b8340dc6200",
+  "rss_is_strict_bound": false,
+  "full_platform_production_ready": false,
+  "source_archives": "original tar stdout SHA and source commits retained in original receipt; binary tar bytes remain in GitHub artifact, not embedded in repository"
+}
