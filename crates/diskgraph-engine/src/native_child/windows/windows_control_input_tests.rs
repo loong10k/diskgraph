@@ -273,7 +273,9 @@ fn worker_control_uses_three_standard_pipe_handles_and_excludes_parent_events() 
             (event as usize).to_string(),
         )
         .unwrap();
+        eprintln!("DG_WINDOWS_CONTROL_INHERIT_PARENT_PHASE=waiting-ready");
         wait_until(deadline, || directory.path().join("ready").exists())?;
+        eprintln!("DG_WINDOWS_CONTROL_INHERIT_PARENT_PHASE=sending-payload");
         let payload = [0, 255, 1, 0, 17, 128];
         let mut cursor = 0;
         while cursor < payload.len() {
@@ -295,10 +297,12 @@ fn worker_control_uses_three_standard_pipe_handles_and_excludes_parent_events() 
                 }
             }
         }
+        eprintln!("DG_WINDOWS_CONTROL_INHERIT_PARENT_PHASE=waiting-received");
         wait_until(deadline, || {
             std::fs::metadata(directory.path().join("received"))
                 .is_ok_and(|m| m.len() == payload.len() as u64)
         })?;
+        eprintln!("DG_WINDOWS_CONTROL_INHERIT_PARENT_PHASE=closing-original-control");
         let closed = child.request_control_close()?;
         let output = collect_exit(&mut child, deadline)?;
         Ok((
@@ -310,6 +314,18 @@ fn worker_control_uses_three_standard_pipe_handles_and_excludes_parent_events() 
             payload,
         ))
     })();
+    if let Err(error) = &result {
+        // 只读取同一真实夹具的阶段和非阻塞输出；不新建进程、不续原10秒期限、不把cleanup解释为成功。
+        let stderr = child.read_stderr().map(|bytes| {
+            bytes.map(|bytes| String::from_utf8_lossy(&bytes[..bytes.len().min(4096)]).into_owned())
+        });
+        eprintln!(
+            "DG_WINDOWS_CONTROL_INHERIT_FAILURE={error:?}; child_phase={:?}; ready={}; received={:?}; stderr={stderr:?}",
+            std::fs::read_to_string(directory.path().join("inherit-phase")),
+            directory.path().join("ready").exists(),
+            std::fs::metadata(directory.path().join("received")).map(|metadata| metadata.len())
+        );
+    }
     let cleanup = child.cleanup();
     let (noninheritable, rejects, closed, _, exit, payload) = result.unwrap();
     assert!(cleanup.is_ok(), "{cleanup:?}");

@@ -446,3 +446,5 @@ a172b51a macOS stable强制竞争门禁未形成合格150ms输入：五次实际
 CLI节点与搜索连续授权增量：隔离真实注册范围及合成owned发布经实际dispatch，旧node在原期限过期和缺终检时逃逸，RED1/2（循环首项即失败，不称五项各自复现）。五个命令改为共用原期限、实际revision/scope归属与独立reader，编码后沿现有250ms数据库/50ms能力终检；正常完整节点字段、目录顺序和Unicode搜索保持。当前7/0覆盖五命令的期限、撤权、无权限、晚能力及字段，另含scope不匹配消费者不进入、搜索游标绑定dispatch主体；scope4/0、固定CLI路由3/0、源码规范2/0+6/0、macOS Clippy/fmt及OpenSpec strict通过。children过滤页与search仍沿原页解码，不称全部raw字节准入已完成。原生CI与服务/异常I/O父项继续开放。见cli_narrow_authorization_2026_10_12/receipt.json。
 
 CLI管理查询实测修复：真实隔离排队扫描任务经status向无权限主体泄露job/scope，且忽略原dispatch期限，RED0/2；接入OperationView与实时DB交集、原任务撤权见证及编码后250ms数据库/50ms能力终检，MCP状态JSON准备同样使用该入口。snapshots列表沿原期限读取并在编码后终检；另复现编码后MetadataRead撤销再恢复仍逃逸，RED0/1，scope元数据入口现持有贯穿编码的原见证，无通知能力则代次变化Conflict。当前管理回归5/0、MCP管理7/0、节点7/0、scope4/0及源规范6/0+2/0、macOS Clippy/fmt/OpenSpec通过。实际平台CI、服务/异常I/O父项开放，不以合成元数据等同扫描。见cli_management_authorization_2026_10_12/。
+
+Windows MSRV a172原生新失败留证：Engine776/1/8，唯一控制输入三标准管道/排除parent events场景在原10秒control test wait超时，旧日志不能区分ready与received，也不能认定句柄泄露或仅调度原因。真实同一子夹具增加阶段标记，父失败仅观察原阶段与至多4096字节非阻塞stderr；原10秒、断言、cleanup与进程均保留，不新建deadline、不重试。此项是诊断接线，不称根因修复；macOS Clippy/源布局不能证明Windows cfg执行。见windows_control_inherit_diagnostic_2026_10_12/。

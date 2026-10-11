@@ -1,0 +1,13 @@
+{
+  "failed_source": "a172b51af0a396b02183e15d930d7e55bb9e9e30",
+  "run_id": 38168994137,
+  "failed_test": "worker_control_uses_three_standard_pipe_handles_and_excludes_parent_events",
+  "original_result": "776 passed, 1 failed, 8 ignored; NativeIo control test wait original10s TimedOut",
+  "diagnosis": "Original log does not distinguish ready or received milestone, nor prove handle inheritance leak or scheduler-only cause. Added bounded same-child phase/output diagnostics; no production change, no new timer, no retry, no ignored assertion.",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/native_child/windows/windows_control_fixture.rs": "2ee0bcf2e035671b7570fefc64961f8bad511568c26fe9d37919110406d6f231",
+    "crates/diskgraph-engine/src/native_child/windows/windows_control_input_tests.rs": "b6a7409ee9cf4bbd6dbfcab6e75b231f688b76196362f543d690e4762cd866ae"
+  },
+  "verification": "Mac Engine Clippy and source layout only; Windows cfg body not compiled/executed locally",
+  "pending": "Actual Windows execution required; this is diagnosis instrumentation, not a completed root-cause repair"
+}

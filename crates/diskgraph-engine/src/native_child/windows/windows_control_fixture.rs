@@ -45,12 +45,14 @@ fn control_child_fixture() {
         std::fs::write(directory.join("started"), b"started").unwrap();
     }
     if mode == "inherit" {
+        std::fs::write(directory.join("inherit-phase"), b"standard-pipe-checks").unwrap();
         for standard in [STD_INPUT_HANDLE, STD_OUTPUT_HANDLE, STD_ERROR_HANDLE] {
             assert_eq!(
                 unsafe { GetFileType(GetStdHandle(standard)) },
                 FILE_TYPE_PIPE
             );
         }
+        std::fs::write(directory.join("inherit-phase"), b"unlisted-event-probe").unwrap();
         let raw: usize = std::env::var("DG_CONTROL_UNLISTED_EVENT")
             .unwrap()
             .parse()
@@ -60,9 +62,11 @@ fn control_child_fixture() {
             0,
             "unlisted parent event leaked into child"
         );
+        std::fs::write(directory.join("inherit-phase"), b"waiting-parent-event").unwrap();
         while !directory.join("parent-event").exists() {
             std::thread::sleep(Duration::from_millis(1));
         }
+        std::fs::write(directory.join("inherit-phase"), b"parent-event-probe").unwrap();
         let raw: usize = std::fs::read_to_string(directory.join("parent-event"))
             .unwrap()
             .parse()
@@ -76,6 +80,9 @@ fn control_child_fixture() {
     std::io::stdout().write_all(b"control-stdout\n").unwrap();
     std::io::stderr().write_all(b"control-stderr\n").unwrap();
     std::fs::write(directory.join("ready"), b"ready").unwrap();
+    if mode == "inherit" {
+        std::fs::write(directory.join("inherit-phase"), b"ready").unwrap();
+    }
     if mode == "hold" {
         while !directory.join("release").exists() {
             std::thread::sleep(Duration::from_millis(1));
@@ -90,6 +97,9 @@ fn control_child_fixture() {
             break;
         }
         received.write_all(&block[..n]).unwrap();
+        if mode == "inherit" {
+            std::fs::write(directory.join("inherit-phase"), b"received-payload").unwrap();
+        }
     }
     std::fs::write(directory.join("eof"), b"eof").unwrap();
     std::process::exit(0);
