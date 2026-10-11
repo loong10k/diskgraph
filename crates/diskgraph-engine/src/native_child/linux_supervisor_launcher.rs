@@ -26,6 +26,7 @@ pub struct LinuxSupervisorLauncher {
     environment: Vec<CString>,
     identity: (u32, u32),
     groups: Vec<u32>,
+    executor_protection: bool,
     pipes: LinuxAtomicPipes,
     extra: [OwnedFd; 2],
     worker: Option<OwnedFd>,
@@ -54,7 +55,7 @@ impl LinuxSupervisorLauncher {
         Ok(self)
     }
     /// 参数：原核验镜像、固定参数/环境及原连接内核Unix身份；返回：保留辅助组的出生材料。
-    /// 仅组件准备，不接通产品executor；LSM上下文、镜像隐私及原guardian责任仍须宿主准入。
+    /// Ready前按实际客户凭据拒绝可读镜像；仍须验证exec后隐私、LSM上下文和原guardian责任。
     pub fn prepare_user_executor(
         image: File,
         args: Vec<CString>,
@@ -64,6 +65,7 @@ impl LinuxSupervisorLauncher {
         let mut prepared =
             Self::prepare(image, args, environment, (identity.uid(), identity.gid()))?;
         prepared.groups = identity.supplementary_groups().to_vec();
+        prepared.executor_protection = true;
         Ok(prepared)
     }
 
@@ -99,6 +101,7 @@ impl LinuxSupervisorLauncher {
             environment,
             identity,
             groups: Vec::new(),
+            executor_protection: false,
             pipes,
             extra,
             worker: None,
@@ -177,6 +180,7 @@ impl LinuxSupervisorLauncher {
             group_count: self.groups.len() as u32,
             groups: self.groups.as_ptr(),
             worker_fd: self.worker.as_ref().map_or(0, AsRawFd::as_raw_fd),
+            executor_protection: u32::from(self.executor_protection),
         };
         let mut mask = LinuxAtomicSignalMask::new();
         let mut pidfd = -1;

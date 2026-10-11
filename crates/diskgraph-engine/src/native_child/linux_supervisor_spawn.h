@@ -12,6 +12,7 @@ struct dg_supervisor_request {
     uint32_t group_count;
     const uint32_t *groups; /* 受信父侧出生前固定的辅助组；零组保持guardian旧契约。 */
     int worker_fd; /* 0保持旧七FD合同；>=10的原只读worker在exec后仅交付固定FD7。 */
+    uint32_t executor_protection; /* 0为guardian兼容；1检查采用客户凭据后的镜像读取拒绝。 */
 };
 long dg_linux_supervisor_spawn(const struct dg_supervisor_request *request,
     int *pidfd, uint64_t *old_mask, int *mask_active);

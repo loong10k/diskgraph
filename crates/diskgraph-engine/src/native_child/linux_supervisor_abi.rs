@@ -11,6 +11,7 @@ pub(super) struct LinuxSupervisorAbi {
     pub(super) group_count: u32,
     pub(super) groups: *const u32,
     pub(super) worker_fd: i32,
+    pub(super) executor_protection: u32,
 }
 
 unsafe extern "C" {

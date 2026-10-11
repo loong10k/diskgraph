@@ -117,6 +117,8 @@ int main(int argc, char **argv) {
         }
         close(connection); return 0;
     }
+    if (argc == 2 && strcmp(argv[1], "private_executor") == 0 &&
+        prctl(PR_GET_DUMPABLE, 0, 0, 0, 0) != 0) return 9;
     struct __user_cap_header_struct header = {_LINUX_CAPABILITY_VERSION_3, 0};
     struct __user_cap_data_struct data[2] = {{0}, {0}};
     int cap_ok = syscall(SYS_capget, &header, data) == 0;
@@ -158,6 +160,9 @@ int main(int argc, char **argv) {
     if (held_worker)
         printf("{\"passed\":%s,\"held_worker_read\":%s,\"worker_path_eacces\":%s}\n",
             passed ? "true" : "false", worker_ok ? "true" : "false", path_denied ? "true" : "false");
+    else if (argc == 2 && strcmp(argv[1], "private_executor") == 0)
+        printf("{\"passed\":%s,\"dumpable\":%d}\n", passed ? "true" : "false",
+            prctl(PR_GET_DUMPABLE, 0, 0, 0, 0));
     else printf("{\"passed\":%s,\"uid\":%u,\"gid\":%u,\"groups\":%d,\"private_endpoints\":%s,\"capabilities_empty\":%s,\"whitelist\":%s,\"no_new_privs\":%s}\n",
         passed ? "true" : "false", getuid(), getgid(), getgroups(0, NULL),
         endpoints ? "true" : "false", cap_ok ? "true" : "false",

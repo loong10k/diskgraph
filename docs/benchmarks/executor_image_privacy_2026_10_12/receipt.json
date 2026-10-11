@@ -1,0 +1,51 @@
+{
+  "source_parent": "db4908f533b9b90798b4797096cef55ec8a150dc",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/native_child/linux_supervisor_spawn.c": "e7ab0ec441e6e4b33f4ac0aae265c234efd83f7475233b175f6e80349e9087d4",
+    "crates/diskgraph-engine/src/native_child/linux_supervisor_spawn.h": "d6f05c219ae08f9755e70d44764275516060b10551ebb5ba92102c25672a7dee",
+    "crates/diskgraph-engine/src/native_child/linux_supervisor_abi.rs": "9e3280fdc07a94e333bd7f59c69799696e01b9c67374bf14244872941e398faf",
+    "crates/diskgraph-engine/src/native_child/linux_supervisor_launcher.rs": "07dd2d5cdbdbe0fbb51c2364b68bb2ce38d9bde71b051dab7ec9ba416ad2f65d",
+    "crates/diskgraph-engine/src/native_child/linux_startup_role.rs": "72a26861ab8c6fb67bfefcbc5cb5b3c9d49727272f27714df0b9a3c03078d86f",
+    "scripts/fixtures/linux_supervisor_birth/driver.c": "31b4ef12b9a5fb06ea553554d08483a5585d222b8604c60f40e178f6ffa6ff5c",
+    "scripts/fixtures/linux_supervisor_birth/role.c": "ffdbe81a88de648a79acf3b4cf76e7531438a2d538f6565188f144d0557bc885",
+    "scripts/qualify_linux_supervisor_spawn.py": "189a49db8ad3300e2c33b701933d2fe34c61d60a92c2eea4b7d4b14d3476efe9"
+  },
+  "behavioral_red": "old production C allowed customer-readable executable; actual original child exec/wait succeeded and contract driver exit42",
+  "native_green": {
+    "kernel": "Linux ARM64 isolated container",
+    "cases": {
+      "executor_public": 0,
+      "executor_private": 0,
+      "executor_acl": 0,
+      "denied_access": 0,
+      "invalid_protection": 0,
+      "clean": 0,
+      "supplementary": 0,
+      "held_worker": 0,
+      "root_uid": 0,
+      "root_gid": 0,
+      "sentinel_uid": 0,
+      "sentinel_gid": 0,
+      "low_fd": 0,
+      "aliased_fd": 0,
+      "missing_groups": 0,
+      "oversized_groups": 0,
+      "sentinel_group": 0,
+      "low_worker": 0,
+      "aliased_worker": 0,
+      "writable_worker": 0,
+      "denied_groups": 42,
+      "signal_after_ready": 0
+    },
+    "acl": "tmpfs returned errno95; disposable overlay ACL setup verified actual customer R_OK then original launcher rejected before Ready",
+    "actual_exec_dumpable": 0
+  },
+  "x86_64": "strict static cross compile only",
+  "limits": [
+    "Linux Rust native launcher and startup role tests not run locally",
+    "guardian and customer executor product routing remains incomplete",
+    "dumpable result is kernel-specific, not macOS or Windows qualification",
+    "native script includes nonroot and bad_image cases not rerun in local C22 set",
+    "not production readiness"
+  ]
+}

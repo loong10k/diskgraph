@@ -10,6 +10,7 @@
 #include <sys/prctl.h>
 #include <sys/socket.h>
 #include <sys/syscall.h>
+#include <unistd.h>
 
 struct dg_supervisor_message { uint32_t kind, phase; int32_t error; };
 struct dg_supervisor_action { uintptr_t handler, flags, restorer; uint64_t mask; };
@@ -20,6 +21,7 @@ _Static_assert(offsetof(struct dg_supervisor_request, argv) == 40, "supervisor p
 _Static_assert(offsetof(struct dg_supervisor_request, group_count) == 56, "supervisor group count offset");
 _Static_assert(offsetof(struct dg_supervisor_request, groups) == 64, "supervisor groups offset");
 _Static_assert(offsetof(struct dg_supervisor_request, worker_fd) == 72, "supervisor worker offset");
+_Static_assert(offsetof(struct dg_supervisor_request, executor_protection) == 76, "supervisor protection offset");
 _Static_assert(sizeof(struct dg_supervisor_request) == 80, "supervisor request native64 layout");
 
 static __attribute__((noreturn)) void supervisor_exit(void) {
@@ -81,6 +83,14 @@ static __attribute__((noreturn)) void supervisor_child(const struct dg_superviso
     const struct __user_cap_header_struct capabilities_header = {_LINUX_CAPABILITY_VERSION_3, 0};
     const struct __user_cap_data_struct capabilities[2] = {{0, 0, 0}, {0, 0, 0}};
     supervisor_checked(dg_raw(SYS_capset, (long)&capabilities_header, (long)&capabilities, 0, 0, 0, 0), 4, 18);
+    if (request->executor_protection) {
+        /* 使用已采用的真实客户凭据核验原ELF，包含辅助组/ACL/LSM；未知拒绝原因不降级。 */
+        const char image_path[1] = {0};
+        long readable = dg_raw(SYS_faccessat2, 3, (long)image_path, R_OK, AT_EMPTY_PATH | AT_EACCESS, 0, 0);
+        if (readable != -EACCES) supervisor_fail(4, 19, readable < 0 ? readable : -EACCES);
+        /* 保护ACK等待期间的原环境；exec后的隐私仍需目标内核独立验收。 */
+        supervisor_checked(dg_raw(SYS_prctl, PR_SET_DUMPABLE, 0, 0, 0, 0, 0), 4, 20);
+    }
     const struct dg_supervisor_message ready = {1, 0, 0};
     long sent = dg_raw(SYS_sendto, 4, (long)&ready, sizeof(ready), MSG_NOSIGNAL | MSG_DONTWAIT, 0, 0);
     supervisor_checked(sent, 4, 9);
@@ -100,6 +110,7 @@ long dg_linux_supervisor_spawn(const struct dg_supervisor_request *request,
     if (!request->uid || !request->gid || request->uid == UINT32_MAX || request->gid == UINT32_MAX)
         return -EPERM;
     /* Linux NGROUPS_MAX；原数组由父侧持有直至clone完成，禁止child分配或读取客户字段。 */
+    if (request->executor_protection > 1) return -EINVAL;
     if (request->group_count > 65536 || (request->group_count && !request->groups)) return -EINVAL;
     for (uint32_t index = 0; index < request->group_count; ++index)
         if (request->groups[index] == UINT32_MAX) return -EINVAL;

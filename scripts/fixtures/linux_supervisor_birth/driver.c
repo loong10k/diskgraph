@@ -1,6 +1,7 @@
 #define _GNU_SOURCE
 #include <errno.h>
 #include <fcntl.h>
+#include <grp.h>
 #include <linux/filter.h>
 #include <linux/seccomp.h>
 #include <stddef.h>
@@ -13,6 +14,7 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
+#include <sys/xattr.h>
 #include <unistd.h>
 
 struct base_request {
@@ -65,6 +67,33 @@ int main(int argc, char **argv) {
     if (!strcmp(argv[2], "missing_groups")) request.group_count = 1;
     if (!strcmp(argv[2], "oversized_groups")) { request.group_count = 65537; request.groups = executor_groups; }
     if (!strcmp(argv[2], "sentinel_group")) { executor_groups[0] = UINT32_MAX; request.group_count = 1; request.groups = executor_groups; }
+    int executor_private = !strcmp(argv[2], "executor_private");
+    int executor_acl = !strcmp(argv[2], "executor_acl");
+    int executor_public = !strcmp(argv[2], "executor_public") || executor_acl;
+    int denied_access = !strcmp(argv[2], "denied_access");
+    if (executor_acl) {
+        /* 实际POSIX ACL授予客户读取；不能把mode位当作完整凭据判断。 */
+        struct acl_entry { uint16_t tag, permissions; uint32_t id; };
+        const struct { uint32_t version; struct acl_entry entries[5]; } acl = {2, {
+            {1, 5, UINT32_MAX}, {2, 4, 23111}, {4, 1, UINT32_MAX},
+            {16, 5, UINT32_MAX}, {32, 1, UINT32_MAX}}};
+        if (fsetxattr(image, "system.posix_acl_access", &acl, sizeof(acl), 0)) {
+            fprintf(stderr, "fixture ACL setup errno=%d\n", errno); return 43;
+        }
+        pid_t acl_probe = fork();
+        if (acl_probe < 0) return 43;
+        if (acl_probe == 0) {
+            if (setgroups(0, NULL) || setresgid(23111, 23111, 23111) ||
+                setresuid(23111, 23111, 23111)) _exit(44);
+            _exit(syscall(SYS_faccessat2, image, "", R_OK, AT_EMPTY_PATH | AT_EACCESS) == 0 ? 0 : 45);
+        }
+        int acl_status = 0;
+        if (waitpid(acl_probe, &acl_status, 0) != acl_probe || !WIFEXITED(acl_status) ||
+            WEXITSTATUS(acl_status) != 0) return 43;
+        printf("{\"acl_read_permission_verified\":true}\n");
+    }
+    if (executor_private || executor_public || denied_access) request.executor_protection = 1;
+    if (!strcmp(argv[2], "invalid_protection")) request.executor_protection = 2;
     int held_worker = !strcmp(argv[2], "held_worker");
     if (held_worker) {
         if (argc != 4) return 40;
@@ -79,16 +108,16 @@ int main(int argc, char **argv) {
         if (writable < 0) abort();
         request.worker_fd = high(writable); close(writable);
     }
-    char *args[] = {argv[1], supplementary ? "supplementary" : held_worker ? "held_worker" : NULL,
+    char *args[] = {argv[1], supplementary ? "supplementary" : held_worker ? "held_worker" : executor_private ? "private_executor" : NULL,
         held_worker ? argv[3] : NULL, NULL}; char *environment[] = {NULL};
     request.argv = args; request.envp = environment;
     /* 仅本次隔离driver拒绝setgroups；真实child必须报告降权阶段并保留原pidfd退休。 */
     int denied_groups = !strcmp(argv[2], "denied_groups");
-    if (denied_groups) {
+    if (denied_groups || denied_access) {
         const struct sock_filter deny[] = {
             BPF_STMT(BPF_LD | BPF_W | BPF_ABS, offsetof(struct seccomp_data, nr)),
-            BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, SYS_setgroups, 0, 1),
-            BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_ERRNO | EPERM),
+            BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, denied_groups ? SYS_setgroups : SYS_faccessat2, 0, 1),
+            BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_ERRNO | (denied_groups ? EPERM : ENOSYS)),
             BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_ALLOW),
         };
         const struct sock_fprog program = {4, (struct sock_filter *)deny};
@@ -126,10 +155,11 @@ int main(int argc, char **argv) {
     int handshake;
     int signal_after_ready = !strcmp(argv[2], "signal_after_ready");
     int signalled = -1;
-    if (denied_groups) {
+    if (denied_groups || denied_access || executor_public) {
         if (!send_kind(startup[0], 3)) abort();
         terminal_size = recv(startup[0], &terminal, sizeof(terminal), 0);
         handshake = 0;
+        if (executor_public && terminal.kind == 1 && !send_kind(startup[0], 4)) abort();
     } else if (signal_after_ready) {
         /* Ready已经在实际降权之后：原pidfd发信号需要CAP_KILL，不能靠Root数值身份冒充。 */
         if (!send_kind(startup[0], 3) || !receive(startup[0], 1)) abort();
@@ -146,11 +176,17 @@ int main(int argc, char **argv) {
     if (size > 0) { buffer[size] = 0; fputs(buffer, stdout); }
     siginfo_t info = {0};
     int waited = waitid(P_PIDFD, pidfd, &info, WEXITED) == 0;
-    if (!denied_groups) terminal_size = recv(startup[0], &terminal, sizeof(terminal), MSG_DONTWAIT);
+    if (!denied_groups && !denied_access && !executor_public) terminal_size = recv(startup[0], &terminal, sizeof(terminal), MSG_DONTWAIT);
     printf("{\"startup_after_ack_bytes\":%zd,\"startup_kind\":%u,\"startup_phase\":%u,\"startup_errno\":%d}\n", terminal_size, terminal.kind, terminal.phase, terminal.error);
     printf("{\"original_pidfd_waited\":%s,\"public_eof_before_init\":%s,\"handshake\":%s,\"exited_normally\":%s,\"exit_code\":%d}\n",
         waited ? "true" : "false", public_eof ? "true" : "false", handshake ? "true" : "false", info.si_code == CLD_EXITED ? "true" : "false", info.si_status);
     close(pidfd);
+    if (denied_access) return waited && public_eof && terminal.kind == 2 &&
+        terminal.phase == 19 && terminal.error == ENOSYS && info.si_code == CLD_EXITED &&
+        info.si_status == 127 ? 0 : 42;
+    if (executor_public) return waited && public_eof && terminal.kind == 2 &&
+        terminal.phase == 19 && terminal.error == EACCES && info.si_code == CLD_EXITED &&
+        info.si_status == 127 ? 0 : 42;
     if (signal_after_ready) return signalled == 0 && waited && public_eof &&
         info.si_code == CLD_KILLED && info.si_status == SIGKILL ? 0 : 42;
     return waited && public_eof && handshake && info.si_code == CLD_EXITED && info.si_status == 0 ? 0 : 42;

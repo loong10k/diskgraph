@@ -12,7 +12,7 @@ pub(super) enum LinuxStartupRole {
 impl LinuxStartupRole {
     /// 参数：phase 是原消息阶段；返回：该受信角色是否允许此失败阶段。
     pub(super) fn failure_phase(self, phase: u32) -> bool {
-        (1..=11).contains(&phase) || matches!(self, Self::Supervisor) && (12..=18).contains(&phase)
+        (1..=11).contains(&phase) || matches!(self, Self::Supervisor) && (12..=20).contains(&phase)
     }
 
     /// 参数：kind、phase、error 为固定消息字段；返回：Ready 或保留原 errno 的启动失败。
@@ -31,6 +31,8 @@ impl LinuxStartupRole {
                 (Self::Supervisor, 16) => "supervisor child setresgid",
                 (Self::Supervisor, 17) => "supervisor child setresuid",
                 (Self::Supervisor, 18) => "supervisor child capset",
+                (Self::Supervisor, 19) => "executor held image read protection",
+                (Self::Supervisor, 20) => "executor child dumpable protection",
                 (_, 1) => "atomic child dup3",
                 (_, 2) => "atomic child close_range",
                 (_, 3) => "atomic child reset handler",
@@ -81,6 +83,8 @@ mod tests {
             (16, "setresgid"),
             (17, "setresuid"),
             (18, "capset"),
+            (19, "held image read protection"),
+            (20, "dumpable protection"),
         ] {
             let error = LinuxStartupRole::Supervisor
                 .verify(2, phase, 1)
@@ -103,7 +107,7 @@ mod tests {
                 (1, 15, 0),
                 (1, 0, 1),
                 (2, 0, 1),
-                (2, 19, 1),
+                (2, 21, 1),
                 (2, 8, 0),
                 (2, 8, -1),
                 (2, 8, 4096),
