@@ -50,16 +50,22 @@ impl Engine {
             })?
             .ok_or(BusinessError::PermissionDenied)?;
         let scope = ScopeId::new(owner.1.clone()).map_err(|_| BusinessError::PermissionDenied)?;
-        let control = self.control_until(deadline)?;
-        let withdrawals = control
-            .with_read_deadline(deadline, |control| {
-                crate::request_metadata_withdrawals::RequestMetadataWithdrawals::capture(
-                    control,
-                    principal,
-                    &[&scope],
-                )
-            })
-            .map_err(terminal_control_error)?;
+        let control =
+            crate::authorization_phase_diagnostic::observe("relation_initial_control", || {
+                self.control_until(deadline)
+            })?;
+        let withdrawals =
+            crate::authorization_phase_diagnostic::observe("relation_initial_withdrawals", || {
+                control
+                    .with_read_deadline(deadline, |control| {
+                        crate::request_metadata_withdrawals::RequestMetadataWithdrawals::capture(
+                            control,
+                            principal,
+                            &[&scope],
+                        )
+                    })
+                    .map_err(terminal_control_error)
+            })?;
         drop(control);
         crate::authorization_phase_diagnostic::observe("relation_initial_authorization", || {
             self.authorize_revision_owner_until(
@@ -74,7 +80,7 @@ impl Engine {
         #[cfg(test)]
         crate::relation_query_diagnostics_tests::mark("initial_authorization");
         // 必需目标与消费者共用最初余额；准备失败同样进入真实范围的末段授权。
-        let result = (|| {
+        let result = crate::authorization_phase_diagnostic::observe("relation_data", || {
             check_authority_expiry(expiry)?;
             let evidence = match reader.revision_evidence_with_budget(revision, &mut reads) {
                 Ok(evidence) => Some(evidence),
@@ -91,7 +97,7 @@ impl Engine {
             };
             check_authority_expiry(expiry)?;
             consumer(&reader, evidence.as_ref(), &mut reads)
-        })();
+        });
         #[cfg(test)]
         crate::relation_query_diagnostics_tests::mark("data_read");
         // 仅测试的读后同步点不持 control guard，不添加生产回调或共享请求状态。
@@ -166,7 +172,10 @@ impl Engine {
         crate::relation_query_diagnostics_tests::mark("terminal_before_encode");
         let mut result = result?;
         let expired = Instant::now() >= deadline;
-        let encoded = finish(&mut result, expired);
+        let encoded =
+            crate::authorization_phase_diagnostic::observe("relation_response_encode", || {
+                finish(&mut result, expired)
+            });
         #[cfg(test)]
         crate::relation_query_diagnostics_tests::mark("encode");
         // 编码不持控制锁；编码后重新观察实时授权与实际归属。
@@ -175,7 +184,10 @@ impl Engine {
         crate::relation_query_diagnostics_tests::mark("terminal_after_encode");
         encoded?;
         if !expired && Instant::now() >= deadline {
-            let encoded = finish(&mut result, true);
+            let encoded = crate::authorization_phase_diagnostic::observe(
+                "relation_expired_response_encode",
+                || finish(&mut result, true),
+            );
             authorize()?;
             encoded?;
         }

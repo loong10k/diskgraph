@@ -1,0 +1,15 @@
+{
+  "change": "add initial control, withdrawal, data and envelope encoding budget phase observations; no retries or budget changes",
+  "source_sha256": "8a900a0f23e7771139bbc58636c79c28a77084283ea17cc74dd9b44ae5d61653",
+  "engine_clippy": "passed",
+  "relation_regression": {
+    "passed": 9,
+    "failed": 8,
+    "all_eight_failure_site": "relation_request_tests.rs:110 Business(Unsupported), fixed local native scan fixture unavailable"
+  },
+  "limits": [
+    "Intel original budget failure cause remains unconfirmed",
+    "native CI with provisioned fixtures required",
+    "release diagnostics remain disabled"
+  ]
+}
