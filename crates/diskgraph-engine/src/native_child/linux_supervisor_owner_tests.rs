@@ -443,3 +443,96 @@ fn supervisor_root_owner_requires_original_wait_after_authenticated_completion()
         .abort_before_birth(deadline)
         .unwrap();
 }
+
+#[test]
+#[ignore = "requires explicit compiled role and isolated root; invoked by native qualification"]
+fn supervisor_root_input_eof_does_not_release_original_process_or_bootstrap() {
+    use super::linux_supervisor_launcher::LinuxSupervisorLauncher;
+    use crate::recovery_control::{LinuxControlRead, UnixForegroundOutput};
+    use crate::recovery_slot::{LinuxSupervisorTrust, SlotReservation};
+    use std::io::Read;
+    use std::sync::atomic::AtomicBool;
+    let directory = tempfile::tempdir().unwrap();
+    let slot = directory.path().join("original-bootstrap");
+    let deadline = Instant::now() + Duration::from_secs(5);
+    let reservation = SlotReservation::acquire(
+        File::options()
+            .read(true)
+            .write(true)
+            .create_new(true)
+            .open(&slot)
+            .unwrap(),
+        deadline,
+    )
+    .unwrap();
+    let launcher = LinuxSupervisorLauncher::prepare(
+        File::open(std::env::var_os("DG_LINUX_SUPERVISOR_ROLE").unwrap()).unwrap(),
+        vec![
+            CString::new("fixed-supervisor-role").unwrap(),
+            CString::new("notify_input").unwrap(),
+        ],
+        Vec::new(),
+        (23111, 23111),
+    )
+    .unwrap();
+    let mut owner = launcher
+        .spawn_lifecycle(reservation, [7; 32], deadline)
+        .unwrap();
+    let witness = duplicate(owner.child.as_ref().unwrap().pidfd_for_test());
+    let cancel = AtomicBool::new(false);
+    let (sender, mut receiver) = UnixStream::pair().unwrap();
+    receiver
+        .set_read_timeout(Some(Duration::from_secs(1)))
+        .unwrap();
+    owner
+        .attach_foreground_output(UnixForegroundOutput::new(sender).unwrap())
+        .unwrap();
+    owner
+        .write_stdin_until(b"DG_FORE", deadline, &cancel)
+        .unwrap();
+    owner
+        .write_stdin_until(b"GROUND_INPUT\n", deadline, &cancel)
+        .unwrap();
+    owner.finish_stdin().unwrap();
+    owner.finish_stdin().unwrap();
+    assert!(!owner.poll_retirement(deadline).unwrap());
+    let mut notifications = 0;
+    loop {
+        assert!(Instant::now() < deadline);
+        match owner.poll_notification(&cancel).unwrap() {
+            LinuxControlRead::Frame(_) => notifications += 1,
+            LinuxControlRead::ConfirmedEof => break,
+            LinuxControlRead::Pending => std::thread::sleep(Duration::from_millis(1)),
+        }
+    }
+    assert_eq!(notifications, 3);
+    assert!(owner.write_stdin_until(b"late", deadline, &cancel).is_err());
+    while owner.forward_stdout_until(deadline, &cancel).unwrap() {}
+    let mut output = String::new();
+    receiver.read_to_string(&mut output).unwrap();
+    let lines: Vec<serde_json::Value> = output
+        .lines()
+        .map(|line| serde_json::from_str(line).unwrap())
+        .collect();
+    assert_eq!(lines.len(), 2);
+    assert_eq!(lines[0]["passed"], true);
+    assert_eq!(lines[1]["stdin_exact"], true);
+    assert_eq!(lines[1]["stdin_eof"], true);
+    assert!(!owner.child.as_mut().unwrap().poll().unwrap());
+    assert!(!owner.poll_retirement(deadline).unwrap());
+    assert_eq!(std::fs::read(&slot).unwrap(), b"DGSL01A\n");
+    let trust = LinuxSupervisorTrust::from_host(
+        File::open(directory.path()).unwrap(),
+        File::open("/proc/self/ns/user").unwrap(),
+        File::open("/proc/self/ns/mnt").unwrap(),
+    );
+    owner.send_materials(&trust, &cancel).unwrap();
+    while !owner.poll_retirement(deadline).unwrap() {
+        assert!(Instant::now() < deadline);
+        owner.read_stdout().unwrap();
+        owner.read_stderr().unwrap();
+        std::thread::sleep(Duration::from_millis(1));
+    }
+    assert_original_wait_consumed(&witness);
+    assert_eq!(std::fs::read(&slot).unwrap(), b"DGSL01C\n");
+}

@@ -48,8 +48,24 @@ int main(int argc, char **argv) {
         passed ? "true" : "false", getuid(), getgid(), getgroups(0, NULL),
         endpoints ? "true" : "false", cap_ok ? "true" : "false",
         whitelist ? "true" : "false", no_new_privileges ? "true" : "false");
-    if (argc == 2 && (strcmp(argv[1], "notify") == 0 || strcmp(argv[1], "notify2") == 0)) {
-        unsigned version = strcmp(argv[1], "notify2") == 0 ? 2 : 1;
+    if (argc == 2 && (strcmp(argv[1], "notify") == 0 || strcmp(argv[1], "notify2") == 0 || strcmp(argv[1], "notify_input") == 0)) {
+        unsigned version = strcmp(argv[1], "notify") == 0 ? 1 : 2;
+        if (strcmp(argv[1], "notify_input") == 0) {
+            /* 固定输入必须逐字节一致且实际EOF；公共stdin结束不证明私有退休或原wait。 */
+            char input[64];
+            size_t used = 0;
+            for (;;) {
+                ssize_t count = read(0, input + used, sizeof(input) - used);
+                if (count < 0 && errno == EINTR) continue;
+                if (count < 0) return 6;
+                if (count == 0) break;
+                used += (size_t)count;
+                if (used == sizeof(input)) return 6;
+            }
+            const char expected[] = "DG_FOREGROUND_INPUT\n";
+            if (used != sizeof(expected) - 1 || memcmp(input, expected, used) != 0) return 6;
+            printf("{\"stdin_exact\":true,\"stdin_eof\":true}\n");
+        }
         if (!passed || fflush(stdout) != 0 ||
             !notification(version, 0, "{\"kind\":\"ready\"}") ||
             !notification(version, 1, "{\"kind\":\"foreground_ended\",\"exit_code\":0,\"panicked\":false}") ||

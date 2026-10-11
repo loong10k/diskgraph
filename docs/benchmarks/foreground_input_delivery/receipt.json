@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "local_platform": "macOS ARM64",
+  "initial_failure": "new API absent: compile failure, not behavior RED",
+  "local_input_tests": {
+    "passed": 3,
+    "failed": 0,
+    "ignored": 0
+  },
+  "legacy_unix_input_tests": {
+    "passed": 9,
+    "failed": 0,
+    "ignored": 0
+  },
+  "source_layout": {
+    "passed": 6,
+    "failed": 0,
+    "ignored": 0
+  },
+  "workspace_clippy_passed": true,
+  "workspace_explicit_fmt_passed": true,
+  "openspec_passed": true,
+  "linux_arm_c_role_executed": true,
+  "linux_rust_seventh_owner_qualified": false,
+  "full_mcp_public_broker_qualified": false,
+  "three_platform_services_qualified": false,
+  "desktop_service_installed": false,
+  "scope": "bounded original stdin delivery and EOF; original OS owner and ACTIVE remain separate",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/native_child/unix_control_channel.rs": "0be02c7ab15304d8e6b3abd9f13e1c3c28b79ac1fdcbe369e2f4ee8403ced35c",
+    "crates/diskgraph-engine/src/native_child/unix_foreground_input_tests.rs": "50ac2f54f12b10a4393d96eda73fb3fca5326773de8b22367d77317e816bbdfc",
+    "crates/diskgraph-engine/src/native_child/linux_atomic_child.rs": "c549fb63ddec7ad0ace9ac125f1b7cd022f31e29f6e5990fb5e7879329e4210b",
+    "crates/diskgraph-engine/src/native_child/linux_supervisor_process.rs": "388ad43f7827a1020a6558d30b93edd20cf52a1a733ec5a03885259f9919e501",
+    "crates/diskgraph-engine/src/native_child/linux_supervisor_owner_tests.rs": "5f89d5132983cb99bf7e028b92bd9b090ab4f0f1f8338f4fff6172ea09071b00",
+    "scripts/fixtures/linux_supervisor_birth/role.c": "ecd5f3c8cadfc79f84f40a190d73eca7b3058668b1a0061fca162c9570b69115",
+    ".github/workflows/ci.yml": "aef24612c96cfc3d1ac99da94050e6daa0a28f03c0400d0ee2917ca902ecbb17"
+  }
+}

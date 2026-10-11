@@ -21,4 +21,6 @@ UnixForegroundOutput只持有公共输出，不认证客户、不释放恢复资
 
 超时/取消失败路径另行先红后绿：仅锁存错误仍留下公共端导致真实接收超时（0/1），实现同步关闭原公共端后3/0。关闭错误不覆盖原交付错误；原监督进程、ACTIVE与恢复资源仍由外部owner持有。
 
-未完成：公共broker启动和认证、MCP输入转发及完整公开stdio协议、stderr交付与有界恢复诊断、前端真实进程退出、HTTP部署生命周期、macOS/Windows服务及安装链。不得将本组件称为完整有限前台退出或生产服务。
+输入接线增量：Linux父侧write_stdin_until提供最多4096字节原输入块、原deadline/取消检查、按实际发送量推进和失败关闭；finish_stdin只关闭原输入，不能据此释放child或ACTIVE。共用UnixControlChannel新测试3/0及旧输入回归9/0在本机通过。第七项root原生验收已定义，要求逐字节输入及stdin EOF、公共EOF、原pidfd仍活着和ACTIVE保留，最后仍须原材料屏障/原wait才能CLEAN；尚未原生执行Rust接线。
+
+未完成：公共broker启动和认证、完整公开MCP stdio转发的产品接线、stderr交付与有界恢复诊断、前端真实进程退出、HTTP部署生命周期、macOS/Windows服务及安装链。不得将本组件称为完整有限前台退出或生产服务。

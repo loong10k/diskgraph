@@ -24,6 +24,33 @@ pub struct LinuxSupervisorProcess {
 }
 
 impl LinuxSupervisorProcess {
+    /// 参数：bytes为宿主已认证前端的单个输入块，deadline/cancel为原交付预算；返回：完整交付或原错误。
+    /// 可信内部入口不授予请求身份；ForegroundEnded之后禁止新输入，交付失败仍保留原child/ACTIVE。
+    pub fn write_stdin_until(
+        &mut self,
+        bytes: &[u8],
+        deadline: Instant,
+        cancel: &AtomicBool,
+    ) -> io::Result<()> {
+        if self.foreground_ended || self.retired_child {
+            return Err(io::Error::other("original foreground already ended"));
+        }
+        self.child
+            .as_mut()
+            .ok_or_else(|| io::Error::other("original child unavailable"))?
+            .write_foreground_input_until(bytes, deadline, cancel)
+            .map_err(io::Error::other)
+    }
+
+    /// 参数：无；返回：关闭原stdin写端或原错误；输入EOF不代替私有通知、原wait或容量退休。
+    pub fn finish_stdin(&mut self) -> io::Result<()> {
+        self.child
+            .as_mut()
+            .ok_or_else(|| io::Error::other("original child unavailable"))?
+            .request_control_close()
+            .map(|_| ())
+            .map_err(io::Error::other)
+    }
     /// 参数：slot 为已同步 ACTIVE 的全局原锁；返回：出生前预分配的完整处置槽。
     pub(super) fn before_birth(slot: ActiveSlot) -> Self {
         Self {

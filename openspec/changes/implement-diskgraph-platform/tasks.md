@@ -397,3 +397,5 @@ e49ee361完整CI终态：38149478669已完成19/23成功、4失败、0取消，�
 格式验证更正：此前本机使用的cargo fmt --all --exclude参数不受当前工具支持，相关记录不能算通过；MCP接线和竞争观测回执已明确标注旧命令无效。当前依据cargo metadata列出的10个workspace包逐个显式指定--package重新check通过，不包含vendored upstream；新正确日志独立保存，不倒填旧来源证明。
 
 公共输出失败EOF补验：真实超时/取消后socket仍未关闭回归RED0/1，失败时同步关闭公共端并保留原交付错误后GREEN3/0；源规范6/0、workspace Clippy、显式10包fmt与OpenSpec通过。69931541 Linux x86 stable/MSRV两份原job确认六项真实root owner均6/0（含修正屏障及原启动期限过期后的生命周期），两job总体失败来自已定位的退出码夹具错误，不能把子门禁通过叫做整体CI通过，也不能用于证明新增公共EOF接线。
+
+公共输入接线增量：原非阻塞Unix控制端增加至多4096字节有界完整写、原deadline/取消、部分写按实际字节推进及失败关闭；Linux父侧公开write_stdin_until/finish_stdin，结束后禁止新输入，输入EOF绝不代替原wait/私有确认。首次新测试无法编译因API缺失，明确不算行为RED；实施后本机3/0、旧Unix输入9/0、源码规范6/0及workspace Clippy通过。新第七项Rust root门禁要求字节一致、stdin/public EOF后pidfd仍存活且ACTIVE占用；原生尚待CI。固定C角色单独在LinuxARM隔离容器真实执行身份/FD白名单、分片20字节与EOF、通知后仍活着、原材料屏障和Popen wait通过，仅资格夹具证据，不能替代Rust原子出生或服务验收。见foreground_input_delivery/。

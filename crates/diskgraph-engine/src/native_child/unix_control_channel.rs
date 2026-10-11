@@ -6,6 +6,10 @@ use std::os::fd::OwnedFd;
 use std::os::unix::net::UnixStream;
 #[cfg(any(test, not(target_os = "linux")))]
 use std::process::Stdio;
+#[cfg(any(target_os = "linux", all(test, target_os = "macos")))]
+use std::sync::atomic::{AtomicBool, Ordering};
+#[cfg(any(target_os = "linux", all(test, target_os = "macos")))]
+use std::time::{Duration, Instant};
 
 /// 独占 AF_UNIX 控制写端与一个有界未发送数据块，不修改宿主信号策略。
 /// 来源：原生 Rust OS-child 的 socketpair、send 与描述符生命周期。
@@ -14,7 +18,73 @@ pub(super) struct UnixControlChannel {
     pending: Option<Vec<u8>>,
 }
 
+#[cfg(all(test, any(target_os = "linux", target_os = "macos")))]
+#[path = "unix_foreground_input_tests.rs"]
+mod foreground_input_tests;
+
 impl UnixControlChannel {
+    /// 参数：bytes为单个至多4096字节输入块，deadline/cancel为原交付预算；返回：完整发送或原错误。
+    /// 仅空闲通道可用；部分发送按实际字节推进，失败关闭输入而不处置外部原进程或恢复资源。
+    #[cfg(any(target_os = "linux", all(test, target_os = "macos")))]
+    pub(super) fn write_chunk_until(
+        &mut self,
+        bytes: &[u8],
+        deadline: Instant,
+        cancel: &AtomicBool,
+    ) -> Result<(), ChildError> {
+        if bytes.is_empty()
+            || bytes.len() > ControlWriteStatus::MAX_CHUNK_BYTES
+            || self.pending.is_some()
+        {
+            return Err(ChildError::Unsupported(
+                "invalid or busy foreground input chunk",
+            ));
+        }
+        let result = (|| {
+            let mut offset = 0;
+            let mut pending = false;
+            while offset < bytes.len() {
+                if cancel.load(Ordering::Acquire) {
+                    return Err(ChildError::io(
+                        "foreground input",
+                        io::Error::new(io::ErrorKind::Interrupted, "original input cancelled"),
+                    ));
+                }
+                if Instant::now() >= deadline {
+                    return Err(ChildError::io(
+                        "foreground input",
+                        io::Error::new(io::ErrorKind::TimedOut, "original input deadline"),
+                    ));
+                }
+                let status = if pending {
+                    self.poll_write()?
+                } else {
+                    self.start_write(&bytes[offset..])?
+                };
+                match status {
+                    ControlWriteStatus::Written(count) => {
+                        offset += count;
+                        pending = false;
+                    }
+                    ControlWriteStatus::Pending => {
+                        pending = true;
+                        std::thread::sleep(
+                            Duration::from_millis(1)
+                                .min(deadline.saturating_duration_since(Instant::now())),
+                        );
+                    }
+                    ControlWriteStatus::Closed => {
+                        return Err(ChildError::Unsupported("original foreground input closed"));
+                    }
+                }
+            }
+            Ok(())
+        })();
+        if result.is_err() {
+            self.close();
+        }
+        result
+    }
     /// 接管原子 child 的父端 socket；调用前必须已有唯一 child owner。
     /// 参数：stream 是已持有的父端 AF_UNIX socket；返回：非阻塞单块写 owner 或原 I/O 错误。
     #[cfg(any(target_os = "linux", target_os = "macos"))]

@@ -69,6 +69,19 @@ impl LinuxAtomicChild {
             .start_write(bytes)
     }
 
+    /// 参数：bytes/deadline/cancel为原前台单块输入及预算；返回：完整发送或原错误，不回收原child。
+    pub(super) fn write_foreground_input_until(
+        &mut self,
+        bytes: &[u8],
+        deadline: std::time::Instant,
+        cancel: &std::sync::atomic::AtomicBool,
+    ) -> Result<(), ChildError> {
+        self.control
+            .as_mut()
+            .ok_or(ChildError::Unsupported("atomic foreground input closed"))?
+            .write_chunk_until(bytes, deadline, cancel)
+    }
+
     /// 参数：无；返回：同一 owned chunk 的真实进度；不得重复发送已完成片段。
     pub(crate) fn poll_control_write(&mut self) -> Result<ControlWriteStatus, ChildError> {
         if self.control_closed {
