@@ -154,9 +154,13 @@ def main():
     parser = argparse.ArgumentParser()
     for option in ('cli', 'worker', 'broker', 'mcp', 'receipt'):
         parser.add_argument('--' + option, type=Path, required=True)
+    parser.add_argument('--systemd', action='store_true', help='qualify actual generated socket/template only on isolated runner')
     args = parser.parse_args()
     result = {'cases': [qualify(args), qualify(args, disconnect=True),
                         qualify(args, stop_before_query=True)], 'production_ready': False}
+    if args.systemd:
+        from qualify_linux_guardian_unit import qualify_unit
+        result['systemd_runtime'] = qualify_unit(args)
     args.receipt.write_text(json.dumps(result, indent=2) + '\n', encoding='utf-8')
     print(json.dumps(result), flush=True)
 

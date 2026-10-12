@@ -861,12 +861,13 @@ jobs:
             sudo env DG_LINUX_SUPERVISOR_CLI="$cli_image" "$test_binary" "$image_case" --ignored --exact --nocapture || exit $?
             broker_image="$(cat "$fixture/diskgraph-supervisor.path")" || exit $?
             mcp_image="$(cat "$fixture/diskgraph-mcp.path")" || exit $?
+            python3 -m unittest discover -s scripts/tests -p 'test_linux_guardian*.py' -v || exit $?
             sudo env DG_ISOLATED_ROOT_ACCEPTANCE=1 python3 scripts/qualify_linux_public_broker.py --cli "$cli_image" --worker "$worker_image" --broker "$broker_image" --mcp "$mcp_image" --systemd --receipt "$fixture/public-broker-receipt.json" || exit $?
             cc -std=c11 -O2 -Wall -Wextra -Werror -I crates/diskgraph-engine/src/native_child scripts/fixtures/linux_guardian_identity.c crates/diskgraph-engine/src/native_child/linux_supervisor_spawn.c -o "$fixture/guardian-identity" || exit $?
             for guardian_case in valid invalid_uid invalid_gid nonroot; do
               sudo "$fixture/guardian-identity" "$guardian_case" || exit $?
             done
-            sudo env DG_ISOLATED_ROOT_ACCEPTANCE=1 python3 scripts/qualify_linux_guardian.py --cli "$cli_image" --worker "$worker_image" --broker "$broker_image" --mcp "$mcp_image" --receipt "$fixture/guardian-receipt.json" || exit $?
+            sudo env DG_ISOLATED_ROOT_ACCEPTANCE=1 python3 scripts/qualify_linux_guardian.py --cli "$cli_image" --worker "$worker_image" --broker "$broker_image" --mcp "$mcp_image" --systemd --receipt "$fixture/guardian-receipt.json" || exit $?
           } 2>&1 | tee "$fixture/qualification.log"
       - name: Preserve Linux root atomic supervisor birth primitive
         if: ${{ always() && runner.os == 'Linux' && (steps.linux_supervisor_spawn.outcome == 'success' || steps.linux_supervisor_spawn.outcome == 'failure') }}
