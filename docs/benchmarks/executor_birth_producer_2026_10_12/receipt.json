@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "source_parent": "baca43ba07220b061915cfab021fda7a60bbf50f",
+  "platform": "macOS ARM64",
+  "production_ready": false,
+  "api_red": "actual E0599 for missing encode_from_host; not runtime behavior RED",
+  "local_tests": {
+    "request_codec": {
+      "passed": 7,
+      "failed": 0
+    },
+    "source_layout": {
+      "passed": 6,
+      "failed": 0
+    }
+  },
+  "checks": {
+    "engine_all_targets_clippy": "passed; Linux cfg bodies excluded",
+    "project_fmt": "passed",
+    "openspec_strict": "passed"
+  },
+  "Linux_launcher_admission_tests": "3 added; not executed locally",
+  "remaining": [
+    "native Linux compilation and tests",
+    "dedicated service UID guardian service loop",
+    "actual CLI/MCP user executor native end-to-end",
+    "macOS/Windows service identity implementations and qualification"
+  ],
+  "source_sha256": {
+    "crates/diskgraph-engine/src/native_child/linux_supervisor_launcher.rs": "53c394e4e4c8dc5ac176478a8c357e9b9e7b0e0e1f958449305a402ca0a1e834",
+    "crates/diskgraph-engine/src/native_child/linux_supervisor_process.rs": "b780e5e6e8cfcc8d645afd3b406209f23e8932d8e25e80cf3c59a4da7483936a",
+    "crates/diskgraph-engine/src/native_child/linux_executor_launcher_tests.rs": "5b508bbaa34830474d945b3740214a15732f5d7d4f4e3dc7f6ff086894e5766f",
+    "crates/diskgraph-engine/src/supervisor_service/linux_executor_request.rs": "755a80b35edba2234b47d671cb7d6e8e8352e3eb9cd89beba043d3bf525b71c9",
+    "crates/diskgraph-engine/src/supervisor_service/linux_executor_request_tests.rs": "8254b8d4ad0f72857258e08dc9d38f3de6c2ad05a1d1a81965d4024408e643b1",
+    "crates/diskgraph-engine/src/supervisor_service/linux_executor_wire.rs": "c3d000c26ba14447a25af974e20c64eb266bb943cf750a1ae7aa8888eb903bac"
+  }
+}

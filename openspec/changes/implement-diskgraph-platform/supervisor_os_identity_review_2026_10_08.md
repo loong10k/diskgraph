@@ -108,4 +108,6 @@ source27fe83c8 CI38186034323已终结：20成功、3失败、0取消。macOS/Win
 
 2026-10-12 已加入 LinuxExecutorBirth 消费入口及 CLI/MCP 接线：在数据库出生前核对原 root 父逐消息凭据、JSON 摘要、真实/有效/保存 UID/GID、完整辅助组摘要以及固定 worker/control 原句柄；executor 不采用容量槽。MCP 的 trusted_local 继续由传输选择，不从出生请求取得。新增六项通道测试及两项实际 CLI 拒绝测试尚未在 Linux 执行，本机 macOS 检查不替代该验收；root/guardian 生产端及三平台端到端链仍未完成，不勾选父项。
 
+父侧新增独立 spawn_executor_lifecycle：只有 prepare_user_executor 的受保护身份材料且已绑定原 worker 镜像才可进入；旧 spawn/spawn_lifecycle 拒绝 executor 材料。原 pidfd、ACTIVE 槽和控制接收端仍在父侧，用户端只收到 40 字节摘要认证包，不交付 SCM_RIGHTS。模式错误在 clone 前显式 abort 同一 RESERVED；清理错误保留原错误与清理诊断，不能声称容量已释放。新增三项 Linux 出生前准入测试未在本机执行。encode_from_host 只编码受信原身份/组/镜像/数据目录，原 ClockStamp 不刷新；两项新增回归及原五项共七项通过，首次失败为 API E0599，不称行为失败。该父侧接口尚未接入专用 guardian 的实际服务循环，不以接口通过替代产品身份链验收。
+
 CI 38191843133 的 macOS Intel 原测试在槽同步阶段返回 Slot(Deadline)，未到达通知过期注入点。仅将该测试夹具的原期限从 20ms 调整为 2s，并仍在原资源轮询后耗尽同一期限，保留未发送通知延期及下一轮完成断言；不修改产品控制、查询或授权期限。本机针对性回归通过，Intel 原平台复验仍待运行。

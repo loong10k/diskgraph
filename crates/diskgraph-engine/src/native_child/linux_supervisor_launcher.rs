@@ -9,7 +9,7 @@ use super::linux_supervisor_launch_error::LinuxSupervisorLaunchError;
 use super::linux_supervisor_process::LinuxSupervisorProcess;
 use super::unix_child_setup::UnixChildSetup;
 use super::{ChildError, ChildSpawnError};
-use crate::recovery_control::{LinuxControlReader, LinuxPeerUnixIdentity};
+use crate::recovery_control::{LinuxControlReader, LinuxExecutorMaterials, LinuxPeerUnixIdentity};
 use crate::recovery_slot::{LinuxSupervisorMaterials, LinuxSupervisorPeer, SlotReservation};
 use std::ffi::CString;
 use std::fs::File;
@@ -123,7 +123,7 @@ impl LinuxSupervisorLauncher {
         session: [u8; 32],
         deadline: Instant,
     ) -> Result<Box<LinuxSupervisorProcess>, LinuxSupervisorLaunchError> {
-        self.spawn_inner(reservation, session, deadline, false)
+        self.spawn_inner(reservation, session, deadline, false, false)
     }
 
     /// 参数：原全局reservation、session和启动deadline；返回：保留原owner的版本2生命周期监督进程。
@@ -135,7 +135,19 @@ impl LinuxSupervisorLauncher {
         session: [u8; 32],
         deadline: Instant,
     ) -> Result<Box<LinuxSupervisorProcess>, LinuxSupervisorLaunchError> {
-        self.spawn_inner(reservation, session, deadline, true)
+        self.spawn_inner(reservation, session, deadline, true, false)
+    }
+
+    /// 参数：reservation为guardian原槽，session为原executor请求摘要，deadline为原启动期限。
+    /// 返回：原pidfd及容量责任仍在父侧的executor进程；失败返回同一出生后owner。
+    /// 必须已绑定完整worker镜像及真实客户凭据；只准备无句柄认证包，禁止旧容量材料交付。
+    pub fn spawn_executor_lifecycle(
+        self,
+        reservation: SlotReservation,
+        session: [u8; 32],
+        deadline: Instant,
+    ) -> Result<Box<LinuxSupervisorProcess>, LinuxSupervisorLaunchError> {
+        self.spawn_inner(reservation, session, deadline, true, true)
     }
 
     fn spawn_inner(
@@ -144,7 +156,30 @@ impl LinuxSupervisorLauncher {
         session: [u8; 32],
         deadline: Instant,
         lifecycle: bool,
+        executor: bool,
     ) -> Result<Box<LinuxSupervisorProcess>, LinuxSupervisorLaunchError> {
+        if executor != self.executor_protection || (executor && self.worker.is_none()) {
+            let primary = io::Error::new(
+                io::ErrorKind::PermissionDenied,
+                "executor requires protected birth and held worker; legacy materials forbidden",
+            );
+            // 此分支尚未调用clone；显式清除同一原预留，不能将无子进程的拒绝留下为永久占用。
+            let cleanup = reservation.abort_before_birth(deadline);
+            return Err(LinuxSupervisorLaunchError {
+                error: match cleanup {
+                    Ok(()) => primary,
+                    Err(cleanup) => io::Error::other(
+                        ChildError::io("executor birth admission", primary).with_cleanup(Err(
+                            ChildError::io(
+                                "original unborn reservation",
+                                io::Error::other(cleanup),
+                            ),
+                        )),
+                    ),
+                },
+                owner: None,
+            });
+        }
         let argv: Vec<_> = self
             .args
             .iter()
@@ -233,12 +268,20 @@ impl LinuxSupervisorLauncher {
                 }
                 .map_err(io::Error::other)?,
             );
-            let peer = LinuxSupervisorPeer::from_host(pid as i32, self.identity.0, self.identity.1)
-                .map_err(io::Error::other)?;
-            owner.materials = Some(
-                LinuxSupervisorMaterials::new_sender(self.materials, peer, session, deadline)
-                    .map_err(io::Error::other)?,
-            );
+            if executor {
+                owner.executor_materials = Some(
+                    LinuxExecutorMaterials::sender(self.materials, session, deadline)
+                        .map_err(io::Error::other)?,
+                );
+            } else {
+                let peer =
+                    LinuxSupervisorPeer::from_host(pid as i32, self.identity.0, self.identity.1)
+                        .map_err(io::Error::other)?;
+                owner.materials = Some(
+                    LinuxSupervisorMaterials::new_sender(self.materials, peer, session, deadline)
+                        .map_err(io::Error::other)?,
+                );
+            }
             let child = owner.child.as_mut().expect("original pidfd adopted");
             child.configure().map_err(io::Error::other)?;
             LinuxAtomicHandshake::run_supervisor(child, deadline, &mut || Ok::<(), ()>(())).map_err(
@@ -268,3 +311,7 @@ fn duplicate(fd: i32) -> io::Result<OwnedFd> {
     }
     Ok(unsafe { OwnedFd::from_raw_fd(raw) })
 }
+
+#[cfg(test)]
+#[path = "linux_executor_launcher_tests.rs"]
+mod tests;

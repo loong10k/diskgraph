@@ -106,3 +106,91 @@ fn duplicate_identity_fields_are_rejected_instead_of_last_value_winning() {
     let duplicate = format!("{{\"uid\":9999,{}", &encoded[1..]);
     assert!(LinuxExecutorRequest::decode(duplicate.as_bytes()).is_err());
 }
+
+#[test]
+fn trusted_host_encoding_binds_full_groups_image_and_original_deadline() {
+    let until = Instant::now() + Duration::from_secs(5);
+    let image = crate::ScanWorkerHostConfig::from_expected_image([0xcd; 32], 512).unwrap();
+    let bytes = LinuxExecutorRequest::encode_from_host(
+        (1001, 1002),
+        &[2000, 3000],
+        std::path::Path::new("/var/lib/diskgraph/user-data"),
+        &image,
+        until,
+    )
+    .unwrap();
+    let parsed = LinuxExecutorRequest::decode(&bytes).unwrap();
+    assert_eq!(parsed.identity(), (1001, 1002));
+    assert_eq!(parsed.group_binding().0, 2);
+    assert_eq!(
+        parsed.worker_expectation().unwrap().expected_sha256,
+        [0xcd; 32]
+    );
+    assert!(parsed.deadline().unwrap() <= until);
+    let changed = LinuxExecutorRequest::encode_from_host(
+        (1001, 1002),
+        &[3000, 2000],
+        parsed.data_dir(),
+        &image,
+        until,
+    )
+    .unwrap();
+    assert_ne!(
+        parsed.group_binding().1,
+        LinuxExecutorRequest::decode(&changed)
+            .unwrap()
+            .group_binding()
+            .1
+    );
+    let value: Value = serde_json::from_slice(&bytes).unwrap();
+    assert_eq!(value["worker_fd"], 7);
+    assert_eq!(value["control_fd"], 6);
+    assert!(value.get("state_root").is_none());
+    assert!(value.get("slot_fd").is_none());
+}
+
+#[test]
+fn trusted_host_encoding_refuses_invalid_material_before_birth() {
+    let image = crate::ScanWorkerHostConfig::from_expected_image([0xcd; 32], 512).unwrap();
+    let path = std::path::Path::new("/var/lib/diskgraph/user-data");
+    let until = Instant::now() + Duration::from_secs(5);
+    for identity in [(0, 1002), (1001, 0), (u32::MAX, 1002)] {
+        assert!(
+            LinuxExecutorRequest::encode_from_host(identity, &[], path, &image, until).is_err()
+        );
+    }
+    assert!(
+        LinuxExecutorRequest::encode_from_host((1001, 1002), &[u32::MAX], path, &image, until)
+            .is_err()
+    );
+    assert!(
+        LinuxExecutorRequest::encode_from_host(
+            (1001, 1002),
+            &vec![1002; 65537],
+            path,
+            &image,
+            until
+        )
+        .is_err()
+    );
+    assert!(
+        LinuxExecutorRequest::encode_from_host(
+            (1001, 1002),
+            &[],
+            std::path::Path::new("/var/../data"),
+            &image,
+            until
+        )
+        .is_err()
+    );
+    assert!(
+        LinuxExecutorRequest::encode_from_host(
+            (1001, 1002),
+            &[],
+            path,
+            &image,
+            Instant::now() - Duration::from_secs(1)
+        )
+        .is_err()
+    );
+}

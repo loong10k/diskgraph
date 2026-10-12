@@ -2,6 +2,7 @@ use super::linux_executor_wire::LinuxExecutorWire;
 use crate::native_deadline::ClockStamp;
 use crate::{EngineError, ScanWorkerHostConfig};
 use diskgraph_core::BusinessError;
+use sha2::{Digest, Sha256};
 use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 
@@ -19,6 +20,43 @@ pub struct LinuxExecutorRequest {
 }
 
 impl LinuxExecutorRequest {
+    /// 参数：identity/groups为原内核客户身份，data_dir/image为独立受信安装配置，deadline为原期限。
+    /// 返回：有界且经同一接收契约校验的出生JSON；编码不认证材料来源或授予容量能力。
+    /// 调用者只能使用原连接身份与安装配置，禁止从公开请求填入这些参数。
+    pub fn encode_from_host(
+        identity: (u32, u32),
+        groups: &[u32],
+        data_dir: &Path,
+        image: &ScanWorkerHostConfig,
+        deadline: Instant,
+    ) -> Result<Vec<u8>, EngineError> {
+        let data_dir = data_dir.to_str().ok_or(BusinessError::PermissionDenied)?;
+        if groups.len() > 65536 || groups.contains(&u32::MAX) || data_dir.len() > 1024 {
+            return Err(BusinessError::PermissionDenied.into());
+        }
+        let mut digest = Sha256::new();
+        for group in groups {
+            digest.update(group.to_le_bytes());
+        }
+        let wire = LinuxExecutorWire {
+            schema_version: 1,
+            uid: identity.0,
+            gid: identity.1,
+            group_count: groups.len() as u32,
+            groups_sha256: hex::encode(digest.finalize()),
+            worker_fd: 7,
+            control_fd: 6,
+            worker_sha256: hex::encode(image.expected_sha256),
+            worker_bytes: image.expected_bytes,
+            data_dir: data_dir.to_owned(),
+            deadline: ClockStamp::capture(deadline)?,
+        };
+        let bytes = serde_json::to_vec(&wire).map_err(|_| BusinessError::PermissionDenied)?;
+        // 生产端与接收端共用严格数据契约，固定FD和期限不允许在编码端放宽。
+        Self::decode(&bytes)?;
+        Ok(bytes)
+    }
+
     /// 参数：bytes为最多4096字节的原请求；返回：字段/原期限验证通过的请求或拒绝。
     /// 必须另通过原父逐消息内核凭据与JSON摘要认证，不兼容降级为旧service材料。
     pub fn decode(bytes: &[u8]) -> Result<Self, EngineError> {

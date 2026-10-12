@@ -1,7 +1,8 @@
 use super::ChildSpawnError;
 use super::linux_atomic_child::LinuxAtomicChild;
 use crate::recovery_control::{
-    ControlNotification, LinuxControlRead, LinuxControlReader, UnixForegroundOutput,
+    ControlNotification, LinuxControlRead, LinuxControlReader, LinuxExecutorMaterials,
+    UnixForegroundOutput,
 };
 use crate::recovery_slot::{ActiveSlot, LinuxSupervisorMaterials, LinuxSupervisorTrust};
 use std::io;
@@ -14,6 +15,7 @@ use std::time::Instant;
 pub struct LinuxSupervisorProcess {
     pub(super) child: Option<Box<LinuxAtomicChild>>,
     pub(super) materials: Option<LinuxSupervisorMaterials>,
+    pub(super) executor_materials: Option<LinuxExecutorMaterials>,
     pub(super) controls: Option<LinuxControlReader>,
     pub(super) born: bool,
     control_eof: bool,
@@ -73,6 +75,7 @@ impl LinuxSupervisorProcess {
         Self {
             child: None,
             materials: None,
+            executor_materials: None,
             controls: None,
             born: false,
             control_eof: false,
@@ -93,6 +96,16 @@ impl LinuxSupervisorProcess {
             .as_mut()
             .ok_or_else(|| io::Error::other("original materials sender unavailable"))?
             .send(trust, cancel)
+            .map_err(io::Error::other)
+    }
+
+    /// 参数：cancel为原取消；返回：原executor认证包已发送，或本轮暂无进展。
+    /// 仅独立executor出生可用，不传递目录、命名空间、容量槽或任何SCM_RIGHTS。
+    pub fn poll_executor_authentication(&mut self, cancel: &AtomicBool) -> io::Result<bool> {
+        self.executor_materials
+            .as_mut()
+            .ok_or_else(|| io::Error::other("original executor authentication unavailable"))?
+            .poll_send(cancel)
             .map_err(io::Error::other)
     }
 
