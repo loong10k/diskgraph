@@ -21,16 +21,18 @@ pub(crate) fn run(cli: &Cli) -> CliExit {
             .supervisor_socket
             .as_deref()
             .expect("checked public supervisor entry");
-        CliExit::Supervised(
+        let result = if matches!(cli.command, crate::command::Command::Serve { .. }) {
+            diskgraph_engine::supervisor_service::run_mcp_session(socket)
+        } else {
             diskgraph_engine::supervisor_service::run_query(
                 socket,
                 &crate::supervised_query::from_cli(cli).expect("validated read-only query"),
             )
-            .unwrap_or_else(|error| {
-                eprintln!("diskgraph: supervisor query failed: {error}");
-                10
-            }),
-        )
+        };
+        CliExit::Supervised(result.unwrap_or_else(|error| {
+            eprintln!("diskgraph: supervisor query failed: {error}");
+            10
+        }))
     }
     #[cfg(not(all(
         target_os = "linux",
@@ -43,7 +45,7 @@ pub(crate) fn run(cli: &Cli) -> CliExit {
 
 fn allowed(cli: &Cli) -> bool {
     cli.supervisor_socket.is_some()
-        && cli.json
+        && (cli.json || matches!(cli.command, crate::command::Command::Serve { .. }))
         && crate::supervised_query::from_cli(cli).is_some()
         && cli.principal == "local-user"
         && cli.data_dir == std::path::Path::new("diskgraph-data")
@@ -54,6 +56,39 @@ mod tests {
     use super::allowed;
     use crate::cli::Cli;
     use clap::Parser;
+    #[test]
+    fn guardian_cli_serve_is_stdio_protocol_without_json_envelope_and_rejects_overrides() {
+        let cli = Cli::parse_from([
+            "diskgraph",
+            "--supervisor-socket=/fixed/front.sock",
+            "serve",
+        ]);
+        assert!(allowed(&cli));
+        assert_eq!(
+            crate::supervised_query::from_cli(&cli)
+                .unwrap()
+                .arguments()
+                .unwrap(),
+            ["mcp"]
+        );
+        for options in [
+            vec!["--transport=streamable-http"],
+            vec!["--profile=all"],
+            vec!["--host=0.0.0.0"],
+            vec!["--port=9000"],
+            vec!["--secure-transport"],
+            vec!["--auth", "issuer", "audience", "secret"],
+            vec!["--max-nodes-per-scan=100"],
+        ] {
+            let mut args = vec![
+                "diskgraph",
+                "--supervisor-socket=/fixed/front.sock",
+                "serve",
+            ];
+            args.extend(options);
+            assert!(!allowed(&Cli::parse_from(args)));
+        }
+    }
     #[test]
     fn supervised_scan_preserves_user_budgets_and_disktree_options() {
         for command in ["index", "sync"] {

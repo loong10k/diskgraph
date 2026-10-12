@@ -1,5 +1,13 @@
 # PF-06 原连接 guardian 与客户 executor 增量
 
+## 原连接 MCP 会话接线验收
+
+stdio MCP 前端通过原guardian连接进入真实客户executor，固定MCP镜像路径/完整摘要只能取root安装配置。旧配置无MCP材料时拒绝MCP，不猜测邻接镜像，不进入旧service身份路径。启动使用有界版本化长度帧而不关闭写端；前端在root认证握手完成前不得发送RPC。后续每笔客户输入及guardian输出继续核对原PID/UID/GID；原stdout/stderr和终态有界转发。启动期限仍为原30秒，长会话不得使用该期限作为整次MCP生命周期上限；单笔交付保留有限期限，原MCP请求的权限/查询预算不变。输入EOF关闭同一executor stdin；公开断开/超时/停止后保留同一Engine、私有恢复通道、child和容量，原私有完成且实际wait后才CLEAN。实际验收需从产品MCP前端初始化、列工具、查询真实已发布revision、正常EOF和原退休，负例拒绝旧安装/未知参数/启动帧尾随数据/不同发送身份。HTTP/SSE及其他平台服务保持开放，不能据stdio用例关闭全平台父项。
+
+stdio单行请求与HTTP正文采用1MiB上限（stdio包括行终止字节），在扩容和分发前拒绝超长行；非法UTF-8沿原错误语义结束。几何扩容显式封顶，不将2GiB会话转发总量作为单行内存额度。会话输入和输出合计2GiB后明确结束，单笔交付30秒；原查询执行预算不因此续期。原生夹具必须在同一会话空闲31秒后查询实际revision，证明启动30秒不是长会话总寿命。
+
+两项固定MCP描述/镜像绑定测试确认行为RED0/2；CLI serve监督入口确认行为RED0/1。候选实现后本机监督组件26/26、CLI监督6/6、MCP前端1/1、stdio有界读取2/2、Engine规范6/6、MCP规范11/11、guardian脚本7/7与旧安装回归19/19通过，三包macOS all-target Clippy通过。有界读取先由源码确认旧lines无上限，新增纯读取回归通过；没有把它说成完整服务运行红灯。Linux条件代码尚未原生编译或执行，不关闭平台父项；候选接口及预算见 `docs/linux_guardian_stdio.md`。
+
 ## 扫描配置兼容验收
 
 监督入口的 index/sync 必须传递实际 CLI 指定的节点与编码 staging 预算，以及 apparent-size、no-hidden、one-filesystem、cross-filesystems、depth、no-dedup-hardlinks。参数仍采用固定白名单并逐项验证，值与开关保持单一 argv；真实客户 executor 使用既有 CLI/Engine 配置解析和预算检查，不新增执行身份或数据域选择能力。非扫描命令不得静默忽略这些覆盖。验收要求真实 Clap 往返保持全部配置，非法数字/主体/数据目录注入被拒绝，原生扫描使用明确的小预算完成正常发布；实现与原生验证分别记录，不提前关闭父项。

@@ -19,6 +19,25 @@ fn fixed_installer_configuration_decodes_without_creating_paths() {
 }
 
 #[test]
+fn fixed_mcp_image_binding_requires_complete_distinct_trusted_materials() {
+    let mut input = original();
+    input["mcp_path"] = "/usr/libexec/diskgraph/diskgraph-mcp".into();
+    input["mcp_sha256"] = "ef".repeat(32).into();
+    assert!(InstallationConfig::decode(&serde_json::to_vec(&input).unwrap()).is_ok());
+    for (field, value) in [
+        ("mcp_sha256", serde_json::Value::Null),
+        ("mcp_path", serde_json::Value::Null),
+        ("mcp_path", "relative/mcp".into()),
+        ("mcp_path", input["cli_path"].clone()),
+        ("mcp_sha256", "EF".repeat(32).into()),
+    ] {
+        let mut invalid = input.clone();
+        invalid[field] = value;
+        assert!(InstallationConfig::decode(&serde_json::to_vec(&invalid).unwrap()).is_err());
+    }
+}
+
+#[test]
 fn installation_rejects_identity_protocol_and_path_injection() {
     for (field, value) in [
         ("schema_version", serde_json::json!(2)),

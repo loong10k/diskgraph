@@ -8,12 +8,12 @@ use std::io::{BufRead, Write};
 /// 参数：service 为共享服务，input/output 为帧输入输出，log 为诊断目标。返回：完成结果或原 I/O 错误。
 pub fn serve_stdio<R: BufRead, W: Write, L: Write>(
     service: &mut McpService,
-    input: R,
+    mut input: R,
     output: &mut W,
     mut log: L,
 ) -> std::io::Result<()> {
-    for line in input.lines() {
-        let line = line?;
+    let mut reader = crate::bounded_stdio_line::BoundedStdioLine::new();
+    while let Some(line) = reader.read(&mut input)? {
         if line.trim().is_empty() {
             continue;
         }

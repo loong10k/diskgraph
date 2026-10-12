@@ -40,7 +40,7 @@ impl BrokerQuery {
     pub fn validate(&self) -> io::Result<()> {
         let (required, optional, switches): (&[&str], &[&str], &[&str]) =
             match (self.command.as_str(), self.subcommand.as_deref()) {
-                ("doctor", None) | ("scope", Some("list")) => (&[], &[], &[]),
+                ("doctor" | "mcp", None) | ("scope", Some("list")) => (&[], &[], &[]),
                 ("scope", Some("show")) | ("node", None) => (&["scope"], &[], &[]),
                 ("scope", Some("add")) => (&[], &[], &[]),
                 ("index" | "sync", None) => (
@@ -155,8 +155,14 @@ impl BrokerQuery {
 
     /// 参数：无；返回：是否必须使用真实客户executor，旧service身份入口不得分发。
     pub fn requires_customer_executor(&self) -> bool {
-        matches!(self.command.as_str(), "index" | "sync")
+        matches!(self.command.as_str(), "index" | "sync" | "mcp")
             || (self.command == "scope" && self.subcommand.as_deref() == Some("add"))
+    }
+
+    /// 参数：无；返回：是否为固定stdio MCP出生，会话不能作为有限CLI查询执行。
+    #[cfg(any(test, target_os = "linux"))]
+    pub(super) fn is_mcp(&self) -> bool {
+        self.command == "mcp"
     }
 
     /// 参数：无；返回：原OS编码参数，不以display替代注册目标，值仍与固定开关为同一参数。

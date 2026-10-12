@@ -18,6 +18,10 @@ pub struct InstallationConfig {
     pub(super) cli_sha256: String,
     pub(super) worker_path: PathBuf,
     pub(super) worker_sha256: String,
+    #[serde(default)]
+    pub(super) mcp_path: Option<PathBuf>,
+    #[serde(default)]
+    pub(super) mcp_sha256: Option<String>,
 }
 
 impl InstallationConfig {
@@ -70,13 +74,19 @@ impl InstallationConfig {
         {
             return Err(invalid("invalid fixed service identity or schema"));
         }
+        if config.mcp_path.is_some() != config.mcp_sha256.is_some() {
+            return Err(invalid("incomplete fixed MCP image binding"));
+        }
         for path in [
             &config.state_dir,
             &config.data_dir,
             &config.socket_path,
             &config.cli_path,
             &config.worker_path,
-        ] {
+        ]
+        .into_iter()
+        .chain(config.mcp_path.iter())
+        {
             let value = path
                 .to_str()
                 .ok_or_else(|| invalid("non-UTF8 installation path"))?;
@@ -105,10 +115,17 @@ impl InstallationConfig {
                 .len()
                 > 100
             || config.cli_path == config.worker_path
+            || config
+                .mcp_path
+                .as_ref()
+                .is_some_and(|path| path == &config.cli_path || path == &config.worker_path)
         {
             return Err(invalid("invalid fixed installation layout"));
         }
-        for digest in [&config.cli_sha256, &config.worker_sha256] {
+        for digest in [&config.cli_sha256, &config.worker_sha256]
+            .into_iter()
+            .chain(config.mcp_sha256.iter())
+        {
             if digest.len() != 64
                 || !digest
                     .bytes()

@@ -1,6 +1,10 @@
 mod broker_query;
 #[cfg(test)]
 mod broker_query_tests;
+#[cfg(any(test, target_os = "linux"))]
+mod mcp_session_request;
+#[cfg(test)]
+mod mcp_session_request_tests;
 pub use broker_query::BrokerQuery;
 #[cfg(any(test, target_os = "linux"))]
 mod broker_admission_error;
@@ -68,7 +72,22 @@ mod linux_guardian_shutdown;
     target_os = "linux",
     any(target_arch = "x86_64", target_arch = "aarch64")
 ))]
-pub use linux_broker_client::{run_client, run_query};
+pub use linux_broker_client::{run_client, run_mcp_session, run_query};
+#[cfg(all(
+    target_os = "linux",
+    any(target_arch = "x86_64", target_arch = "aarch64")
+))]
+mod linux_mcp_session;
+#[cfg(all(
+    target_os = "linux",
+    any(target_arch = "x86_64", target_arch = "aarch64")
+))]
+mod linux_mcp_session_client;
+#[cfg(all(
+    target_os = "linux",
+    any(target_arch = "x86_64", target_arch = "aarch64")
+))]
+mod original_client_input;
 #[cfg(all(
     target_os = "linux",
     any(target_arch = "x86_64", target_arch = "aarch64")

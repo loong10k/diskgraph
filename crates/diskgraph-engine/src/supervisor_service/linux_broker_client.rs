@@ -12,16 +12,25 @@ use std::time::{Duration, Instant};
 /// 参数：socket为root保护的本地入口；返回：原监督角色的完整i32状态或明确协议/期限拒绝。
 /// 固定doctor，无客户执行路径；原30秒涵盖连接、请求、全部输出与终态后的真实EOF。
 pub fn run_client(socket: &Path) -> io::Result<i32> {
-    run(socket, None)
+    run(socket, None, false)
 }
 
 /// 参数：固定socket和已解析只读查询；返回：原业务退出状态或有限协议/期限拒绝。
 /// 不接受环境或执行路径，不绕过既有CLI/Engine资源授权。
 pub fn run_query(socket: &Path, query: &super::BrokerQuery) -> io::Result<i32> {
-    run(socket, Some(query))
+    if query.is_mcp() {
+        return Err(io::Error::other("MCP requires duplex session entry"));
+    }
+    run(socket, Some(query), false)
 }
 
-fn run(socket: &Path, query: Option<&super::BrokerQuery>) -> io::Result<i32> {
+/// 参数：固定guardian socket；返回：原stdio MCP完整退出状态，启动与单笔交付各有界。
+/// 不构造本地Engine；持续会话复用原客户executor，原请求授权/预算由MCP执行。
+pub fn run_mcp_session(socket: &Path) -> io::Result<i32> {
+    run(socket, None, true)
+}
+
+fn run(socket: &Path, query: Option<&super::BrokerQuery>, mcp: bool) -> io::Result<i32> {
     let deadline = Instant::now() + Duration::from_secs(30);
     let (_parent, _ancestors) = root_installation_path::open_directory(
         socket
@@ -30,7 +39,9 @@ fn run(socket: &Path, query: Option<&super::BrokerQuery>) -> io::Result<i32> {
         deadline,
     )?;
     let binding = super::linux_guardian_frontend::installed_binding(socket, deadline)?;
-    if binding.is_none() && query.is_some_and(super::BrokerQuery::requires_customer_executor) {
+    if binding.is_none()
+        && (mcp || query.is_some_and(super::BrokerQuery::requires_customer_executor))
+    {
         return Err(io::Error::other(
             "customer scan requires installed guardian",
         ));
@@ -66,7 +77,9 @@ fn run(socket: &Path, query: Option<&super::BrokerQuery>) -> io::Result<i32> {
     let expected =
         crate::recovery_slot::LinuxSupervisorPeer::from_host(peer.pid, peer.uid, peer.gid)
             .map_err(io::Error::other)?;
-    let request = if let Some(query) = query {
+    let request = if mcp {
+        super::mcp_session_request::McpSessionRequest::encode(deadline)?
+    } else if let Some(query) = query {
         super::broker_query_request::BrokerQueryRequest::encode(query, deadline)?
     } else {
         let mut request = b"DG_FRONT_INPUT\n".to_vec();
@@ -91,12 +104,17 @@ fn run(socket: &Path, query: Option<&super::BrokerQuery>) -> io::Result<i32> {
             Err(error) => return Err(error),
         }
     }
-    stream.shutdown(std::net::Shutdown::Write)?;
+    if !mcp {
+        stream.shutdown(std::net::Shutdown::Write)?;
+    }
     let expected = if let Some(binding) = binding.as_ref() {
         super::linux_guardian_frontend::authenticate(&mut stream, binding, deadline)?
     } else {
         expected
     };
+    if mcp {
+        return super::linux_mcp_session_client::relay(stream, expected);
+    }
     let output = OriginalClientOutput::new()?;
     let mut body = [0; 4096];
     let mut total = 0u64;
@@ -278,7 +296,9 @@ pub(super) fn poll_until(
     }
 }
 
-fn receive(
+/// 参数：原stream、有限目标缓冲、同一guardian凭据及原期限；返回：一笔已认证字节或原OS/协议错误。
+/// 先关闭实际附加FD再验证身份，EOF不作为前台完整终态。
+pub(super) fn receive(
     stream: &UnixStream,
     bytes: &mut [u8],
     expected: &crate::recovery_slot::LinuxSupervisorPeer,

@@ -321,13 +321,23 @@ pub(super) fn receive_query(
                     return Err(io::Error::other("oversized broker input"));
                 }
                 request.extend_from_slice(bytes);
+                if request.starts_with(super::mcp_session_request::McpSessionRequest::PREFIX)
+                    && let Some(decoded) =
+                        super::mcp_session_request::McpSessionRequest::decode(&request, deadline)?
+                {
+                    return Ok(decoded);
+                }
             }
             FrontendRead::Pending => std::thread::sleep(Duration::from_millis(1)),
             FrontendRead::Eof => break,
         }
     }
     if request.starts_with(b"DG_FRONT_QUERY_V1\n") {
-        return super::broker_query_request::BrokerQueryRequest::decode(&request, deadline);
+        let decoded = super::broker_query_request::BrokerQueryRequest::decode(&request, deadline)?;
+        if decoded.0.is_mcp() {
+            return Err(io::Error::other("MCP requires framed duplex startup"));
+        }
+        return Ok(decoded);
     }
     let bytes = request
         .strip_prefix(b"DG_FRONT_INPUT\n")

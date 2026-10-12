@@ -28,6 +28,8 @@ class GuardianInstallationTests(unittest.TestCase):
         images = {name: {'sha256': '1' * 64} for name in MODULE.NAMES}
         config, service, socket = MODULE.guardian_artifacts(Path('/var/lib/dg-test'), policy, images)
         self.assertEqual(config['frontend_uid'], 23112)
+        self.assertEqual(config['mcp_path'], '/var/lib/dg-test/images/diskgraph-mcp')
+        self.assertEqual(config['mcp_sha256'], images['diskgraph-mcp']['sha256'])
         self.assertIn('--connection', service)
         self.assertIn('StandardInput=socket', service.splitlines())
         for value in ('Accept=yes', 'PassCredentials=yes', 'MaxConnections=4',

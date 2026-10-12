@@ -75,6 +75,8 @@ def broker_artifacts(prefix, policy, images):
 def guardian_artifacts(prefix, policy, images):
     """生成原accepted连接的未启用socket与模板；原owner退休之前禁止强制kill。"""
     config, _ = broker_artifacts(prefix, policy, images)
+    config.update(mcp_path=str(prefix) + '/images/diskgraph-mcp',
+                  mcp_sha256=images['diskgraph-mcp']['sha256'])
     text = validate_broker_prefix(prefix, policy)
     def quoted(value):
         return '"' + value.replace('%', '%%').replace('"', '\\"') + '"'

@@ -40,8 +40,21 @@ impl LinuxGuardian {
             LinuxFrontendConnection::new(output, config.frontend_uid).map_err(io::Error::other)?;
         let cancel = AtomicBool::new(false);
         let (query, deadline) = linux_broker::receive_query(&mut connection, deadline, stopped)?;
-        let image = HeldInstallationImage::open(&config.cli_path, &config.cli_sha256, deadline)?
-            .into_file();
+        let (image_path, image_digest) = if query.is_mcp() {
+            (
+                config
+                    .mcp_path
+                    .as_ref()
+                    .ok_or_else(|| io::Error::other("fixed MCP image not installed"))?,
+                config
+                    .mcp_sha256
+                    .as_ref()
+                    .ok_or_else(|| io::Error::other("fixed MCP digest not installed"))?,
+            )
+        } else {
+            (&config.cli_path, &config.cli_sha256)
+        };
+        let image = HeldInstallationImage::open(image_path, image_digest, deadline)?.into_file();
         let worker =
             HeldInstallationImage::open(&config.worker_path, &config.worker_sha256, deadline)?
                 .into_file();
@@ -63,17 +76,32 @@ impl LinuxGuardian {
         )
         .map_err(io::Error::other)?;
         let session: [u8; 32] = Sha256::digest(&request).into();
-        let arguments = [
-            config.cli_path.to_str().expect("validated fixed path"),
-            "--json",
-            "--data-dir",
-            config.data_dir.to_str().expect("validated fixed path"),
-        ]
-        .into_iter()
-        .map(std::ffi::OsString::from)
-        .chain(query.native_arguments()?)
-        .map(|arg| CString::new(arg.as_os_str().as_bytes()).map_err(io::Error::other))
-        .collect::<io::Result<Vec<_>>>()?;
+        let arguments = if query.is_mcp() {
+            vec![
+                image_path.as_os_str().to_owned(),
+                "--data-dir".into(),
+                config.data_dir.as_os_str().to_owned(),
+                "--transport".into(),
+                "stdio".into(),
+                "--profile".into(),
+                "read-full".into(),
+            ]
+        } else {
+            [
+                config.cli_path.to_str().expect("validated fixed path"),
+                "--json",
+                "--data-dir",
+                config.data_dir.to_str().expect("validated fixed path"),
+            ]
+            .into_iter()
+            .map(std::ffi::OsString::from)
+            .chain(query.native_arguments()?)
+            .collect()
+        };
+        let arguments = arguments
+            .into_iter()
+            .map(|arg| CString::new(arg.as_os_str().as_bytes()).map_err(io::Error::other))
+            .collect::<io::Result<Vec<_>>>()?;
         let environment = vec![
             CString::new(format!(
                 "DISKGRAPH_LINUX_EXECUTOR_BIRTH={}",
@@ -120,8 +148,15 @@ impl LinuxGuardian {
             return Err(io::Error::other("guardian birth or identity unconfirmed"));
         }
         // 从此仅专用服务身份处置控制/管道/原pidfd；没有客户文件、Engine或root目录句柄。
-        let result = greeting
-            .and_then(|()| linux_broker::deliver(&mut owner, &mut connection, deadline, stopped));
+        let result = greeting.and_then(|()| {
+            if query.is_mcp() {
+                super::linux_mcp_session::deliver(&mut owner, &mut connection, stopped)
+            } else {
+                linux_broker::deliver(&mut owner, &mut connection, deadline, stopped)
+            }
+        });
+        // 同一公开输入结束必须关闭同一MCP stdin；仍等待原私有完成与实际child wait。
+        let _ = owner.finish_stdin();
         drop(connection);
         // 公开连接的超时/断开不污染私有恢复资格；真实私有错误由原reader锁存后独立确认。
         retain_original(owner, false);

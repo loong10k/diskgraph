@@ -1,6 +1,7 @@
 //! MCP 服务聚合入口；来源：原生 Rust RT-10。各传输共享同一 Engine 与请求授权链。
 pub mod auth;
 mod bounded_json_writer;
+mod bounded_stdio_line;
 #[cfg(test)]
 mod children_cursor_tests;
 mod client_address;

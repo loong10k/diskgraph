@@ -14,6 +14,7 @@ use diskgraph_mcp::{McpService, ScanWorkerSettings};
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 mod managed_service_host;
 mod scan_worker_shutdown;
+mod supervised_stdio;
 #[cfg(unix)]
 mod termination_signal;
 
@@ -21,6 +22,9 @@ mod termination_signal;
 mod auth_key_acl;
 
 fn main() -> ExitCode {
+    if let Some(exit) = supervised_stdio::run() {
+        return exit;
+    }
     #[cfg(any(target_os = "linux", target_os = "macos"))]
     if let Err(error) = diskgraph_engine::prepare_standalone_child_reaping() {
         eprintln!("diskgraph-mcp: child ownership startup failed: {error}");
@@ -428,6 +432,7 @@ fn usage(problem: &str) -> ExitCode {
         "diskgraph-mcp — MCP server\n\
          \n\
          USAGE:\n    diskgraph-mcp [--version] [--data-dir PATH] [--profile PROFILE]\n\
+         \x20   diskgraph-mcp --supervisor-socket PATH (installed Linux guardian stdio)\n\
          \x20                     [--transport stdio|streamable-http] [--host ADDR] [--port PORT]\n\
          \x20                     [--auth-key-file ISSUER AUDIENCE PATH]\n\
          \n\

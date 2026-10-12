@@ -2,6 +2,7 @@
 import io
 import json
 import os
+import selectors
 from pathlib import Path
 import shutil
 import sqlite3
@@ -97,8 +98,82 @@ def qualify_scan_mainline(workspace, prefix, endpoint, original_slot):
     if queued_count() != before:
         raise AssertionError('unknown scope refusal still created a job')
     return {'passed': True, 'actual_index_and_sync_completed': True, 'distinct_raw_root_ids': True,
+            'scope_id': scopes[0], 'revision_id': synced['revision_id'],
             'selected_root_files': 3, 'unicode_search': True, 'unknown_scope_did_not_enqueue': True,
             'original_slot_retired_after_each_command': True, 'production_ready': False}
+
+
+def qualify_mcp_mainline(prefix, endpoint, original_slot, scan, frontend='mcp'):
+    """产品MCP前端经过原guardian出生；真实RPC与正常EOF，仍检查同一容量FD退休。"""
+    command = ([str(prefix / 'images/diskgraph-mcp'), '--supervisor-socket', str(endpoint)] if frontend == 'mcp'
+               else [str(prefix / 'images/diskgraph'), '--supervisor-socket', str(endpoint), 'serve'])
+    child = subprocess.Popen(command,
+                             preexec_fn=customer, env={}, cwd=prefix, stdin=subprocess.PIPE,
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    selector = selectors.DefaultSelector()
+    selector.register(child.stdout, selectors.EVENT_READ, 'stdout')
+    selector.register(child.stderr, selectors.EVENT_READ, 'stderr')
+    pending, diagnostics = bytearray(), bytearray()
+    def exchange(identity, method, parameters):
+        child.stdin.write((json.dumps({'jsonrpc': '2.0', 'id': identity, 'method': method,
+                                      'params': parameters}) + '\n').encode())
+        child.stdin.flush()
+        until = time.monotonic() + 30
+        while b'\n' not in pending:
+            remaining = until - time.monotonic()
+            if remaining <= 0:
+                raise TimeoutError(('original MCP response observation expired', bytes(diagnostics)))
+            for key, _ in selector.select(min(remaining, 0.1)):
+                block = os.read(key.fileobj.fileno(), 4096)
+                if not block:
+                    selector.unregister(key.fileobj)
+                    if key.data == 'stdout':
+                        raise AssertionError(('MCP stdout ended before response', child.poll(), bytes(diagnostics)))
+                    continue
+                target = pending if key.data == 'stdout' else diagnostics
+                target.extend(block)
+                if len(pending) + len(diagnostics) > 1 << 20:
+                    raise AssertionError('MCP fixture response/diagnostic budget exceeded')
+        line, _, tail = pending.partition(b'\n')
+        pending[:] = tail
+        reply = json.loads(line)
+        if reply.get('id') != identity or 'error' in reply:
+            raise AssertionError(('original MCP RPC failed', reply, bytes(diagnostics)))
+        return reply['result']
+    try:
+        initialized = exchange(1, 'initialize', {'protocolVersion': '2025-06-18', 'capabilities': {},
+                                                'clientInfo': {'name': 'actual-guardian-fixture', 'version': '1'}})
+        if initialized.get('serverInfo', {}).get('name') != 'diskgraph':
+            raise AssertionError('actual MCP server identity missing')
+        tools = exchange(2, 'tools/list', {})
+        if not any(tool['name'] == 'diskgraph_node' for tool in tools['tools']):
+            raise AssertionError('actual MCP tool catalog missing node')
+        # 超过旧有限CLI的30秒窗口后，同一原MCP会话仍须可查询；不重连或换owner。
+        if frontend == 'mcp':
+            time.sleep(31)
+        if child.poll() is not None:
+            raise AssertionError('original MCP session expired at finite CLI observation window')
+        queried = exchange(3, 'tools/call', {'name': 'diskgraph_node', 'arguments':
+                                           {'scope': scan['scope_id'], 'revision': scan['revision_id']}})
+        data = queried.get('structuredContent', {})
+        if queried.get('isError') is not False or data.get('revision_id') != scan['revision_id'] or data.get('node', {}).get('files') != 3:
+            raise AssertionError(('MCP did not query actual customer revision', queried))
+        child.stdin.close()
+        child.stdin = None
+        stdout, stderr = child.communicate(timeout=35)
+        if child.returncode != 0 or pending or stdout:
+            raise AssertionError(('MCP original EOF did not finish normally', child.returncode, stdout, stderr))
+        until = time.monotonic() + 5
+        while os.pread(original_slot, 8, 0) != b'DGSL01C\n':
+            if time.monotonic() >= until:
+                raise TimeoutError('same original MCP executor capacity not retired')
+            time.sleep(0.005)
+        return {'passed': True, 'actual_initialize_and_catalog': True, 'actual_revision_query': True,
+                'frontend': frontend, 'idle_seconds_before_query': 31 if frontend == 'mcp' else 0,
+                'normal_input_eof': True, 'original_slot_retired': True, 'production_ready': False}
+    finally:
+        selector.close()
+        original_dispose(child)
 
 
 def qualify_unit(args):
@@ -147,6 +222,8 @@ def qualify_unit(args):
                 raise TimeoutError('original guardian did not retire original slot')
             time.sleep(0.005)
         scan_mainline = qualify_scan_mainline(workspace, prefix, endpoint, original_slot)
+        mcp_mainline = qualify_mcp_mainline(prefix, endpoint, original_slot, scan_mainline)
+        cli_mcp_mainline = qualify_mcp_mainline(prefix, endpoint, original_slot, scan_mainline, frontend='cli')
         systemctl('stop', socket_name)
         if os.pread(original_slot, 8, 0) != b'DGSL01C\n':
             raise AssertionError('stopping socket changed original slot')
@@ -189,7 +266,9 @@ def qualify_unit(args):
                 'customer_database_uid': 23112, 'original_slot_clean_before_stop': True,
                 'socket_stopped_after_retirement': True, 'boot_enable_performed': False,
                 'desktop_service_installed': False, 'pending_stop_qualified': False,
-                'mcp_qualified': False, 'scan_mainline': scan_mainline, 'production_ready': False}
+                'mcp_qualified': False, 'scan_mainline': scan_mainline,
+                'guardian_stdio_mainline': mcp_mainline,
+                'guardian_cli_serve_mainline': cli_mcp_mainline, 'production_ready': False}
     finally:
         if frontend is not None:
             original_dispose(frontend)

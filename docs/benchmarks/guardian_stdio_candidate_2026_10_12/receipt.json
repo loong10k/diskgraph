@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "parent_commit": "42a716b1604c8288d0ef0e068f013d718d9f051f",
+  "production_ready": false,
+  "native_linux_compile_and_runtime_verified": false,
+  "behavior_red": {
+    "fixed_mcp_binding_and_command": 2,
+    "cli_serve_route": 1
+  },
+  "local_passed": {
+    "supervisor_components": 26,
+    "cli_supervised_entry": 6,
+    "mcp_frontend": 1,
+    "bounded_stdio_line": 2,
+    "engine_source_layout": 6,
+    "mcp_source_layout": 11,
+    "guardian_python": 7,
+    "legacy_installer_python": 19
+  },
+  "clippy": "macOS engine/mcp/cli all-targets -D warnings passed",
+  "sources": {
+    "crates/diskgraph-engine/src/supervisor_service/broker_query.rs": "2bb37bd9e50505eadf4e11872ca119282ece0a7f6ec79af4b6fd4bf38385a5e7",
+    "crates/diskgraph-engine/src/supervisor_service/broker_query_tests.rs": "56ec7be31a23c8a8f98089724bb7544341d8275359880fa21c25efd6eb9223f4",
+    "crates/diskgraph-engine/src/supervisor_service/installation_config.rs": "bd3441152d49c5d636f3033dffb78082976b47e9008fd5db77fd6e40fe6de965",
+    "crates/diskgraph-engine/src/supervisor_service/installation_config_tests.rs": "b00010cc239099759692bbc494a91c1780fe8cfcede17986447eb52550b04cb5",
+    "crates/diskgraph-engine/src/supervisor_service/mcp_session_request.rs": "93fd5c461a2edb5061d469fe241feda2b081519fa342c488330c43c43d0a0bdf",
+    "crates/diskgraph-engine/src/supervisor_service/mcp_session_request_tests.rs": "25dcc63ff7e7601dc6a9bde544d96ce6a784a1dddca14d1f7bd374ade0f4dca5",
+    "crates/diskgraph-engine/src/supervisor_service/linux_guardian.rs": "9ca1a8c0cf1daf0a4dde5157b4f7e7ef87824b21dcb4550a64058523bf6e5354",
+    "crates/diskgraph-engine/src/supervisor_service/linux_broker.rs": "0d0f4e627533095090db4a1899e85bb2a1fa035dfc7a50aae06e1fa018bc2076",
+    "crates/diskgraph-engine/src/supervisor_service/linux_broker_client.rs": "dad1208047f3d04d1aef0cf8da039c3d7b2362032ac5c11092ef74be0d3a43db",
+    "crates/diskgraph-engine/src/supervisor_service/linux_mcp_session.rs": "9f926025eb937acf6e950253ca701af71b4752c1d7534ed6b8c76869d4659a54",
+    "crates/diskgraph-engine/src/supervisor_service/linux_mcp_session_client.rs": "0c3ff1605e7d4a978dcb6c58e4657f94bf8b7da085c7013f22a9e724029b68ee",
+    "crates/diskgraph-engine/src/supervisor_service/original_client_input.rs": "42bca7f6a2fb7ad85adf6abec17125e74fbb5e981c48c212a4e13a7603ba308a",
+    "crates/diskgraph-engine/src/supervisor_service/mod.rs": "7201792f52d7fb85d3e734c2ec4109e2ce927c454d0ca7166b9a4fcee0f1e3e4",
+    "crates/diskgraph-mcp/src/supervised_stdio.rs": "7402a95965a96091e1abc66a9057496d29423cbb19ffb98f8a8cb91b620a4ea3",
+    "crates/diskgraph-mcp/src/supervised_stdio/tests.rs": "ccc2166ab8bc7090e1935bd20664acc282659e2f5e57312d0e765f691688258c",
+    "crates/diskgraph-mcp/src/bounded_stdio_line.rs": "4c6f587872bb80a7d02c1473a48a6248866e4b3646e5ed806f94554060ea676a",
+    "crates/diskgraph-mcp/src/bounded_stdio_line/tests.rs": "bb2fa6a7e8884d1c4bb0f6b380a8286ee619e53367f6f2e1b1f3f3e3df4a037e",
+    "crates/diskgraph-mcp/src/stdio_service.rs": "b034d77dff4aea650d7170dd8ebbce1f1400d089f3ae8ca3a3345523a4001446",
+    "crates/diskgraph-mcp/src/main.rs": "7d84aa746bdf9d41cac3832b48f5e89acac204c5846125163e8904243b17d906",
+    "crates/diskgraph-mcp/src/lib.rs": "921c45f42b7fddd7910f1660bb0e445a04542a89a7169fcf4965d2ba29055518",
+    "crates/diskgraph-cli/src/supervised_entry.rs": "40c74332edbf8aa77888160c6e3649d4161b969f06bbf52a85c3854a29d31989",
+    "crates/diskgraph-cli/src/supervised_query.rs": "3cfd3a92ae0b0c891adf866e9047124fd5fefc1045c152cbf9686becd0162f80",
+    "scripts/prepare_linux_supervisor_installation.py": "85c8848e4c66fba0a34a889544f53d0adfd19df31108e379049ace05bdc973c5",
+    "scripts/qualify_linux_guardian_unit.py": "9a38a3486a95227053e597e23f17f5140a46d2ea1b96f9a71bb274c67d7d56c5",
+    "scripts/tests/test_linux_guardian_installation.py": "c53e07564b853b6f9555a731fb7decc46f3202c971b4e5630d918dbc287dab8e"
+  }
+}

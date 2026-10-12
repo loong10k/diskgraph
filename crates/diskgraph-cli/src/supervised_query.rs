@@ -75,6 +75,30 @@ fn with_scan_options(
         };
     }
     let name = match command {
+        Command::Serve {
+            transport,
+            profile,
+            host,
+            port,
+            auth,
+            auth_key_file,
+            allowed_origin,
+            allow_null_origin,
+            secure_transport,
+            trusted_proxy,
+        } if transport == "stdio"
+            && profile == "read-full"
+            && host == "127.0.0.1"
+            && *port == 0
+            && auth.is_none()
+            && auth_key_file.is_none()
+            && allowed_origin.is_empty()
+            && !allow_null_origin
+            && !secure_transport
+            && trusted_proxy.is_empty() =>
+        {
+            "mcp"
+        }
         Command::Doctor => "doctor",
         Command::Scope {
             action: ScopeAction::List,

@@ -3,6 +3,21 @@ use super::broker_query_request::BrokerQueryRequest;
 use std::time::{Duration, Instant};
 
 #[test]
+fn fixed_mcp_session_has_no_client_executable_environment_or_identity_options() {
+    let query = BrokerQuery::new("mcp", None, vec![], vec![]).unwrap();
+    assert!(query.requires_customer_executor());
+    for key in [
+        "data-dir",
+        "profile",
+        "transport",
+        "principal",
+        "executable",
+    ] {
+        assert!(BrokerQuery::new("mcp", None, vec![(key, "foreign".into())], vec![]).is_err());
+    }
+}
+
+#[test]
 fn scan_budgets_and_flags_are_validated_without_allowing_identity_overrides() {
     for command in ["index", "sync"] {
         let query = BrokerQuery::new(
