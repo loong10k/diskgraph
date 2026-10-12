@@ -1,8 +1,45 @@
 //! CLI 类型路由。来源：原生 main::dispatch 的穷尽命令目录。
 use crate::cli::Cli;
 use crate::command::Command;
-use diskgraph_core::{Authorizer, PrincipalId};
+use diskgraph_core::{Authorizer, BusinessError, PolicyAuthorizer, PrincipalId};
 use diskgraph_engine::{Engine, EngineError};
+
+/// 分发本地 CLI 的不可变持久策略快照，不在此入口授予任何读取权限。
+/// 参数：原命令、引擎、真实主体、策略快照、输出和原期限；返回：已知撤销拒权或原分发结果。
+pub(crate) fn dispatch_local(
+    engine: &Engine,
+    cli: &Cli,
+    principal: &PrincipalId,
+    authorizer: &PolicyAuthorizer,
+    out: &mut Vec<String>,
+    deadline: std::time::Instant,
+) -> Result<(), EngineError> {
+    // 策略整体撤销是已知的负向事实，不能被 revision 准备或读取超时覆盖。
+    // 仅使用本地不可变策略快照；没有允许捷径，不调用额外宿主回调。
+    if authorizer.is_revoked()
+        && matches!(
+            cli.command,
+            Command::Node { .. }
+                | Command::Children { .. }
+                | Command::Top { .. }
+                | Command::Explore { .. }
+                | Command::Tree { .. }
+                | Command::Search { .. }
+                | Command::Explain { .. }
+                | Command::Related { .. }
+                | Command::Impact { .. }
+                | Command::Growth { .. }
+                | Command::Changes { .. }
+                | Command::Compare { .. }
+                | Command::Candidates { .. }
+                | Command::Snapshots { action: None, .. }
+                | Command::Tui { .. }
+        )
+    {
+        return Err(BusinessError::PermissionDenied.into());
+    }
+    dispatch(engine, cli, principal, authorizer, out, deadline)
+}
 
 /// 仅按命令类型交接职责，不执行查询或扫描。
 /// 参数：本次 CLI 请求、共享 Engine、真实主体、授权器、响应缓冲和原始期限。返回：处理器执行结果。

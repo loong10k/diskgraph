@@ -1,0 +1,60 @@
+{
+  "run": 38210169373,
+  "source_commit": "368e6691c33367b128d60079efb226ea2e444ce5",
+  "status": "completed",
+  "conclusion": "failure",
+  "passed_jobs": 18,
+  "failed_jobs": [
+    {
+      "job": 114682339070,
+      "name": "Test (ubuntu-24.04-arm / Rust stable)",
+      "steps": [
+        "Native Linux root atomic supervisor birth primitive"
+      ]
+    },
+    {
+      "job": 114682339115,
+      "name": "Test (ubuntu-latest / Rust 1.97.0)",
+      "steps": [
+        "Native Linux root atomic supervisor birth primitive"
+      ]
+    },
+    {
+      "job": 114682339146,
+      "name": "Test (macos-latest / Rust stable)",
+      "steps": [
+        "Test engine and entry packages"
+      ]
+    },
+    {
+      "job": 114682339163,
+      "name": "Test (ubuntu-latest / Rust stable)",
+      "steps": [
+        "Native Linux root atomic supervisor birth primitive"
+      ]
+    },
+    {
+      "job": 114682339208,
+      "name": "Test (windows-latest / Rust 1.97.0)",
+      "steps": [
+        "Test engine and entry packages"
+      ]
+    }
+  ],
+  "windows_msrv_log_sha256": "55c8d6e8c8c50073fd375b14059f1b36f50723c953ad685d823e7be588147212",
+  "windows_msrv_engine": {
+    "passed": 801,
+    "failed": 0,
+    "ignored": 8
+  },
+  "windows_msrv_mcp": {
+    "passed": 237,
+    "failed": 0
+  },
+  "windows_msrv_cli_flow": {
+    "passed": 15,
+    "failed": 1,
+    "actual_failure": "revoked children returned budget_exceeded instead of permission_denied"
+  },
+  "production_ready": false
+}

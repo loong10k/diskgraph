@@ -4,7 +4,7 @@ use crate::cli_engine_host::CliEngineHost;
 use crate::cli_exit::CliExit;
 use crate::cli_options::scan_options_from;
 use crate::command::Command;
-use crate::dispatch::dispatch;
+use crate::dispatch::dispatch_local;
 use crate::error_reply;
 use crate::local::LocalIdentity;
 use crate::output::engine_business;
@@ -117,7 +117,7 @@ fn run_with_delivery(cli: Cli, error_attempted: &mut bool) -> Result<(), EngineE
             // The CLI authorizes against the local policy store; an empty policy is
             // default-deny, and first-run setup grants the local user administration.
             let authorizer = LocalIdentity::load(engine)?;
-            dispatch(
+            dispatch_local(
                 engine,
                 &cli,
                 &principal,

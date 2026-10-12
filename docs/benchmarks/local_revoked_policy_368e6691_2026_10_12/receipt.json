@@ -1,0 +1,56 @@
+{
+  "native_failure_source": "368e6691c33367b128d60079efb226ea2e444ce5",
+  "run": 38210169373,
+  "windows_msrv_job": 114682339208,
+  "candidate_source_hashes": {
+    "crates/diskgraph-core/src/permissions.rs": "dedf6f0b207ca7935699e4ea5e75c9dc3a6d4de3b270b18c1aad0b2b9c6ffc6c",
+    "crates/diskgraph-cli/src/dispatch.rs": "74c208d2cfb5761a6083401dee4c0b83171532566f573054cdac2c064559b45c",
+    "crates/diskgraph-cli/src/entry.rs": "df460c2265b7893024797e4b90b2606c2020394bb6c2b01ce63fd3aa108d93c9",
+    "crates/diskgraph-cli/src/narrow_query_authorization_tests.rs": "13de0e6f4960587bc71d13ed4497065a2c13cbf6568052ef55dd87c92e24a30c"
+  },
+  "logs": {
+    "clippy.log": {
+      "file": "clippy.log.gz",
+      "sha256": "327ab7e9d2f12bd504b860c303f9f413349226897910c248ffb2404d01e8881c"
+    },
+    "core.log": {
+      "file": "core.log.gz",
+      "sha256": "d3264c93cc7465df171077c21f5ec2ab0b8a9b86716f5eb7fb46d651e89cb014"
+    },
+    "green.log": {
+      "file": "green.log.gz",
+      "sha256": "4e4719a5789c423c498fa72da80f0f190510bdd98bc02199e535cce60ba0824d"
+    },
+    "layout.log": {
+      "file": "layout.log.gz",
+      "sha256": "b0bcddc8b0381f5e69c5ffa07498b641638385bf558b6c4756edf09f33bb151e"
+    },
+    "red.log": {
+      "file": "red.log.gz",
+      "sha256": "eaf4d085f6af8b4be42b3aa84b3a1051c18249b2c40d6b3329be9637045ac96c"
+    },
+    "layout_corrected.log": {
+      "file": "layout_corrected.log.gz",
+      "sha256": "4d468d50c8020127730d6fa5b516f407736da4055642253b5d54be7472e4f7a8"
+    }
+  },
+  "red": {
+    "passed": 0,
+    "failed": 1,
+    "actual_error": "BudgetExceeded instead of PermissionDenied"
+  },
+  "green": {
+    "passed": 11,
+    "failed": 0
+  },
+  "core": {
+    "passed": 178,
+    "failed": 0
+  },
+  "native_cli_flow_after_fix": "pending",
+  "query_deadline_unchanged": true,
+  "database_ms": 250,
+  "capability_ms": 50,
+  "production_ready": false,
+  "initial_layout_command_error": "wrong target source_layout; actual target entry_source_layout"
+}

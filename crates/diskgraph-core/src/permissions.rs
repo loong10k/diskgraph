@@ -199,6 +199,13 @@ impl PolicyAuthorizer {
     pub fn current_version(&self) -> u64 {
         self.current_version
     }
+
+    /// 查询不可变请求策略中已确认的整体撤销状态。
+    /// 参数：无；返回：true 表示本策略快照已撤销，false 不构成授权允许证明。
+    /// 此方法不读取数据库、不调用宿主回调；新请求须重新取得策略并复验实时授权。
+    pub fn is_revoked(&self) -> bool {
+        self.revoked
+    }
 }
 
 impl Authorizer for PolicyAuthorizer {

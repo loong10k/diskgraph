@@ -140,6 +140,59 @@ fn actual_narrow_commands_refuse_expired_original_dispatch_deadline() {
 }
 
 #[test]
+fn revoked_local_policy_refuses_before_expired_revision_resolution() {
+    let (_directory, engine, actor, scope) = fixture();
+    let mut policy = engine.policy_authorizer().unwrap();
+    policy.revoke();
+    assert!(policy.is_revoked());
+    for command in ["node", "children", "top", "explore", "search"] {
+        let mut output = vec![];
+        let result = crate::dispatch::dispatch_local(
+            &engine,
+            &cli(command, &scope),
+            &actor,
+            &policy,
+            &mut output,
+            Instant::now() - Duration::from_millis(1),
+        );
+        assert!(
+            matches!(
+                result,
+                Err(EngineError::Business(BusinessError::PermissionDenied))
+            ),
+            "known revoked policy was hidden by preparation: {command} {result:?}"
+        );
+        assert!(output.is_empty());
+    }
+}
+
+#[test]
+fn non_revoked_local_policy_keeps_the_original_read_deadline() {
+    let (_directory, engine, actor, scope) = fixture();
+    let policy = engine.policy_authorizer().unwrap();
+    assert!(!policy.is_revoked());
+    for command in ["node", "children", "top", "explore", "search"] {
+        let mut output = vec![];
+        let result = crate::dispatch::dispatch_local(
+            &engine,
+            &cli(command, &scope),
+            &actor,
+            &policy,
+            &mut output,
+            Instant::now() - Duration::from_millis(1),
+        );
+        assert!(
+            matches!(
+                result,
+                Err(EngineError::Business(BusinessError::BudgetExceeded))
+            ),
+            "non-revoked local dispatch renewed deadline: {command} {result:?}"
+        );
+        assert!(output.is_empty());
+    }
+}
+
+#[test]
 fn actual_narrow_commands_observe_terminal_revocation_before_output() {
     for command in ["node", "children", "top", "explore", "search"] {
         let (directory, engine, actor, scope) = fixture();
@@ -176,7 +229,7 @@ fn actual_narrow_commands_preserve_allowed_wire_fields_and_unicode() {
     let (_directory, engine, actor, scope) = fixture();
     for command in ["node", "children", "top", "explore", "search"] {
         let mut output = vec![];
-        dispatch(
+        crate::dispatch::dispatch_local(
             &engine,
             &cli(command, &scope),
             &actor,
@@ -199,7 +252,7 @@ fn actual_narrow_commands_deny_ungranted_principal() {
     let actor = PrincipalId::new("ungranted").unwrap();
     for command in ["node", "children", "top", "explore", "search"] {
         let mut output = vec![];
-        let result = dispatch(
+        let result = crate::dispatch::dispatch_local(
             &engine,
             &cli(command, &scope),
             &actor,
