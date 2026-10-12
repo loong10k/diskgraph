@@ -1,0 +1,27 @@
+{
+  "source_commit": "368e6691c33367b128d60079efb226ea2e444ce5",
+  "run": 38210169373,
+  "job": 114682339046,
+  "job_conclusion": "success",
+  "raw_log_sha256": "0aeac62bf4ebc2e97348a45b2ba9f651680fea9f8c159c5fc27606ef47e3d693",
+  "source_hash": {
+    "crates/diskgraph-engine/tests/scope_authorization_projection_tests.rs": "2676b215027ee60752c2e2bf2d95e8dcb4d04e0afe16cd66d28690aaff58b63d"
+  },
+  "engine_library": {
+    "passed": 801,
+    "failed": 0,
+    "ignored": 8
+  },
+  "mcp_library": {
+    "passed": 237,
+    "failed": 0
+  },
+  "scope_projection": {
+    "passed": 5,
+    "original_query_ms": 50
+  },
+  "new_scope_sql_optimization_present": false,
+  "desktop_windows_validation": false,
+  "macos_stable_budget_failure_closed": false,
+  "overall_production_ready": false
+}
