@@ -60,3 +60,7 @@ guardian新增固定scope add、index与无collector的sync命令，仍只改变
 扫描使用已有扫描执行预算，30秒仅为有限公开连接/启动观察窗口，不改为30秒扫描上限。公开截止/即时断开后原executor仍保有Engine与扫描/恢复资源，原guardian继续原私有恢复和wait；原资源退休前不能标记容量CLEAN。--wait的正常小目录必须形成实际revision并可再从监督入口查询；未知scope不得入队，非UTF-8目录必须保留原定位。自定义扫描选项、collector与MCP接线仍开放，不据默认扫描主线关闭完整父项。
 
 扫描固定查询行为RED0/1：原index/sync wait被原validator拒绝；实现后Engine监督组件22/22、实际Clap映射3/3及非UTF-8原参数往返1/1、Engine布局6/6和CLI布局2/2、guardian脚本6/6、macOS两包Clippy通过。真实systemd夹具已串接两份不同原始编码根、index发布/node读取/Unicode搜索/sync发布/未知scope不入队及每步原槽退休；尚未原生执行，不关闭父项。另7af8同源码Intel原生包job114660072829成功，stdio18、HTTP14、升级回滚7、20k/200k各6检查；这是该源码包复验，不是新扫描接线或配对性能证明。原日志与候选摘要见 `docs/benchmarks/guardian_scan_mainline_candidate_2026_10_12/receipt.json`。
+
+7af8 Windows stable job114659992942 的Engine实际794/1/8；唯一失败为未继承parent handle的stdout缺isolated标记，exit_code原断言已通过。当前日志没有原父事件状态或输出，不能认定handle泄露、数字复用或输出丢失。仅增加同一原父事件即时观察与最多2048字节stdout/stderr诊断，保留两个原断言、原期限和原进程，不称根因修复。原始日志及候选诊断摘要将随新验收保留。
+
+该Windows诊断另记录子进程实际SetEvent返回值；两个原负例断言通过后才触发同一原父事件正控并要求WAIT_OBJECT_0，不用正控替代继承负例。原日志见 `docs/benchmarks/windows_parent_event_diagnostic_7af8_2026_10_12/receipt.json`；Windows条件主体本机未执行，不称根因修复。

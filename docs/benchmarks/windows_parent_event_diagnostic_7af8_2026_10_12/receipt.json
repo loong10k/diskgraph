@@ -1,0 +1,18 @@
+{
+  "source": "7af8f3bba10361b2a6785429e68c2f0b7eb2d0a5",
+  "run": 38202907367,
+  "job": 114659992942,
+  "original_log_sha256": "77d30604768ab0585a5156692417757bf3bc4fbf2cecac8fec96824ae7779256",
+  "engine_results": {
+    "passed": 794,
+    "failed": 1,
+    "ignored": 8
+  },
+  "failed_case": "live_evidence::probe_windows::windows_native_tests::handle_list_excludes_other_inheritable_parent_handles",
+  "observed": "exit_code assertion passed; isolated marker assertion failed; original parent event state and stdout/stderr absent from log",
+  "candidate": "capture original parent event state and bounded output; child records actual SetEvent result; preserve both original assertions and add actual parent event positive control",
+  "candidate_sha256": "3287dbaec1e3d11cbab28056fa8ec15b517cb8bf3d26c04cb164c54f23dbe73b",
+  "windows_candidate_executed": false,
+  "root_cause_confirmed": false,
+  "production_ready": false
+}

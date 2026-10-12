@@ -6,7 +6,7 @@ use crate::live_evidence::probe_failure::ProbeFailure;
 use std::io::Write;
 use std::process::{Command, Stdio};
 use std::time::{Duration, Instant};
-use windows_sys::Win32::Foundation::{HANDLE, WAIT_TIMEOUT};
+use windows_sys::Win32::Foundation::{HANDLE, WAIT_OBJECT_0, WAIT_TIMEOUT};
 use windows_sys::Win32::Security::SECURITY_ATTRIBUTES;
 use windows_sys::Win32::Storage::FileSystem::WriteFile;
 use windows_sys::Win32::System::Console::{GetStdHandle, STD_ERROR_HANDLE, STD_OUTPUT_HANDLE};
@@ -43,6 +43,7 @@ fn windows_native_fixture() {
                 .parse()
                 .unwrap();
             let result = unsafe { SetEvent(value as HANDLE) };
+            eprintln!("DG_WINDOWS_UNLISTED_HANDLE_SET_EVENT_RESULT={result}");
             std::io::stdout()
                 .write_all(if result == 0 {
                     b"isolated".as_slice()
@@ -137,15 +138,24 @@ fn handle_list_excludes_other_inheritable_parent_handles() {
     let mut budget = ProbeBudget::new(&ProbeLimits::default()).unwrap();
     let output = run_probe(&mut command, &mut budget).unwrap();
     assert_eq!(output.exit_code, Some(0));
+    // 先观察同一原父事件；成功SetEvent的数字句柄也可能是子进程表中的其他对象。
+    // 本增量只补诊断，保留原isolated标记与原父事件不触发的两项断言。
+    let original_event_state = unsafe { WaitForSingleObject(event.as_raw(), 0) };
     assert!(
         output
             .stdout
             .windows(b"isolated".len())
-            .any(|slice| slice == b"isolated")
+            .any(|slice| slice == b"isolated"),
+        "unlisted handle marker absent: parent_event_state={original_event_state}, stdout={:?}, stderr={:?}",
+        &output.stdout[..output.stdout.len().min(2048)],
+        &output.stderr[..output.stderr.len().min(2048)]
     );
+    assert_eq!(original_event_state, WAIT_TIMEOUT);
+    // 原父事件的正控保证观测器能够识别真实对象被触发；不替代上面的继承负例。
+    assert_ne!(unsafe { SetEvent(event.as_raw()) }, 0);
     assert_eq!(
         unsafe { WaitForSingleObject(event.as_raw(), 0) },
-        WAIT_TIMEOUT
+        WAIT_OBJECT_0
     );
 }
 
