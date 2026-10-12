@@ -67,6 +67,9 @@ mod tests {
     fn actual_cli_supervisor_route_admits_existing_read_only_query_commands() {
         for command in [
             vec!["scope", "list"],
+            vec!["scope", "add", "--root=/fixture"],
+            vec!["index", "--scope=a", "--wait"],
+            vec!["sync", "--scope=a", "--wait"],
             vec!["node", "--scope", "project"],
             vec!["search", "--scope", "project", "--pattern", "İSTANBUL"],
             vec!["snapshots", "--scope", "project"],
@@ -88,6 +91,9 @@ mod tests {
         for command in [
             vec!["doctor"],
             vec!["scope", "list"],
+            vec!["scope", "add", "--root=/fixture"],
+            vec!["index", "--scope=a", "--wait"],
+            vec!["sync", "--scope=a", "--wait"],
             vec!["scope", "show", "--scope=a"],
             vec!["status", "--job=j"],
             vec!["snapshots", "--scope=a"],
@@ -138,8 +144,13 @@ mod tests {
             );
         }
         for command in [
-            vec!["scope", "add", "--root=/foreign"],
-            vec!["index", "--scope=a"],
+            vec![
+                "sync",
+                "--scope=a",
+                "--collector=git",
+                "--revision=r",
+                "--node-id=1",
+            ],
             vec!["grant", "--scope=a", "--content-read"],
             vec!["tree", "--scope=a", "--html=/foreign/report.html"],
             vec!["snapshots", "prune", "--scope=a", "--apply"],
@@ -182,5 +193,40 @@ mod tests {
             "/run/diskgraph/frontend.sock",
             "doctor"
         ])));
+    }
+}
+
+#[cfg(test)]
+#[cfg(unix)]
+mod native_root_tests {
+    use crate::{cli::Cli, command::Command, scope_action::ScopeAction};
+    use clap::Parser;
+    use std::os::unix::ffi::OsStringExt;
+
+    #[test]
+    fn actual_clap_scope_registration_keeps_non_utf8_root_in_fixed_native_argument() {
+        let original = std::ffi::OsString::from_vec(b"/tmp/registered-\xff".to_vec());
+        let cli = Cli::parse_from([
+            std::ffi::OsString::from("diskgraph"),
+            "--json".into(),
+            "--supervisor-socket=/run/diskgraph/front.sock".into(),
+            "scope".into(),
+            "add".into(),
+            "--root".into(),
+            original.clone(),
+        ]);
+        assert!(super::allowed(&cli));
+        let query = crate::supervised_query::from_command(&cli.command).unwrap();
+        let mut arguments = vec![std::ffi::OsString::from("diskgraph")];
+        arguments.extend(query.native_arguments().unwrap());
+        let parsed = Cli::parse_from(arguments);
+        match parsed.command {
+            Command::Scope {
+                action: ScopeAction::Add { root },
+            } => assert_eq!(root.as_os_str(), original),
+            _ => panic!("native fixed arguments changed command"),
+        }
+        assert_eq!(parsed.principal, "local-user");
+        assert_eq!(parsed.data_dir, std::path::Path::new("diskgraph-data"));
     }
 }

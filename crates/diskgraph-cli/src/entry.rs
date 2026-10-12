@@ -28,7 +28,9 @@ pub(crate) fn cli_main() -> CliExit {
     #[cfg(target_os = "linux")]
     if (std::env::var_os("DISKGRAPH_LINUX_SUPERVISOR_BIRTH").is_some()
         || std::env::var_os("DISKGRAPH_LINUX_SUPERVISOR_FD").is_some())
-        && (crate::supervised_query::from_command(&cli.command).is_none() || !cli.json)
+        && (crate::supervised_query::from_command(&cli.command)
+            .is_none_or(|query| query.requires_customer_executor())
+            || !cli.json)
     {
         // 内部出生通道仅接已验证只读查询，不转交serve、扫描或维护，不创建本地身份。
         if cli.json {

@@ -52,3 +52,11 @@ systemd 属性依据官方 [socket contract](https://raw.githubusercontent.com/s
 本机共同组件20/20、源码布局6/6、Linux安装脚本67/67、vendor pin/摘要4/4及macOS Engine all-target Clippy通过。安装绑定首次测试为API缺失错误，不称原生行为红灯。三项真实root消息/原manifest负例已接入Linux独立root门禁，并检查精确测试存在；仍未执行。候选源码摘要与实际边界见 `docs/benchmarks/guardian_frontend_binding_candidate_2026_10_12/receipt.json`。
 
 7af8f3bb 的 CI38202907367/Linux stable job114659992984 原生第一例真实客户CLI失败，stdout/stderr为空，未进入systemd验收；原日志已保留在上述候选回执。日志只证明公开CLI失败，凭据不兼容原因来自当前源码核对，不能把它说成日志已显示的诊断。公开CLI现在将实际监督协议错误写stderr，夹具也保留真实退出码，便于下一轮区分准入/握手/交付错误；退出码与stdout协议不变。
+
+## 原客户扫描主线接线
+
+guardian新增固定scope add、index与无collector的sync命令，仍只改变本客户数据库，不启用文件移动/删除/restore工具。注册目录以Locator原OS编码传输，display不作为目标；禁止NUL、超长输入、URI和任意全局开关。scope add、index/sync仅进入真实客户executor；旧service身份broker及内部旧出生入口必须在工作出生前拒绝这些命令。注册、排队、扫描、发布继续走现有Engine授权/预算/容量/fencing入口。
+
+扫描使用已有扫描执行预算，30秒仅为有限公开连接/启动观察窗口，不改为30秒扫描上限。公开截止/即时断开后原executor仍保有Engine与扫描/恢复资源，原guardian继续原私有恢复和wait；原资源退休前不能标记容量CLEAN。--wait的正常小目录必须形成实际revision并可再从监督入口查询；未知scope不得入队，非UTF-8目录必须保留原定位。自定义扫描选项、collector与MCP接线仍开放，不据默认扫描主线关闭完整父项。
+
+扫描固定查询行为RED0/1：原index/sync wait被原validator拒绝；实现后Engine监督组件22/22、实际Clap映射3/3及非UTF-8原参数往返1/1、Engine布局6/6和CLI布局2/2、guardian脚本6/6、macOS两包Clippy通过。真实systemd夹具已串接两份不同原始编码根、index发布/node读取/Unicode搜索/sync发布/未知scope不入队及每步原槽退休；尚未原生执行，不关闭父项。另7af8同源码Intel原生包job114660072829成功，stdio18、HTTP14、升级回滚7、20k/200k各6检查；这是该源码包复验，不是新扫描接线或配对性能证明。原日志与候选摘要见 `docs/benchmarks/guardian_scan_mainline_candidate_2026_10_12/receipt.json`。

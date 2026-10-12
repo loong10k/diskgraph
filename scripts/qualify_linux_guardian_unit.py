@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import sqlite3
 import subprocess
 import sys
 import tempfile
@@ -19,6 +20,66 @@ def systemctl(*arguments):
     """只操作本夹具的明确unit；返回原命令结果，不重试启动或延长工作期限。"""
     return subprocess.run(['systemctl', *arguments], check=True, capture_output=True,
                           text=True, encoding='utf-8', timeout=35).stdout
+
+
+def customer_query(prefix, endpoint, original_slot, arguments, expected_success=True):
+    """执行实际公开CLI，随后沿同一原容量FD确认退休；不伪造扫描或私有完成。"""
+    child = subprocess.Popen([str(prefix / 'images/diskgraph'), '--json', '--supervisor-socket',
+                              str(endpoint), *arguments], preexec_fn=customer, env={}, cwd=prefix,
+                             stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    try:
+        stdout, stderr = child.communicate(timeout=35)
+        reply = json.loads(stdout)
+        if (child.returncode == 0) != expected_success or reply.get('ok') is not expected_success:
+            raise AssertionError(('actual customer command failed', arguments, child.returncode, stdout, stderr))
+        until = time.monotonic() + 5
+        while os.pread(original_slot, 8, 0) != b'DGSL01C\n':
+            if time.monotonic() >= until:
+                raise TimeoutError('same original capacity not retired after customer command')
+            time.sleep(0.005)
+        return reply
+    finally:
+        original_dispose(child)
+
+
+def qualify_scan_mainline(workspace, prefix, endpoint, original_slot):
+    """实际无损注册、扫描发布、Unicode查询、重扫与拒绝入队；每步复用真实socket配置。"""
+    roots = [workspace / ('scan-root-' + suffix) for suffix in ('\udcff', '\udcfe')]
+    for root in roots:
+        root.mkdir(mode=0o700)
+        os.chown(root, 23112, 23112)
+    for name in ('hello.txt', 'İSTANBUL.txt', 'raw-\udcff.txt'):
+        (roots[0] / name).write_bytes(b'original customer scan input\n')
+    (roots[1] / 'other.txt').write_bytes(b'different raw directory\n')
+    scopes = [customer_query(prefix, endpoint, original_slot, ['scope', 'add', '--root', str(root)])['data']['scope_id']
+              for root in roots]
+    if scopes[0] == scopes[1]:
+        raise AssertionError('distinct non-UTF-8 roots collapsed to display identity')
+    indexed = customer_query(prefix, endpoint, original_slot, ['index', '--scope', scopes[0], '--wait'])['data']
+    if indexed['state'] != 'completed' or not indexed['revision_id']:
+        raise AssertionError('actual scan did not publish completed revision')
+    node = customer_query(prefix, endpoint, original_slot, ['node', '--scope', scopes[0]])['data']
+    if node['revision_id'] != indexed['revision_id'] or node['node']['files'] != 3:
+        raise AssertionError('query did not read actual selected raw root revision')
+    found = customer_query(prefix, endpoint, original_slot,
+                           ['search', '--scope', scopes[0], '--pattern', 'İSTANBUL'])['data']
+    if found['revision_id'] != indexed['revision_id'] or not any(item['name'] == 'İSTANBUL.txt' for item in found['items']):
+        raise AssertionError('actual Unicode search lost original name semantics')
+    synced = customer_query(prefix, endpoint, original_slot, ['sync', '--scope', scopes[0], '--wait'])['data']
+    latest = customer_query(prefix, endpoint, original_slot, ['node', '--scope', scopes[0]])['data']
+    if synced['state'] != 'completed' or synced['revision_id'] == indexed['revision_id'] or latest['revision_id'] != synced['revision_id']:
+        raise AssertionError('rescan did not atomically publish new latest revision')
+    database = prefix / 'state/data/diskgraph-control.sqlite'
+    def queued_count():
+        with sqlite3.connect('file:' + str(database) + '?mode=ro', uri=True) as connection:
+            return connection.execute('SELECT COUNT(*) FROM jobs').fetchone()[0]
+    before = queued_count()
+    customer_query(prefix, endpoint, original_slot, ['index', '--scope', 'unknown-scope', '--wait'], expected_success=False)
+    if queued_count() != before:
+        raise AssertionError('unknown scope refusal still created a job')
+    return {'passed': True, 'actual_index_and_sync_completed': True, 'distinct_raw_root_ids': True,
+            'selected_root_files': 3, 'unicode_search': True, 'unknown_scope_did_not_enqueue': True,
+            'original_slot_retired_after_each_command': True, 'production_ready': False}
 
 
 def qualify_unit(args):
@@ -66,6 +127,7 @@ def qualify_unit(args):
             if time.monotonic() >= until:
                 raise TimeoutError('original guardian did not retire original slot')
             time.sleep(0.005)
+        scan_mainline = qualify_scan_mainline(workspace, prefix, endpoint, original_slot)
         systemctl('stop', socket_name)
         if os.pread(original_slot, 8, 0) != b'DGSL01C\n':
             raise AssertionError('stopping socket changed original slot')
@@ -108,7 +170,7 @@ def qualify_unit(args):
                 'customer_database_uid': 23112, 'original_slot_clean_before_stop': True,
                 'socket_stopped_after_retirement': True, 'boot_enable_performed': False,
                 'desktop_service_installed': False, 'pending_stop_qualified': False,
-                'mcp_qualified': False, 'scan_qualified': False, 'production_ready': False}
+                'mcp_qualified': False, 'scan_mainline': scan_mainline, 'production_ready': False}
     finally:
         if frontend is not None:
             original_dispose(frontend)

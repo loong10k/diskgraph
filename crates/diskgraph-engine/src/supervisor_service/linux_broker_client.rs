@@ -30,6 +30,11 @@ fn run(socket: &Path, query: Option<&super::BrokerQuery>) -> io::Result<i32> {
         deadline,
     )?;
     let binding = super::linux_guardian_frontend::installed_binding(socket, deadline)?;
+    if binding.is_none() && query.is_some_and(super::BrokerQuery::requires_customer_executor) {
+        return Err(io::Error::other(
+            "customer scan requires installed guardian",
+        ));
+    }
     let metadata = std::fs::symlink_metadata(socket)?;
     if !metadata.file_type().is_socket()
         || !(metadata.uid() == 0

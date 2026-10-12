@@ -10,6 +10,8 @@ pub struct BrokerQuery {
     subcommand: Option<String>,
     options: Vec<(String, String)>,
     switches: Vec<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    native_root: Option<diskgraph_core::Locator>,
 }
 
 impl BrokerQuery {
@@ -28,6 +30,7 @@ impl BrokerQuery {
                 .map(|(key, value)| (key.to_owned(), value))
                 .collect(),
             switches: switches.into_iter().map(str::to_owned).collect(),
+            native_root: None,
         };
         query.validate()?;
         Ok(query)
@@ -39,6 +42,8 @@ impl BrokerQuery {
             match (self.command.as_str(), self.subcommand.as_deref()) {
                 ("doctor", None) | ("scope", Some("list")) => (&[], &[], &[]),
                 ("scope", Some("show")) | ("node", None) => (&["scope"], &[], &[]),
+                ("scope", Some("add")) => (&[], &[], &[]),
+                ("index" | "sync", None) => (&["scope"], &[], &["wait"]),
                 ("status", None) => (&["job"], &[], &[]),
                 ("snapshots", None) => (&[], &["scope", "limit", "offset"], &[]),
                 ("tree", None) => (
@@ -74,6 +79,20 @@ impl BrokerQuery {
                 ("candidates", None) => (&["scope"], &["target-bytes"], &[]),
                 _ => return Err(invalid()),
             };
+        let scope_add = self.command == "scope" && self.subcommand.as_deref() == Some("add");
+        match self.native_root.as_ref() {
+            Some(root) if scope_add && root.raw_b64.len() <= 4096 && root.display.len() <= 2048 => {
+                let path = root.to_native_path().map_err(|_| invalid())?;
+                if !path.is_absolute()
+                    || path.as_os_str().as_encoded_bytes().len() > 2048
+                    || path.as_os_str().as_encoded_bytes().contains(&0)
+                {
+                    return Err(invalid());
+                }
+            }
+            None if !scope_add => {}
+            _ => return Err(invalid()),
+        }
         if self.options.len() > 16 || self.switches.len() > 4 {
             return Err(invalid());
         }
@@ -109,18 +128,54 @@ impl BrokerQuery {
         Ok(())
     }
 
-    /// 参数：无；返回：固定命令参数。值始终与已验证的开关构成一个参数，不成为全局开关。
-    pub fn arguments(&self) -> io::Result<Vec<String>> {
+    /// 参数：原绝对目录路径；返回：无损scope注册描述，不读取文件或签发资源权限。
+    pub fn for_native_root(root: &std::path::Path) -> io::Result<Self> {
+        let query = Self {
+            command: "scope".into(),
+            subcommand: Some("add".into()),
+            options: Vec::new(),
+            switches: Vec::new(),
+            native_root: Some(diskgraph_core::Locator::from_native_path(root)),
+        };
+        query.validate()?;
+        Ok(query)
+    }
+
+    /// 参数：无；返回：是否必须使用真实客户executor，旧service身份入口不得分发。
+    pub fn requires_customer_executor(&self) -> bool {
+        matches!(self.command.as_str(), "index" | "sync")
+            || (self.command == "scope" && self.subcommand.as_deref() == Some("add"))
+    }
+
+    /// 参数：无；返回：原OS编码参数，不以display替代注册目标，值仍与固定开关为同一参数。
+    pub fn native_arguments(&self) -> io::Result<Vec<std::ffi::OsString>> {
         self.validate()?;
-        let mut result = vec![self.command.clone()];
-        result.extend(self.subcommand.iter().cloned());
+        let mut result = vec![std::ffi::OsString::from(&self.command)];
+        result.extend(self.subcommand.iter().map(std::ffi::OsString::from));
         result.extend(
             self.options
                 .iter()
-                .map(|(key, value)| format!("--{key}={value}")),
+                .map(|(key, value)| std::ffi::OsString::from(format!("--{key}={value}"))),
         );
-        result.extend(self.switches.iter().map(|key| format!("--{key}")));
+        result.extend(
+            self.switches
+                .iter()
+                .map(|key| std::ffi::OsString::from(format!("--{key}"))),
+        );
+        if let Some(root) = &self.native_root {
+            let mut argument = std::ffi::OsString::from("--root=");
+            argument.push(root.to_native_path().map_err(|_| invalid())?);
+            result.push(argument);
+        }
         Ok(result)
+    }
+
+    /// 参数：无；返回：旧UTF-8参数兼容入口；非UTF-8目标明确拒绝，使用native_arguments保留编码。
+    pub fn arguments(&self) -> io::Result<Vec<String>> {
+        self.native_arguments()?
+            .into_iter()
+            .map(|argument| argument.into_string().map_err(|_| invalid()))
+            .collect()
     }
 }
 

@@ -12,6 +12,7 @@ use std::ffi::CString;
 use std::fs::File;
 use std::io;
 use std::os::fd::{AsRawFd, FromRawFd};
+use std::os::unix::ffi::OsStrExt;
 use std::os::unix::fs::MetadataExt;
 use std::os::unix::net::UnixStream;
 use std::path::Path;
@@ -69,9 +70,9 @@ impl LinuxGuardian {
             config.data_dir.to_str().expect("validated fixed path"),
         ]
         .into_iter()
-        .map(str::to_owned)
-        .chain(query.arguments()?)
-        .map(|arg| CString::new(arg).map_err(io::Error::other))
+        .map(std::ffi::OsString::from)
+        .chain(query.native_arguments()?)
+        .map(|arg| CString::new(arg.as_os_str().as_bytes()).map_err(io::Error::other))
         .collect::<io::Result<Vec<_>>>()?;
         let environment = vec![
             CString::new(format!(

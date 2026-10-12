@@ -1,0 +1,81 @@
+{
+  "parent_commit": "8b448fa9",
+  "scope": "customer guardian native registration and scan routing",
+  "production_ready": false,
+  "linux_native_candidate_executed": false,
+  "source_sha256": {
+    "crates/diskgraph-cli/src/cli.rs": "d32ffc05fa7245386c09b4c977ed09ec4fb9f731836d75f35ce65b66e689b0ab",
+    "crates/diskgraph-cli/src/entry.rs": "208436d9c0f347e40d6c8b076f820959c43e9356b44b098fca1bd06bea7be35c",
+    "crates/diskgraph-cli/src/supervised_entry.rs": "59cad5cadd502cfc7ac7baf8c3351304d91dddef24b52f8792d092ee1f8a7025",
+    "crates/diskgraph-cli/src/supervised_query.rs": "3831d2a53b2f5ebcdd09371ba020ab3cf68328643bc547c6ef806e035d8fd798",
+    "crates/diskgraph-engine/src/supervisor_service/broker_query.rs": "8db804318b1f6f8354bac0ab3abdfad8ef306e7d6b35bdc130b35374e19efa43",
+    "crates/diskgraph-engine/src/supervisor_service/broker_query_tests.rs": "b9f8a9257727557168366bb0eb39fc5e4c213d2adcc0249bea4372738fbf2d3e",
+    "crates/diskgraph-engine/src/supervisor_service/linux_broker.rs": "25ddbb847cddd8b26a3b34e502e66c41e1d0d2656eeb69603f2b2c0697916766",
+    "crates/diskgraph-engine/src/supervisor_service/linux_broker_client.rs": "1970107cf940ea533b9eee3bed51b72e419f2004326fc0399cdf2801ea2dde9b",
+    "crates/diskgraph-engine/src/supervisor_service/linux_guardian.rs": "fb546063d1eed5ab3b7022a39c6778d1ce4ea4ca1f580f696623af6530cf5dd9",
+    "scripts/qualify_linux_guardian_unit.py": "d3d6ab0458859e59315268fb37278ceb7370196996464ed75d02d9590e3cd62b"
+  },
+  "validation": {
+    "actual_behavior_red": "index/sync wait rejected by original query validator",
+    "engine_supervisor_components": 22,
+    "cli_mapping": 3,
+    "actual_clap_non_utf8_roundtrip": 1,
+    "engine_layout": 6,
+    "cli_layout": 2,
+    "guardian_python_regression": 6,
+    "mac_engine_cli_clippy": "passed",
+    "openspec_strict": "passed"
+  },
+  "preexisting_native_source": "7af8f3bba10361b2a6785429e68c2f0b7eb2d0a5",
+  "preexisting_native_run": 38202907367,
+  "completed_job_original_logs": {
+    "114660072829": {
+      "file": "job_114660072829_7af8_original.log.gz",
+      "sha256": "f7717687b96c32cc0d4024951e2a7f609da686a1ad772ee457bf5ef0046b33bf"
+    },
+    "114659992982": {
+      "file": "job_114659992982_7af8_original.log.gz",
+      "sha256": "0cec377087c09716d3c722055d5d659bf00dd1b3f77dc5a53610246d638a33ad"
+    },
+    "114659992998": {
+      "file": "job_114659992998_7af8_original.log.gz",
+      "sha256": "d192f76bdddcd19a79e82e779bc75e71e380818051292645eb897071f50cafe5"
+    }
+  },
+  "intel_package_replay": {
+    "target": "x86_64-apple-darwin",
+    "archive": "/Users/runner/work/diskgraph/diskgraph/dist/diskgraph-x86_64-apple-darwin.tar.gz",
+    "sha256": "49ee3297aefb9534dd108e8ae9bc298acf6415781e59be0a2526e4c64b37c303",
+    "stdio": 18,
+    "http": 14,
+    "upgrade_rollback": 7,
+    "controlled_load": 6,
+    "controlled_load_200000": 6,
+    "scan_worker": {
+      "executable": {
+        "bytes": 1108056,
+        "name": "diskgraph-scan-worker",
+        "sha256": "4546292d335406a4fea8a492f462b86cd491bfb0a29182d49e9de0dea946e329"
+      },
+      "package_version": "0.3.0",
+      "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
+      "protocol_version": 2,
+      "scanner_source_manifest_sha256": "3a39423b6bcedb1c13817600d683684f46db9a8f127df22d49e104f421008b64",
+      "schema_version": 1,
+      "target": "x86_64-apple-darwin"
+    }
+  },
+  "intel_replay_is_not_paired_performance_evidence": true,
+  "native_pending": [
+    "actual systemd scope add/index/query/search/sync",
+    "two distinct non UTF-8 directory identities",
+    "unknown scope cannot enqueue",
+    "original capacity retirement after each command"
+  ],
+  "remaining": [
+    "custom scan options through guardian",
+    "MCP guardian route",
+    "macOS/Windows service implementations and actual acceptance",
+    "pending I/O stop/recovery and OS permission fidelity"
+  ]
+}

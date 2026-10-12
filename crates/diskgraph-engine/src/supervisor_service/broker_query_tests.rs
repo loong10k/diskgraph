@@ -22,7 +22,11 @@ fn query_refuses_global_overrides_unknown_switches_duplicates_and_invalid_number
         )
         .is_err()
     );
-    assert!(BrokerQuery::new("index", None, vec![("scope", "a".into())], Vec::new()).is_err());
+    assert!(
+        BrokerQuery::new("index", None, vec![("scope", "a".into())], Vec::new())
+            .unwrap()
+            .requires_customer_executor()
+    );
     assert!(
         BrokerQuery::new(
             "search",
@@ -87,4 +91,59 @@ fn query_wire_keeps_original_deadline_and_rejects_unknown_versions_and_fields() 
     injected.extend(serde_json::to_vec(&object).unwrap());
     assert!(BrokerQueryRequest::decode(&injected, acceptance).is_err());
     assert!(BrokerQueryRequest::decode(&vec![b'x'; 4097], acceptance).is_err());
+}
+
+#[test]
+fn customer_scan_commands_use_fixed_scope_and_wait_without_collector_or_global_overrides() {
+    for command in ["index", "sync"] {
+        let query =
+            BrokerQuery::new(command, None, vec![("scope", "a".into())], vec!["wait"]).unwrap();
+        assert_eq!(query.arguments().unwrap(), [command, "--scope=a", "--wait"]);
+        for key in ["collector", "data-dir", "principal", "max-nodes-per-scan"] {
+            assert!(
+                BrokerQuery::new(
+                    command,
+                    None,
+                    vec![("scope", "a".into()), (key, "foreign".into())],
+                    vec![]
+                )
+                .is_err()
+            );
+        }
+    }
+}
+
+#[cfg(unix)]
+#[test]
+fn native_scope_root_preserves_non_utf8_bytes_and_cannot_be_attached_to_other_commands() {
+    use std::os::unix::ffi::{OsStrExt, OsStringExt};
+    let path = std::path::PathBuf::from(std::ffi::OsString::from_vec(b"/tmp/raw-\xff".to_vec()));
+    let query = BrokerQuery::for_native_root(&path).unwrap();
+    assert!(query.requires_customer_executor());
+    assert!(query.arguments().is_err());
+    assert_eq!(
+        query.native_arguments().unwrap()[2].as_os_str().as_bytes(),
+        b"--root=/tmp/raw-\xff"
+    );
+    let mut wire = serde_json::to_value(&query).unwrap();
+    wire["native_root"]["display"] = "--principal=administrator".into();
+    let decoded: BrokerQuery = serde_json::from_value(wire.clone()).unwrap();
+    assert_eq!(
+        decoded.native_arguments().unwrap(),
+        query.native_arguments().unwrap()
+    );
+    wire["command"] = "doctor".into();
+    wire["subcommand"] = serde_json::Value::Null;
+    assert!(
+        serde_json::from_value::<BrokerQuery>(wire)
+            .unwrap()
+            .validate()
+            .is_err()
+    );
+    for path in [
+        std::path::PathBuf::from("relative"),
+        std::path::PathBuf::from(std::ffi::OsString::from_vec(b"/a\0b".to_vec())),
+    ] {
+        assert!(BrokerQuery::for_native_root(&path).is_err());
+    }
 }

@@ -12,6 +12,7 @@ use std::ffi::CString;
 use std::fs::File;
 use std::io;
 use std::os::fd::{AsRawFd, FromRawFd};
+use std::os::unix::ffi::OsStrExt;
 use std::os::unix::fs::{MetadataExt, PermissionsExt};
 use std::os::unix::net::UnixListener;
 use std::path::Path;
@@ -227,6 +228,9 @@ impl LinuxBroker {
             if request.len() > 4096 {
                 return Err(io::Error::other("oversized fixed birth materials"));
             }
+            if query.requires_customer_executor() {
+                return Err(io::Error::other("customer scan requires guardian executor"));
+            }
             let session: [u8; 32] = Sha256::digest(&request).into();
             let args = [
                 self.config.cli_path.to_str().expect("validated fixed path"),
@@ -235,9 +239,9 @@ impl LinuxBroker {
                 self.config.data_dir.to_str().expect("validated fixed path"),
             ]
             .into_iter()
-            .map(str::to_owned)
-            .chain(query.arguments()?)
-            .map(|arg| CString::new(arg).map_err(io::Error::other))
+            .map(std::ffi::OsString::from)
+            .chain(query.native_arguments()?)
+            .map(|arg| CString::new(arg.as_os_str().as_bytes()).map_err(io::Error::other))
             .collect::<io::Result<Vec<_>>>()?;
             let environment = vec![
                 CString::new(format!(

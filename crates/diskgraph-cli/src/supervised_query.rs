@@ -5,6 +5,17 @@ use diskgraph_engine::supervisor_service::BrokerQuery;
 /// 参数：已由真实Clap解析的命令；返回：固定只读描述或尚未接入的命令。
 /// 不复制原argv，不转交数据目录、主体、环境、FD或扫描配置；资源授权仍进入原Engine。
 pub(crate) fn from_command(command: &Command) -> Option<BrokerQuery> {
+    if let Command::Scope {
+        action: ScopeAction::Add { root },
+    } = command
+    {
+        let absolute = if root.is_absolute() {
+            root.clone()
+        } else {
+            std::env::current_dir().ok()?.join(root)
+        };
+        return BrokerQuery::for_native_root(&absolute).ok();
+    }
     let mut options = Vec::new();
     let mut switches = Vec::new();
     let mut subcommand = None;
@@ -27,6 +38,23 @@ pub(crate) fn from_command(command: &Command) -> Option<BrokerQuery> {
             subcommand = Some("show");
             values!("scope" => scope);
             "scope"
+        }
+        Command::Index { scope, wait }
+        | Command::Sync {
+            scope,
+            wait,
+            collector: None,
+            ..
+        } => {
+            values!("scope" => scope);
+            if *wait {
+                switches.push("wait");
+            }
+            if matches!(command, Command::Index { .. }) {
+                "index"
+            } else {
+                "sync"
+            }
         }
         Command::Status { job } => {
             values!("job" => job);
