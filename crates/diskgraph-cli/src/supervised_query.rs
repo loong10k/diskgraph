@@ -3,8 +3,60 @@ use crate::scope_action::ScopeAction;
 use diskgraph_engine::supervisor_service::BrokerQuery;
 
 /// 参数：已由真实Clap解析的命令；返回：固定只读描述或尚未接入的命令。
-/// 不复制原argv，不转交数据目录、主体、环境、FD或扫描配置；资源授权仍进入原Engine。
+/// 不复制原argv，不转交数据目录、主体、环境或FD；资源授权仍进入原Engine。
 pub(crate) fn from_command(command: &Command) -> Option<BrokerQuery> {
+    with_scan_options(command, Vec::new(), Vec::new())
+}
+
+/// 参数：真实CLI；返回：保留扫描配置的固定描述，非扫描命令携带配置时明确拒绝。
+pub(crate) fn from_cli(cli: &crate::cli::Cli) -> Option<BrokerQuery> {
+    let mut options = Vec::new();
+    let mut switches = Vec::new();
+    if cli.max_nodes_per_scan != 2_000_000 {
+        options.push(("max-nodes-per-scan", cli.max_nodes_per_scan.to_string()));
+    }
+    if cli.max_staging_bytes != 2 << 30 {
+        options.push(("max-staging-bytes", cli.max_staging_bytes.to_string()));
+    }
+    if let Some(depth) = cli.depth {
+        options.push(("depth", depth.to_string()));
+    }
+    for (enabled, name) in [
+        (cli.apparent_size, "apparent-size"),
+        (cli.no_hidden, "no-hidden"),
+        (cli.one_filesystem, "one-filesystem"),
+        (cli.cross_filesystems, "cross-filesystems"),
+        (cli.no_dedup_hardlinks, "no-dedup-hardlinks"),
+    ] {
+        if enabled {
+            switches.push(name);
+        }
+    }
+    // 只有实际扫描消费这些配置；其他命令不能接受后静默忽略。
+    if (!options.is_empty() || !switches.is_empty())
+        && !matches!(
+            cli.command,
+            Command::Index { .. }
+                | Command::Sync {
+                    collector: None,
+                    ..
+                }
+        )
+    {
+        return None;
+    }
+    if options.is_empty() && switches.is_empty() {
+        from_command(&cli.command)
+    } else {
+        with_scan_options(&cli.command, options, switches)
+    }
+}
+
+fn with_scan_options(
+    command: &Command,
+    mut options: Vec<(&str, String)>,
+    mut switches: Vec<&str>,
+) -> Option<BrokerQuery> {
     if let Command::Scope {
         action: ScopeAction::Add { root },
     } = command
@@ -16,8 +68,6 @@ pub(crate) fn from_command(command: &Command) -> Option<BrokerQuery> {
         };
         return BrokerQuery::for_native_root(&absolute).ok();
     }
-    let mut options = Vec::new();
-    let mut switches = Vec::new();
     let mut subcommand = None;
     macro_rules! values {
         ($($key:literal => $value:expr),* $(,)?) => {

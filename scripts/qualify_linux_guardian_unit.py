@@ -18,8 +18,23 @@ from prepare_linux_supervisor_installation import verify_root_directory, write_a
 
 def systemctl(*arguments):
     """只操作本夹具的明确unit；返回原命令结果，不重试启动或延长工作期限。"""
-    return subprocess.run(['systemctl', *arguments], check=True, capture_output=True,
-                          text=True, encoding='utf-8', timeout=35).stdout
+    try:
+        return subprocess.run(['systemctl', *arguments], check=True, capture_output=True,
+                              text=True, encoding='utf-8', timeout=35).stdout
+    except subprocess.CalledProcessError as error:
+        print(('original systemctl failure: ' + (error.stdout or '') + (error.stderr or ''))[-32768:], file=sys.stderr)
+        if arguments and arguments[0] in ('start', 'stop'):
+            unit = arguments[-1]
+            # 只观察同一失败unit，不重试start/stop，不停止或替换原资源。
+            for command in (['systemctl', 'status', '--no-pager', '--full', unit],
+                            ['journalctl', '--no-pager', '-n', '30', '--unit', unit]):
+                try:
+                    observed = subprocess.run(command, check=False, capture_output=True,
+                                              text=True, encoding='utf-8', timeout=5)
+                    print(((observed.stdout or '') + (observed.stderr or ''))[-32768:], file=sys.stderr)
+                except (OSError, subprocess.SubprocessError) as diagnostic:
+                    print('same-unit diagnostics unavailable: ' + str(diagnostic), file=sys.stderr)
+        raise
 
 
 def customer_query(prefix, endpoint, original_slot, arguments, expected_success=True):
@@ -55,7 +70,9 @@ def qualify_scan_mainline(workspace, prefix, endpoint, original_slot):
               for root in roots]
     if scopes[0] == scopes[1]:
         raise AssertionError('distinct non-UTF-8 roots collapsed to display identity')
-    indexed = customer_query(prefix, endpoint, original_slot, ['index', '--scope', scopes[0], '--wait'])['data']
+    indexed = customer_query(prefix, endpoint, original_slot,
+                             ['index', '--scope', scopes[0], '--wait', '--max-nodes-per-scan=100',
+                              '--max-staging-bytes=1048576', '--depth=2', '--apparent-size'])['data']
     if indexed['state'] != 'completed' or not indexed['revision_id']:
         raise AssertionError('actual scan did not publish completed revision')
     node = customer_query(prefix, endpoint, original_slot, ['node', '--scope', scopes[0]])['data']
@@ -65,7 +82,9 @@ def qualify_scan_mainline(workspace, prefix, endpoint, original_slot):
                            ['search', '--scope', scopes[0], '--pattern', 'İSTANBUL'])['data']
     if found['revision_id'] != indexed['revision_id'] or not any(item['name'] == 'İSTANBUL.txt' for item in found['items']):
         raise AssertionError('actual Unicode search lost original name semantics')
-    synced = customer_query(prefix, endpoint, original_slot, ['sync', '--scope', scopes[0], '--wait'])['data']
+    synced = customer_query(prefix, endpoint, original_slot,
+                            ['sync', '--scope', scopes[0], '--wait', '--max-nodes-per-scan=100',
+                             '--max-staging-bytes=1048576', '--depth=2', '--apparent-size'])['data']
     latest = customer_query(prefix, endpoint, original_slot, ['node', '--scope', scopes[0]])['data']
     if synced['state'] != 'completed' or synced['revision_id'] == indexed['revision_id'] or latest['revision_id'] != synced['revision_id']:
         raise AssertionError('rescan did not atomically publish new latest revision')

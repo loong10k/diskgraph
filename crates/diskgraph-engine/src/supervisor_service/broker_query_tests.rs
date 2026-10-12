@@ -3,6 +3,44 @@ use super::broker_query_request::BrokerQueryRequest;
 use std::time::{Duration, Instant};
 
 #[test]
+fn scan_budgets_and_flags_are_validated_without_allowing_identity_overrides() {
+    for command in ["index", "sync"] {
+        let query = BrokerQuery::new(
+            command,
+            None,
+            vec![
+                ("scope", "a".into()),
+                ("max-nodes-per-scan", "123".into()),
+                ("max-staging-bytes", "456789".into()),
+                ("depth", "7".into()),
+            ],
+            vec![
+                "wait",
+                "apparent-size",
+                "no-hidden",
+                "one-filesystem",
+                "cross-filesystems",
+                "no-dedup-hardlinks",
+            ],
+        );
+        assert!(query.is_ok(), "fixed scan settings were rejected");
+        for key in ["max-nodes-per-scan", "max-staging-bytes"] {
+            for value in ["-1", "NaN", "18446744073709551616", "--principal=admin"] {
+                assert!(
+                    BrokerQuery::new(
+                        command,
+                        None,
+                        vec![("scope", "a".into()), (key, value.into())],
+                        vec![]
+                    )
+                    .is_err()
+                );
+            }
+        }
+    }
+}
+
+#[test]
 fn query_refuses_global_overrides_unknown_switches_duplicates_and_invalid_numbers() {
     for options in [
         vec![("data-dir", "/foreign".into())],
@@ -99,7 +137,7 @@ fn customer_scan_commands_use_fixed_scope_and_wait_without_collector_or_global_o
         let query =
             BrokerQuery::new(command, None, vec![("scope", "a".into())], vec!["wait"]).unwrap();
         assert_eq!(query.arguments().unwrap(), [command, "--scope=a", "--wait"]);
-        for key in ["collector", "data-dir", "principal", "max-nodes-per-scan"] {
+        for key in ["collector", "data-dir", "principal"] {
             assert!(
                 BrokerQuery::new(
                     command,

@@ -1,5 +1,13 @@
 # PF-06 原连接 guardian 与客户 executor 增量
 
+## 扫描配置兼容验收
+
+监督入口的 index/sync 必须传递实际 CLI 指定的节点与编码 staging 预算，以及 apparent-size、no-hidden、one-filesystem、cross-filesystems、depth、no-dedup-hardlinks。参数仍采用固定白名单并逐项验证，值与开关保持单一 argv；真实客户 executor 使用既有 CLI/Engine 配置解析和预算检查，不新增执行身份或数据域选择能力。非扫描命令不得静默忽略这些覆盖。验收要求真实 Clap 往返保持全部配置，非法数字/主体/数据目录注入被拒绝，原生扫描使用明确的小预算完成正常发布；实现与原生验证分别记录，不提前关闭父项。
+
+本轮两个新增扫描配置测试分别确认行为RED0/1，修复后监督组件23/23、实际CLI监督映射5/5、Engine源码规范6/6、macOS Engine/CLI all-target Clippy通过。Python失败诊断RED1/2后修复，guardian脚本7/7通过；固定YAML及OpenSpec严格校验通过。额外尝试三个scan_terminal测试均在打开Engine阶段返回Unsupported，本机没有受信macOS固定安装；不计通过、不以环境模拟授予安装资格，交由原生CI既有门禁验证。
+
+57d71c0d的CI38206461160三个Linux job均到达真实systemd socket启动后失败，原始stable日志归档于 `docs/benchmarks/guardian_scan_options_57d71c0d_2026_10_12/`。旧日志没有systemctl stderr/journal，不能单凭它认定根因。核对systemd v255 socket.c#socket_chown：SocketUser会get_user_creds同时解析主组；夹具此前仅在内核设置23112，没有NSS账户。新CI只在临时runner创建固定真实客户和辅助组，碰撞拒绝；产品unit安全属性不变。失败时记录原stderr及同一unit状态/最后30条journal，不重试start/stop，不释放原资源。原生修正尚待运行，平台父项保持开放。
+
 延续已批准的专用 service UID guardian＋真实客户 OS 凭据 executor 合同，不缩减完整只读 CLI/MCP 或三平台验收。
 
 ## 可观察行为

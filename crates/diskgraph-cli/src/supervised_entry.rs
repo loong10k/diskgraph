@@ -24,8 +24,7 @@ pub(crate) fn run(cli: &Cli) -> CliExit {
         CliExit::Supervised(
             diskgraph_engine::supervisor_service::run_query(
                 socket,
-                &crate::supervised_query::from_command(&cli.command)
-                    .expect("validated read-only query"),
+                &crate::supervised_query::from_cli(cli).expect("validated read-only query"),
             )
             .unwrap_or_else(|error| {
                 eprintln!("diskgraph: supervisor query failed: {error}");
@@ -45,17 +44,9 @@ pub(crate) fn run(cli: &Cli) -> CliExit {
 fn allowed(cli: &Cli) -> bool {
     cli.supervisor_socket.is_some()
         && cli.json
-        && crate::supervised_query::from_command(&cli.command).is_some()
+        && crate::supervised_query::from_cli(cli).is_some()
         && cli.principal == "local-user"
         && cli.data_dir == std::path::Path::new("diskgraph-data")
-        && cli.max_nodes_per_scan == 2_000_000
-        && cli.max_staging_bytes == 2 << 30
-        && !cli.apparent_size
-        && !cli.no_hidden
-        && !cli.one_filesystem
-        && !cli.cross_filesystems
-        && cli.depth.is_none()
-        && !cli.no_dedup_hardlinks
 }
 
 #[cfg(test)]
@@ -63,6 +54,45 @@ mod tests {
     use super::allowed;
     use crate::cli::Cli;
     use clap::Parser;
+    #[test]
+    fn supervised_scan_preserves_user_budgets_and_disktree_options() {
+        for command in ["index", "sync"] {
+            let first = Cli::parse_from([
+                "diskgraph",
+                "--json",
+                "--supervisor-socket=/run/diskgraph/front.sock",
+                "--max-nodes-per-scan=123",
+                "--max-staging-bytes=456789",
+                "-a",
+                "-H",
+                "-x",
+                "-X",
+                "--depth=7",
+                "--no-dedup-hardlinks",
+                command,
+                "--scope=a",
+                "--wait",
+            ]);
+            assert!(
+                allowed(&first),
+                "supervisor rejected requested scan options"
+            );
+            let query = crate::supervised_query::from_cli(&first).unwrap();
+            let mut args = vec!["diskgraph".to_string()];
+            args.extend(query.arguments().unwrap());
+            let parsed = Cli::parse_from(args);
+            assert_eq!(parsed.max_nodes_per_scan, first.max_nodes_per_scan);
+            assert_eq!(parsed.max_staging_bytes, first.max_staging_bytes);
+            assert_eq!(parsed.depth, first.depth);
+            assert_eq!(parsed.apparent_size, first.apparent_size);
+            assert_eq!(parsed.no_hidden, first.no_hidden);
+            assert_eq!(parsed.one_filesystem, first.one_filesystem);
+            assert_eq!(parsed.cross_filesystems, first.cross_filesystems);
+            assert_eq!(parsed.no_dedup_hardlinks, first.no_dedup_hardlinks);
+            assert_eq!(parsed.principal, "local-user");
+            assert_eq!(crate::supervised_query::from_cli(&parsed).unwrap(), query);
+        }
+    }
     #[test]
     fn actual_cli_supervisor_route_admits_existing_read_only_query_commands() {
         for command in [

@@ -18,6 +18,22 @@ INSTALLER = importlib.import_module('prepare_linux_supervisor_installation')
 
 @unittest.skipUnless(os.name == 'posix', '该夹具验证POSIX原文件保留，不提供Windows服务验收')
 class GuardianUnitFixtureTests(unittest.TestCase):
+    def test_systemctl_failure_reports_original_error_without_retrying_start(self):
+        failure = subprocess.CalledProcessError(1, ['systemctl', 'start', 'original.socket'],
+                                                output='original stdout', stderr='original stderr')
+        diagnostics = io.StringIO()
+        with mock.patch.object(MODULE.subprocess, 'run', side_effect=[failure,
+                subprocess.CompletedProcess([], 3, stdout='unit status', stderr=''),
+                subprocess.CompletedProcess([], 0, stdout='unit journal', stderr='')]) as run, \
+                contextlib.redirect_stderr(diagnostics):
+            with self.assertRaises(subprocess.CalledProcessError) as caught:
+                MODULE.systemctl('start', 'original.socket')
+        self.assertIs(caught.exception, failure)
+        self.assertIn('original stderr', diagnostics.getvalue())
+        self.assertIn('unit status', diagnostics.getvalue())
+        self.assertIn('unit journal', diagnostics.getvalue())
+        self.assertEqual(sum(call.args[0][:2] == ['systemctl', 'start'] for call in run.call_args_list), 1)
+
     def test_activation_failure_keeps_exact_generated_units_and_original_slot(self):
         with tempfile.TemporaryDirectory() as folder:
             parent = Path(folder)

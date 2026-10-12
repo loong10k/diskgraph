@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "ci_source": "57d71c0dd6bf2dd93ea4acffe3149adff93f82e2",
+  "run_id": 38206461160,
+  "job_id": 114670916055,
+  "original_log_sha256": "50b0aa44575680f40d80f4e545c26d0ada226a3d95ea4f6ee30bfde10a15d13a",
+  "observed_failure": "systemctl start original socket returned nonzero before scan qualification",
+  "systemd_nss_cause": "source-backed inference, original log omitted stderr/journal",
+  "native_fix_verified": false,
+  "production_ready": false,
+  "local_tests": {
+    "scan_settings_red": {
+      "engine": 1,
+      "cli": 1
+    },
+    "supervisor_components_passed": 23,
+    "cli_supervised_entry_passed": 5,
+    "guardian_python_passed": 7,
+    "engine_source_layout_passed": 6
+  },
+  "scope": "fixed scan option forwarding plus isolated CI customer NSS account and same-unit failure diagnostics"
+}

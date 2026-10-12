@@ -872,6 +872,21 @@ jobs:
             for guardian_case in valid invalid_uid invalid_gid nonroot; do
               sudo "$fixture/guardian-identity" "$guardian_case" || exit $?
             done
+            # systemd SocketUser resolves a real NSS user (including its primary GID).
+            # Fixed credentials exist only on this disposable runner; refuse collisions.
+            if getent passwd 23112 || getent passwd dg-guardian-customer; then
+              echo 'isolated guardian customer identity collision' >&2
+              exit 1
+            fi
+            for gid in 23112 23114 23115; do
+              if getent group "$gid" || getent group "dg-guardian-group-$gid"; then
+                echo 'isolated guardian customer group collision' >&2
+                exit 1
+              fi
+              sudo groupadd --gid "$gid" "dg-guardian-group-$gid" || exit $?
+            done
+            sudo useradd --uid 23112 --gid 23112 --groups 23114,23115 --no-create-home --shell /usr/sbin/nologin dg-guardian-customer || exit $?
+            getent passwd 23112 || exit $?
             sudo env DG_ISOLATED_ROOT_ACCEPTANCE=1 python3 scripts/qualify_linux_guardian.py --cli "$cli_image" --worker "$worker_image" --broker "$broker_image" --mcp "$mcp_image" --systemd --receipt "$fixture/guardian-receipt.json" || exit $?
           } 2>&1 | tee "$fixture/qualification.log"
       - name: Preserve Linux root atomic supervisor birth primitive

@@ -43,7 +43,18 @@ impl BrokerQuery {
                 ("doctor", None) | ("scope", Some("list")) => (&[], &[], &[]),
                 ("scope", Some("show")) | ("node", None) => (&["scope"], &[], &[]),
                 ("scope", Some("add")) => (&[], &[], &[]),
-                ("index" | "sync", None) => (&["scope"], &[], &["wait"]),
+                ("index" | "sync", None) => (
+                    &["scope"],
+                    &["max-nodes-per-scan", "max-staging-bytes", "depth"],
+                    &[
+                        "wait",
+                        "apparent-size",
+                        "no-hidden",
+                        "one-filesystem",
+                        "cross-filesystems",
+                        "no-dedup-hardlinks",
+                    ],
+                ),
                 ("status", None) => (&["job"], &[], &[]),
                 ("snapshots", None) => (&[], &["scope", "limit", "offset"], &[]),
                 ("tree", None) => (
@@ -93,7 +104,7 @@ impl BrokerQuery {
             None if !scope_add => {}
             _ => return Err(invalid()),
         }
-        if self.options.len() > 16 || self.switches.len() > 4 {
+        if self.options.len() > 16 || self.switches.len() > switches.len() {
             return Err(invalid());
         }
         let mut seen = HashSet::new();
@@ -109,7 +120,8 @@ impl BrokerQuery {
                 "depth" | "max-depth" | "max-nodes" | "max-edges" => {
                     value.parse::<usize>().map_err(|_| invalid())?;
                 }
-                "parent-id" | "node-id" | "limit" | "offset" | "min-bytes" | "target-bytes" => {
+                "parent-id" | "node-id" | "limit" | "offset" | "min-bytes" | "target-bytes"
+                | "max-nodes-per-scan" | "max-staging-bytes" => {
                     value.parse::<u64>().map_err(|_| invalid())?;
                 }
                 "pattern" | "path" => {}
