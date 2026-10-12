@@ -326,6 +326,27 @@ class WorkerManifestTests(PackageFixture):
 class TimeoutDiagnosticTests(PackageFixture):
     """外层超时保留原异常并输出已捕获的阶段诊断。"""
 
+    def test_load_observation_allows_fixture_scan_and_original_cleanup_to_finish(self):
+        package = self.actual_package()
+        observed = []
+        def run_full_fixture(command, **options):
+            observed.append(options['timeout'])
+            # 模拟总阶段耗时320秒、单命令均未超300秒；外层不应提前杀死真实回收者。
+            if options['timeout'] <= 320:
+                raise subprocess.TimeoutExpired(command, options['timeout'], stderr=b'workspace_cleanup begin')
+            return subprocess.CompletedProcess(command, 0, '{"passed": 1, "total": 1}', '')
+        with mock.patch.object(package, 'run_acceptance', side_effect=run_full_fixture):
+            self.assertEqual(package.accepted('accept-readonly-load.py', self.bin_dir), 1)
+        self.assertEqual(observed, [900])
+
+    def test_other_package_checks_keep_original_observation_budget(self):
+        package = self.actual_package()
+        result = subprocess.CompletedProcess([], 0, '{"passed": 1, "total": 1}', '')
+        with mock.patch.object(package, 'run_acceptance', return_value=result) as runner:
+            for script in ('accept-readonly-stdio.py', 'accept-readonly-http.py', 'accept-readonly-upgrade.py'):
+                self.assertEqual(package.accepted(script, self.bin_dir), 1)
+        self.assertEqual([entry.kwargs['timeout'] for entry in runner.call_args_list], [300, 300, 300])
+
     def test_timeout_replays_partial_stderr_and_preserves_exception(self):
         package = self.actual_package()
         failure = subprocess.TimeoutExpired(['acceptance'], 300,

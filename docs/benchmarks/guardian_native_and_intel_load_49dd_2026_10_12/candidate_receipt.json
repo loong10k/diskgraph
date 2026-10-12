@@ -1,0 +1,15 @@
+{
+  "source_base": "ea4598f9aac8e3cbf63636980ae8b0c1477e7c62",
+  "candidate_uncommitted": true,
+  "source_sha256": {
+    "scripts/accept-readonly-package.py": "74afb75f88ef9476743cf5647852fe482d9c43f31386c780b56204763aa0dbb2",
+    "scripts/accept-readonly-load.py": "641ebfe927508e24a41743a05ed49765f57ef30f1063b651228389d11c8ffb6a",
+    "scripts/test_scan_worker_package.py": "53833a806716f05ec7b97611cb5b9595f3c3e96bfd4738c1d65664107e2df31d"
+  },
+  "package_unit_passed": 19,
+  "load_coverage_passed": 33,
+  "new_intel_package_replayed": false,
+  "new_guardian_installer_replayed": false,
+  "new_guardian_shutdown_replayed": false,
+  "production_ready": false
+}

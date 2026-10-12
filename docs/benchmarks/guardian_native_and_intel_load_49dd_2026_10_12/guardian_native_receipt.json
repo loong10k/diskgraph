@@ -1,0 +1,45 @@
+{
+  "cases": [
+    {
+      "scope": "accepted Unix connection -> customer doctor CLI -> original wait",
+      "production_ready": false,
+      "mcp_qualified": false,
+      "systemd_qualified": false,
+      "scan_qualified": false,
+      "services_installed": false,
+      "passed": true,
+      "customer": {
+        "mode": "doctor",
+        "status": 0,
+        "original_public_eof": true,
+        "valid_linux_clock": true,
+        "public_output_bytes": 1170
+      },
+      "customer_database_uid": 23112,
+      "original_guardian_waited": true,
+      "original_bootstrap_clean": true,
+      "legacy_service_slot_untouched": true,
+      "public_disconnected": false
+    },
+    {
+      "scope": "accepted Unix connection -> customer doctor CLI -> original wait",
+      "production_ready": false,
+      "mcp_qualified": false,
+      "systemd_qualified": false,
+      "scan_qualified": false,
+      "services_installed": false,
+      "passed": true,
+      "customer": {
+        "mode": "disconnect",
+        "public_disconnected": true,
+        "private_completion_injected": false
+      },
+      "customer_database_uid": 23112,
+      "original_guardian_waited": true,
+      "original_bootstrap_clean": true,
+      "legacy_service_slot_untouched": true,
+      "public_disconnected": true
+    }
+  ],
+  "production_ready": false
+}

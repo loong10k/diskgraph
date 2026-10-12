@@ -62,10 +62,13 @@ def accepted(script, bin_dir, *arguments, deployment=None):
     environment["DISKGRAPH_ACCEPT_BIN_DIR"] = str(bin_dir)
     # 验收子脚本输出固定 UTF-8；宿主代码页不决定 JSON/诊断协议编码。
     environment["PYTHONIOENCODING"] = "utf-8"
+    # 负载验收包含建夹具、原命令和完整删除；外层观察不能用单命令300秒预算提前杀回收者。
+    # 扫描、查询及每次CLI调用的原预算不变；只为整个负载脚本保留三个阶段的累计观察时间。
+    observation_seconds = 900 if script == "accept-readonly-load.py" else 300
     try:
         result = run_acceptance(
             [sys.executable, str(ROOT / "scripts" / script), *map(str, arguments)],
-            cwd=ROOT, env=environment, capture_output=True, text=True, encoding="utf-8", timeout=300,
+            cwd=ROOT, env=environment, capture_output=True, text=True, encoding="utf-8", timeout=observation_seconds,
         )
     except subprocess.TimeoutExpired as failure:
         # TimeoutExpired 即使 text=True 也可能携带 bytes；保留阶段日志及原异常。
