@@ -1,0 +1,22 @@
+   Compiling diskgraph-engine v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.59s
+     Running unittests src/lib.rs (target/debug/deps/diskgraph_engine-1d042a518dc74750)
+
+running 1 test
+test supervisor_service::linux_executor_request_tests::duplicate_identity_fields_are_rejected_instead_of_last_value_winning ... FAILED
+
+failures:
+
+---- supervisor_service::linux_executor_request_tests::duplicate_identity_fields_are_rejected_instead_of_last_value_winning stdout ----
+
+thread 'supervisor_service::linux_executor_request_tests::duplicate_identity_fields_are_rejected_instead_of_last_value_winning' (6765109) panicked at crates/diskgraph-engine/src/supervisor_service/linux_executor_request_tests.rs:107:5:
+assertion failed: LinuxExecutorRequest::decode(duplicate.as_bytes()).is_err()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    supervisor_service::linux_executor_request_tests::duplicate_identity_fields_are_rejected_instead_of_last_value_winning
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 861 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p diskgraph-engine --lib`

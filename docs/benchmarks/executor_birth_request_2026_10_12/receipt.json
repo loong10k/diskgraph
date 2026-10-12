@@ -1,0 +1,30 @@
+{
+  "source": "f8d87b322abbcded5730ffa700baeeca869af36f",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/supervisor_service/linux_executor_request.rs": "7f06cfe93792907a9df2d2abfc9ff86807955b0dca077bd75b60cfc4f66ad916",
+    "crates/diskgraph-engine/src/supervisor_service/linux_executor_wire.rs": "e810c52f70bb07f59a1de022d31079dc21745645122df9cd5a44a84b819f37b8",
+    "crates/diskgraph-engine/src/supervisor_service/linux_executor_request_tests.rs": "fa5f2b150ebe56416c316e180c02a55beebbba4c6f585f299358d84deb1ed017",
+    "crates/diskgraph-engine/src/supervisor_service/mod.rs": "70a35f1a2d44826dc6b485369acfc245950c3936bd957336a61b593c39010894"
+  },
+  "api_red": {
+    "observed_tool_session": 76829,
+    "exit_code": 101,
+    "diagnostic": "E0432 unresolved import super::LinuxExecutorRequest",
+    "original_raw_log_retained": false,
+    "limitation": "Initial interface-missing log was unavailable at archival; this is a recorded observation, not a recreated raw log or runtime behavior RED."
+  },
+  "behavior_red": "Actual duplicate uid accepted by Value last-value parsing; 0 passed/1 failed; original raw log retained",
+  "green": "5 passed/0 failed",
+  "source_layout": "6 passed/0 failed",
+  "engine_all_targets_clippy": "passed",
+  "project_fmt": "passed",
+  "openspec_strict": "passed",
+  "sender_authenticated": false,
+  "actual_process_identity_verified": false,
+  "descriptor_adoption_wired": false,
+  "cli_mcp_executor_birth_wired": false,
+  "guardian_original_child_wait_wired": false,
+  "services_installed": false,
+  "production_ready": false,
+  "compatibility": "Legacy service birth unchanged; new decoder refuses capacity/namespace/slot and unknown/duplicate fields."
+}

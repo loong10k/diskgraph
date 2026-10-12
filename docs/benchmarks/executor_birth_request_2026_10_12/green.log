@@ -1,0 +1,13 @@
+   Compiling diskgraph-engine v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.57s
+     Running unittests src/lib.rs (target/debug/deps/diskgraph_engine-1d042a518dc74750)
+
+running 5 tests
+test supervisor_service::linux_executor_request_tests::duplicate_identity_fields_are_rejected_instead_of_last_value_winning ... ok
+test supervisor_service::linux_executor_request_tests::expired_original_clock_is_rejected_without_refreshing_budget ... ok
+test supervisor_service::linux_executor_request_tests::missing_binding_or_oversized_request_is_not_a_legacy_fallback ... ok
+test supervisor_service::linux_executor_request_tests::executor_identity_and_fixed_descriptors_cannot_be_replaced ... ok
+test supervisor_service::linux_executor_request_tests::executor_request_has_no_capacity_or_namespace_material ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 857 filtered out; finished in 0.00s
+
