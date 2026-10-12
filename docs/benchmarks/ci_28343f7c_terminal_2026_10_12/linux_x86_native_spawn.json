@@ -1,0 +1,576 @@
+{
+  "scope": "native64 C atomic supervisor birth only",
+  "rust_owner_qualified": false,
+  "product_broker_qualified": false,
+  "bootstrap_lifetime_qualified": false,
+  "actual_cli_mcp_qualified": false,
+  "services_installed": false,
+  "cases": [
+    {
+      "case": "policy_classification",
+      "passed": true,
+      "exit_code": 0,
+      "stdout": "{\"protected_policy_classification\":true}\n",
+      "stderr": "",
+      "records": [
+        {
+          "protected_policy_classification": true
+        }
+      ]
+    },
+    {
+      "case": "unprotected_entry",
+      "passed": true,
+      "exit_code": 0,
+      "stdout": "{\"unsafe_entry_rejected\":true,\"dumpable\":1}\n{\"startup_after_ack_bytes\":0,\"startup_kind\":0,\"startup_phase\":0,\"startup_errno\":0}\n{\"original_pidfd_waited\":true,\"public_eof_before_init\":true,\"handshake\":true,\"exited_normally\":true,\"exit_code\":0}\n",
+      "stderr": "",
+      "records": [
+        {
+          "unsafe_entry_rejected": true,
+          "dumpable": 1
+        },
+        {
+          "startup_after_ack_bytes": 0,
+          "startup_kind": 0,
+          "startup_phase": 0,
+          "startup_errno": 0
+        },
+        {
+          "original_pidfd_waited": true,
+          "public_eof_before_init": true,
+          "handshake": true,
+          "exited_normally": true,
+          "exit_code": 0
+        }
+      ]
+    },
+    {
+      "case": "clean",
+      "passed": true,
+      "exit_code": 0,
+      "stdout": "{\"passed\":true,\"uid\":23111,\"gid\":23111,\"groups\":0,\"private_endpoints\":true,\"capabilities_empty\":true,\"whitelist\":true,\"no_new_privs\":true}\n{\"startup_after_ack_bytes\":0,\"startup_kind\":0,\"startup_phase\":0,\"startup_errno\":0}\n{\"original_pidfd_waited\":true,\"public_eof_before_init\":true,\"handshake\":true,\"exited_normally\":true,\"exit_code\":0}\n",
+      "stderr": "",
+      "records": [
+        {
+          "passed": true,
+          "uid": 23111,
+          "gid": 23111,
+          "groups": 0,
+          "private_endpoints": true,
+          "capabilities_empty": true,
+          "whitelist": true,
+          "no_new_privs": true
+        },
+        {
+          "startup_after_ack_bytes": 0,
+          "startup_kind": 0,
+          "startup_phase": 0,
+          "startup_errno": 0
+        },
+        {
+          "original_pidfd_waited": true,
+          "public_eof_before_init": true,
+          "handshake": true,
+          "exited_normally": true,
+          "exit_code": 0
+        }
+      ]
+    },
+    {
+      "case": "supplementary",
+      "passed": true,
+      "exit_code": 0,
+      "stdout": "{\"passed\":true,\"uid\":23111,\"gid\":23111,\"groups\":2,\"private_endpoints\":true,\"capabilities_empty\":true,\"whitelist\":true,\"no_new_privs\":true}\n{\"startup_after_ack_bytes\":0,\"startup_kind\":0,\"startup_phase\":0,\"startup_errno\":0}\n{\"original_pidfd_waited\":true,\"public_eof_before_init\":true,\"handshake\":true,\"exited_normally\":true,\"exit_code\":0}\n",
+      "stderr": "",
+      "records": [
+        {
+          "passed": true,
+          "uid": 23111,
+          "gid": 23111,
+          "groups": 2,
+          "private_endpoints": true,
+          "capabilities_empty": true,
+          "whitelist": true,
+          "no_new_privs": true
+        },
+        {
+          "startup_after_ack_bytes": 0,
+          "startup_kind": 0,
+          "startup_phase": 0,
+          "startup_errno": 0
+        },
+        {
+          "original_pidfd_waited": true,
+          "public_eof_before_init": true,
+          "handshake": true,
+          "exited_normally": true,
+          "exit_code": 0
+        }
+      ]
+    },
+    {
+      "case": "held_worker",
+      "passed": true,
+      "exit_code": 0,
+      "stdout": "{\"passed\":true,\"held_worker_read\":true,\"worker_path_eacces\":true}\n{\"startup_after_ack_bytes\":0,\"startup_kind\":0,\"startup_phase\":0,\"startup_errno\":0}\n{\"original_pidfd_waited\":true,\"public_eof_before_init\":true,\"handshake\":true,\"exited_normally\":true,\"exit_code\":0}\n",
+      "stderr": "",
+      "records": [
+        {
+          "passed": true,
+          "held_worker_read": true,
+          "worker_path_eacces": true
+        },
+        {
+          "startup_after_ack_bytes": 0,
+          "startup_kind": 0,
+          "startup_phase": 0,
+          "startup_errno": 0
+        },
+        {
+          "original_pidfd_waited": true,
+          "public_eof_before_init": true,
+          "handshake": true,
+          "exited_normally": true,
+          "exit_code": 0
+        }
+      ]
+    },
+    {
+      "case": "executor_private",
+      "passed": true,
+      "exit_code": 0,
+      "stdout": "{\"same_uid_environ_denied\":true,\"phase\":\"before_seal\",\"errno\":13}\n{\"same_uid_environ_denied\":true,\"phase\":\"after_seal\",\"errno\":13}\n{\"passed\":true,\"dumpable_before\":2,\"dumpable\":0}\n{\"startup_after_ack_bytes\":0,\"startup_kind\":0,\"startup_phase\":0,\"startup_errno\":0}\n{\"original_pidfd_waited\":true,\"public_eof_before_init\":true,\"handshake\":true,\"exited_normally\":true,\"exit_code\":0}\n",
+      "stderr": "",
+      "records": [
+        {
+          "same_uid_environ_denied": true,
+          "phase": "before_seal",
+          "errno": 13
+        },
+        {
+          "same_uid_environ_denied": true,
+          "phase": "after_seal",
+          "errno": 13
+        },
+        {
+          "passed": true,
+          "dumpable_before": 2,
+          "dumpable": 0
+        },
+        {
+          "startup_after_ack_bytes": 0,
+          "startup_kind": 0,
+          "startup_phase": 0,
+          "startup_errno": 0
+        },
+        {
+          "original_pidfd_waited": true,
+          "public_eof_before_init": true,
+          "handshake": true,
+          "exited_normally": true,
+          "exit_code": 0
+        }
+      ]
+    },
+    {
+      "case": "executor_public",
+      "passed": true,
+      "exit_code": 0,
+      "stdout": "{\"startup_after_ack_bytes\":12,\"startup_kind\":2,\"startup_phase\":19,\"startup_errno\":13}\n{\"original_pidfd_waited\":true,\"public_eof_before_init\":true,\"handshake\":false,\"exited_normally\":true,\"exit_code\":127}\n",
+      "stderr": "",
+      "records": [
+        {
+          "startup_after_ack_bytes": 12,
+          "startup_kind": 2,
+          "startup_phase": 19,
+          "startup_errno": 13
+        },
+        {
+          "original_pidfd_waited": true,
+          "public_eof_before_init": true,
+          "handshake": false,
+          "exited_normally": true,
+          "exit_code": 127
+        }
+      ]
+    },
+    {
+      "case": "executor_acl",
+      "passed": true,
+      "exit_code": 0,
+      "stdout": "{\"acl_read_permission_verified\":true}\n{\"startup_after_ack_bytes\":12,\"startup_kind\":2,\"startup_phase\":19,\"startup_errno\":13}\n{\"original_pidfd_waited\":true,\"public_eof_before_init\":true,\"handshake\":false,\"exited_normally\":true,\"exit_code\":127}\n",
+      "stderr": "",
+      "records": [
+        {
+          "acl_read_permission_verified": true
+        },
+        {
+          "startup_after_ack_bytes": 12,
+          "startup_kind": 2,
+          "startup_phase": 19,
+          "startup_errno": 13
+        },
+        {
+          "original_pidfd_waited": true,
+          "public_eof_before_init": true,
+          "handshake": false,
+          "exited_normally": true,
+          "exit_code": 127
+        }
+      ]
+    },
+    {
+      "case": "denied_access",
+      "passed": true,
+      "exit_code": 0,
+      "stdout": "{\"startup_after_ack_bytes\":12,\"startup_kind\":2,\"startup_phase\":19,\"startup_errno\":38}\n{\"original_pidfd_waited\":true,\"public_eof_before_init\":true,\"handshake\":false,\"exited_normally\":true,\"exit_code\":127}\n",
+      "stderr": "",
+      "records": [
+        {
+          "startup_after_ack_bytes": 12,
+          "startup_kind": 2,
+          "startup_phase": 19,
+          "startup_errno": 38
+        },
+        {
+          "original_pidfd_waited": true,
+          "public_eof_before_init": true,
+          "handshake": false,
+          "exited_normally": true,
+          "exit_code": 127
+        }
+      ]
+    },
+    {
+      "case": "denied_policy",
+      "passed": true,
+      "exit_code": 0,
+      "stdout": "{\"before_birth_rejected\":true,\"errno\":38,\"pidfd_unchanged\":true}\n",
+      "stderr": "",
+      "records": [
+        {
+          "before_birth_rejected": true,
+          "errno": 38,
+          "pidfd_unchanged": true
+        }
+      ]
+    },
+    {
+      "case": "invalid_protection",
+      "passed": true,
+      "exit_code": 0,
+      "stdout": "{\"before_birth_rejected\":true,\"errno\":22,\"pidfd_unchanged\":true}\n",
+      "stderr": "",
+      "records": [
+        {
+          "before_birth_rejected": true,
+          "errno": 22,
+          "pidfd_unchanged": true
+        }
+      ]
+    },
+    {
+      "case": "root_uid",
+      "passed": true,
+      "exit_code": 0,
+      "stdout": "{\"before_birth_rejected\":true,\"errno\":1,\"pidfd_unchanged\":true}\n",
+      "stderr": "",
+      "records": [
+        {
+          "before_birth_rejected": true,
+          "errno": 1,
+          "pidfd_unchanged": true
+        }
+      ]
+    },
+    {
+      "case": "root_gid",
+      "passed": true,
+      "exit_code": 0,
+      "stdout": "{\"before_birth_rejected\":true,\"errno\":1,\"pidfd_unchanged\":true}\n",
+      "stderr": "",
+      "records": [
+        {
+          "before_birth_rejected": true,
+          "errno": 1,
+          "pidfd_unchanged": true
+        }
+      ]
+    },
+    {
+      "case": "sentinel_uid",
+      "passed": true,
+      "exit_code": 0,
+      "stdout": "{\"before_birth_rejected\":true,\"errno\":1,\"pidfd_unchanged\":true}\n",
+      "stderr": "",
+      "records": [
+        {
+          "before_birth_rejected": true,
+          "errno": 1,
+          "pidfd_unchanged": true
+        }
+      ]
+    },
+    {
+      "case": "sentinel_gid",
+      "passed": true,
+      "exit_code": 0,
+      "stdout": "{\"before_birth_rejected\":true,\"errno\":1,\"pidfd_unchanged\":true}\n",
+      "stderr": "",
+      "records": [
+        {
+          "before_birth_rejected": true,
+          "errno": 1,
+          "pidfd_unchanged": true
+        }
+      ]
+    },
+    {
+      "case": "aliased_fd",
+      "passed": true,
+      "exit_code": 0,
+      "stdout": "{\"before_birth_rejected\":true,\"errno\":22,\"pidfd_unchanged\":true}\n",
+      "stderr": "",
+      "records": [
+        {
+          "before_birth_rejected": true,
+          "errno": 22,
+          "pidfd_unchanged": true
+        }
+      ]
+    },
+    {
+      "case": "low_fd",
+      "passed": true,
+      "exit_code": 0,
+      "stdout": "{\"before_birth_rejected\":true,\"errno\":22,\"pidfd_unchanged\":true}\n",
+      "stderr": "",
+      "records": [
+        {
+          "before_birth_rejected": true,
+          "errno": 22,
+          "pidfd_unchanged": true
+        }
+      ]
+    },
+    {
+      "case": "nonroot",
+      "passed": true,
+      "exit_code": 0,
+      "stdout": "{\"before_birth_rejected\":true,\"errno\":1,\"pidfd_unchanged\":true}\n",
+      "stderr": "",
+      "records": [
+        {
+          "before_birth_rejected": true,
+          "errno": 1,
+          "pidfd_unchanged": true
+        }
+      ]
+    },
+    {
+      "case": "missing_groups",
+      "passed": true,
+      "exit_code": 0,
+      "stdout": "{\"before_birth_rejected\":true,\"errno\":22,\"pidfd_unchanged\":true}\n",
+      "stderr": "",
+      "records": [
+        {
+          "before_birth_rejected": true,
+          "errno": 22,
+          "pidfd_unchanged": true
+        }
+      ]
+    },
+    {
+      "case": "oversized_groups",
+      "passed": true,
+      "exit_code": 0,
+      "stdout": "{\"before_birth_rejected\":true,\"errno\":22,\"pidfd_unchanged\":true}\n",
+      "stderr": "",
+      "records": [
+        {
+          "before_birth_rejected": true,
+          "errno": 22,
+          "pidfd_unchanged": true
+        }
+      ]
+    },
+    {
+      "case": "sentinel_group",
+      "passed": true,
+      "exit_code": 0,
+      "stdout": "{\"before_birth_rejected\":true,\"errno\":22,\"pidfd_unchanged\":true}\n",
+      "stderr": "",
+      "records": [
+        {
+          "before_birth_rejected": true,
+          "errno": 22,
+          "pidfd_unchanged": true
+        }
+      ]
+    },
+    {
+      "case": "low_worker",
+      "passed": true,
+      "exit_code": 0,
+      "stdout": "{\"before_birth_rejected\":true,\"errno\":22,\"pidfd_unchanged\":true}\n",
+      "stderr": "",
+      "records": [
+        {
+          "before_birth_rejected": true,
+          "errno": 22,
+          "pidfd_unchanged": true
+        }
+      ]
+    },
+    {
+      "case": "aliased_worker",
+      "passed": true,
+      "exit_code": 0,
+      "stdout": "{\"before_birth_rejected\":true,\"errno\":22,\"pidfd_unchanged\":true}\n",
+      "stderr": "",
+      "records": [
+        {
+          "before_birth_rejected": true,
+          "errno": 22,
+          "pidfd_unchanged": true
+        }
+      ]
+    },
+    {
+      "case": "writable_worker",
+      "passed": true,
+      "exit_code": 0,
+      "stdout": "{\"before_birth_rejected\":true,\"errno\":22,\"pidfd_unchanged\":true}\n",
+      "stderr": "",
+      "records": [
+        {
+          "before_birth_rejected": true,
+          "errno": 22,
+          "pidfd_unchanged": true
+        }
+      ]
+    },
+    {
+      "case": "bad_image",
+      "passed": true,
+      "exit_code": 42,
+      "stdout": "{\"startup_after_ack_bytes\":12,\"startup_kind\":2,\"startup_phase\":11,\"startup_errno\":8}\n{\"original_pidfd_waited\":true,\"public_eof_before_init\":true,\"handshake\":true,\"exited_normally\":true,\"exit_code\":127}\n",
+      "stderr": "",
+      "records": [
+        {
+          "startup_after_ack_bytes": 12,
+          "startup_kind": 2,
+          "startup_phase": 11,
+          "startup_errno": 8
+        },
+        {
+          "original_pidfd_waited": true,
+          "public_eof_before_init": true,
+          "handshake": true,
+          "exited_normally": true,
+          "exit_code": 127
+        }
+      ]
+    },
+    {
+      "case": "denied_groups",
+      "passed": true,
+      "exit_code": 42,
+      "stdout": "{\"startup_after_ack_bytes\":12,\"startup_kind\":2,\"startup_phase\":15,\"startup_errno\":1}\n{\"original_pidfd_waited\":true,\"public_eof_before_init\":true,\"handshake\":false,\"exited_normally\":true,\"exit_code\":127}\n",
+      "stderr": "",
+      "records": [
+        {
+          "startup_after_ack_bytes": 12,
+          "startup_kind": 2,
+          "startup_phase": 15,
+          "startup_errno": 1
+        },
+        {
+          "original_pidfd_waited": true,
+          "public_eof_before_init": true,
+          "handshake": false,
+          "exited_normally": true,
+          "exit_code": 127
+        }
+      ]
+    },
+    {
+      "case": "signal_after_ready",
+      "passed": true,
+      "exit_code": 0,
+      "stdout": "{\"original_pidfd_signal_sent\":true,\"signal_errno\":0}\n{\"startup_after_ack_bytes\":0,\"startup_kind\":0,\"startup_phase\":0,\"startup_errno\":0}\n{\"original_pidfd_waited\":true,\"public_eof_before_init\":true,\"handshake\":false,\"exited_normally\":false,\"exit_code\":9}\n",
+      "stderr": "",
+      "records": [
+        {
+          "original_pidfd_signal_sent": true,
+          "signal_errno": 0
+        },
+        {
+          "startup_after_ack_bytes": 0,
+          "startup_kind": 0,
+          "startup_phase": 0,
+          "startup_errno": 0
+        },
+        {
+          "original_pidfd_waited": true,
+          "public_eof_before_init": true,
+          "handshake": false,
+          "exited_normally": false,
+          "exit_code": 9
+        }
+      ]
+    }
+  ],
+  "images": {
+    "driver": {
+      "bytes": 26208,
+      "sha256": "d1c3918a64118d51a2b241c90a3723ccccadc8536b8108b9296251504470ad31"
+    },
+    "role": {
+      "bytes": 21800,
+      "sha256": "2fd34503eb08058a94711e485e4fec68d8375eec4f1c23d70c2645e73e739e4c"
+    },
+    "baseline": {
+      "bytes": 21808,
+      "sha256": "d2105940ff99b8fcc6629c87e4e76187c1b2ff48aba2a7d218ec8dd7e0ac1587"
+    },
+    "private_role": {
+      "bytes": 21800,
+      "sha256": "2fd34503eb08058a94711e485e4fec68d8375eec4f1c23d70c2645e73e739e4c"
+    }
+  },
+  "baseline": {
+    "contract_missing_reproduced": true,
+    "exit_code": 42,
+    "stdout": "{\"passed\":false,\"uid\":0,\"gid\":0,\"groups\":1,\"private_endpoints\":false,\"capabilities_empty\":false,\"whitelist\":true,\"no_new_privs\":true}\n{\"startup_after_ack_bytes\":0,\"startup_kind\":0,\"startup_phase\":0,\"startup_errno\":0}\n{\"original_pidfd_waited\":true,\"public_eof_before_init\":true,\"handshake\":true,\"exited_normally\":true,\"exit_code\":3}\n",
+    "stderr": "",
+    "records": [
+      {
+        "passed": false,
+        "uid": 0,
+        "gid": 0,
+        "groups": 1,
+        "private_endpoints": false,
+        "capabilities_empty": false,
+        "whitelist": true,
+        "no_new_privs": true
+      },
+      {
+        "startup_after_ack_bytes": 0,
+        "startup_kind": 0,
+        "startup_phase": 0,
+        "startup_errno": 0
+      },
+      {
+        "original_pidfd_waited": true,
+        "public_eof_before_init": true,
+        "handshake": true,
+        "exited_normally": true,
+        "exit_code": 3
+      }
+    ]
+  },
+  "kernel_suid_dumpable": "2",
+  "passed": true
+}

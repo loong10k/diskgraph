@@ -226,6 +226,7 @@ impl LinuxSupervisorProcess {
             self.child.take();
             self.controls.take();
             self.materials.take();
+            self.executor_materials.take();
         }
         self.slot
             .as_mut()

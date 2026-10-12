@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "run": 38191843133,
+  "source": "28343f7c341385c6876deb67aa13a542091221ad",
+  "status": "completed",
+  "conclusion": "failure",
+  "success": 22,
+  "failure": 1,
+  "cancelled": 0,
+  "native_x86_privacy": {
+    "actual_kernel_suid_dumpable": "2",
+    "native_C_cases_passed": 27,
+    "same_uid_environ_before_and_after_seal": "actual EACCES; original pidfd waited"
+  },
+  "sole_failure": "macOS Intel notification-expiry test returned Slot(Deadline) before notification injection",
+  "new_executor_entry_qualified": false,
+  "dedicated_guardian_product_qualified": false,
+  "production_ready": false
+}
