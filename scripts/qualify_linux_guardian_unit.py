@@ -169,8 +169,12 @@ def qualify_mcp_mainline(prefix, endpoint, original_slot, scan, frontend='mcp'):
             raise AssertionError('original MCP session expired at finite CLI observation window')
         queried = exchange(3, 'tools/call', {'name': 'diskgraph_node', 'arguments':
                                            {'scope': scan['scope_id'], 'revision': scan['revision_id']}})
-        data = queried.get('structuredContent', {})
-        if queried.get('isError') is not False or data.get('revision_id') != scan['revision_id'] or data.get('node', {}).get('files') != 3:
+        envelope = queried.get('structuredContent', {})
+        # MCP统一响应保留revision/scope于信封层，实际节点位于data.node。
+        if (queried.get('isError') is not False or envelope.get('ok') is not True
+                or envelope.get('scope_id') != scan['scope_id']
+                or envelope.get('revision_id') != scan['revision_id']
+                or envelope.get('data', {}).get('node', {}).get('files') != 3):
             raise AssertionError(('MCP did not query actual customer revision', queried))
         child.stdin.close()
         child.stdin = None

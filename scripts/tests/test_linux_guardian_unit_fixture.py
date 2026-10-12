@@ -2,6 +2,7 @@
 import contextlib
 import importlib
 import io
+import json
 import os
 from pathlib import Path
 import subprocess
@@ -18,6 +19,51 @@ INSTALLER = importlib.import_module('prepare_linux_supervisor_installation')
 
 @unittest.skipUnless(os.name == 'posix', '该夹具验证POSIX原文件保留，不提供Windows服务验收')
 class GuardianUnitFixtureTests(unittest.TestCase):
+    def test_mcp_mainline_accepts_actual_nested_wire_result(self):
+        # 使用真实管道传递wire响应；模拟进程生命周期，不声明原生guardian验收。
+        scan = {'scope_id': 'scope-original', 'revision_id': 'revision-original'}
+        replies = [
+            {'serverInfo': {'name': 'diskgraph'}},
+            {'tools': [{'name': 'diskgraph_node'}]},
+            {'isError': False, 'structuredContent': {
+                'ok': True, 'scope_id': scan['scope_id'],
+                'revision_id': scan['revision_id'],
+                'data': {'node': {'files': 3}}}},
+        ]
+        for frontend, mismatch in ((frontend, mismatch) for frontend in ('mcp', 'cli')
+                                   for mismatch in (None, 'scope_id', 'revision_id', 'node')):
+            with self.subTest(frontend=frontend, mismatch=mismatch):
+                responses = json.loads(json.dumps(replies))
+                envelope = responses[2]['structuredContent']
+                if mismatch == 'node':
+                    envelope['node'] = envelope['data'].pop('node')
+                elif mismatch:
+                    envelope[mismatch] = 'different-original'
+                output_read, output_write = os.pipe()
+                error_read, error_write = os.pipe()
+                with os.fdopen(output_read, 'rb') as stdout, os.fdopen(error_read, 'rb') as stderr:
+                    os.write(output_write, b''.join(
+                        (json.dumps({'jsonrpc': '2.0', 'id': number, 'result': reply}) + '\n').encode()
+                        for number, reply in enumerate(responses, 1)))
+                    os.close(output_write)
+                    os.close(error_write)
+                    child = mock.Mock(stdin=io.BytesIO(), stdout=stdout, stderr=stderr, returncode=0)
+                    child.poll.return_value = None
+                    child.communicate.return_value = (b'', b'')
+                    with mock.patch.object(MODULE.subprocess, 'Popen', return_value=child), \
+                            mock.patch.object(MODULE.time, 'sleep'), \
+                            mock.patch.object(MODULE.os, 'pread', return_value=b'DGSL01C\n'), \
+                            mock.patch.object(MODULE, 'original_dispose'):
+                        if mismatch:
+                            with self.assertRaisesRegex(AssertionError, 'MCP did not query actual customer revision'):
+                                MODULE.qualify_mcp_mainline(Path('/fixture'), Path('/socket'), 1, scan, frontend)
+                            child.communicate.assert_not_called()
+                            continue
+                        result = MODULE.qualify_mcp_mainline(Path('/fixture'), Path('/socket'), 1, scan, frontend)
+                    self.assertTrue(result['actual_revision_query'])
+                    self.assertTrue(result['original_slot_retired'])
+                    child.communicate.assert_called_once_with(timeout=35)
+
     def test_mainline_scans_unicode_root_and_checks_raw_roots_as_refusals(self):
         # 夹具必须服从固定扫描器契约；模拟业务结果，不冒充原生执行。
         with tempfile.TemporaryDirectory() as folder:

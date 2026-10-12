@@ -92,3 +92,9 @@ CI 38210169373 的 Linux x86 stable job114682339163 已通过实际 systemd sock
 新增夹具回归首先在 macOS 因真实创建非法编码路径失败，属于环境故障；将仅此模拟测试的原始路径文件操作隔离后，原夹具因错误要求非 UTF-8 成功发布而断言失败，形成行为 RED。修正后 guardian 脚本测试8/8通过。模拟结果仅证明验收脚本遵循当前契约，新的真实 Linux CLI/stdio MCP 主线尚待 CI。原始 Linux 与 macOS 失败日志保存于 `docs/benchmarks/guardian_fixture_contract_368e6691_2026_10_12/`。
 
 同一运行 macOS stable job114682339146 实际 Engine 855通过、1失败、15忽略；失败为 candidate_and_impact_data_expiry_after_read_keep_timely_authorized_prefixes，真实读后 hook 已消费，terminal_reader_open 墙钟319054微秒、线程CPU377微秒，返回 BudgetExceeded。该观测不能单独证明 SQL 性能根因，不增大原窗口、不以重跑成功关闭问题。整体生产验收继续开放。
+
+## 45a17286 MCP 主线信封断言修正
+
+CI38215593380/Linux stable job114699450455 已完成真实客户扫描发布，并在同一MCP会话等待31秒后成功查询真实revision，返回isError=false、ok=true、原scope/revision与data.node.files=3。失败发生于夹具错误读取顶层node；不是产品工具查询失败的证据。修正为读取data.node，同时要求原scope、原revision和ok=true，不放宽空响应、跨scope或旧revision验收。
+
+真实管道wire回归先对CLI serve与MCP两个前端均行为失败，修正后guardian脚本9/9通过；新增错误scope、错误revision和顶层node负例。模拟不证明原生资源退休；后续正常EOF和原容量退休仍须真实CI运行，不勾选生产父项。
