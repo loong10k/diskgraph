@@ -97,5 +97,9 @@ mod guardian_frontend_binding_tests;
 ))]
 mod linux_guardian_frontend;
 
-#[cfg(all(test, target_os = "linux", any(target_arch = "x86_64", target_arch = "aarch64")))]
+#[cfg(all(
+    test,
+    target_os = "linux",
+    any(target_arch = "x86_64", target_arch = "aarch64")
+))]
 mod linux_guardian_frontend_tests;

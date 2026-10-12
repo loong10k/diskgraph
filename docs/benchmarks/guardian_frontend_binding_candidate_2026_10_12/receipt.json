@@ -13,7 +13,7 @@
     "crates/diskgraph-engine/src/supervisor_service/linux_guardian_frontend_tests.rs": "e095ed2d5fd95f92af705b7ad9e318d4c826ef738510f6c9a350c9820926f444",
     "crates/diskgraph-engine/src/supervisor_service/linux_broker_client.rs": "692da13ef50bc4978ac23fe63ecbfb3b8c9fdb15e4688b3c751a17b5c14e1831",
     "crates/diskgraph-engine/src/supervisor_service/linux_guardian.rs": "a03e3bc22962c6cefd9adb74de1d3c7917b98198681e20def63677e01f3cd46f",
-    "crates/diskgraph-engine/src/supervisor_service/mod.rs": "2356dd4134a3b3e9b5200d3025b45b2986debcd785c98dda79a45ba3f11715a9",
+    "crates/diskgraph-engine/src/supervisor_service/mod.rs": "af9adff8750213530503d7783e2421666b5567171f2442b9d4f331bf24d69e93",
     "crates/diskgraph-engine/src/supervisor_service/root_installation_path.rs": "6515f4d8e2bd5fd6555d8fc518427e04743b6eef0bd7acd46d3d59c603319306"
   },
   "local_validation": {
