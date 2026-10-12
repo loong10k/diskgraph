@@ -57,6 +57,10 @@ def main():
         # 不刷新每片期限；socket timeout每次由同一绝对期限扣除。
         connection.settimeout(remaining(original_deadline))
         connection.connect(path)
+        if mode == 'stop_before_query':
+            assert connection.recv(1) == b'', 'stopped admission must close original public connection'
+            print(json.dumps({'mode': mode, 'public_eof': True, 'request_sent': False}))
+            return
         connection.sendall(request(mode))
         connection.shutdown(socket.SHUT_WR)
         if mode == 'disconnect':

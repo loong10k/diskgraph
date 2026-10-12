@@ -71,6 +71,32 @@ def broker_artifacts(prefix, policy, images):
             '\n[Install]\nWantedBy=multi-user.target\n')
     return config, unit
 
+
+def guardian_artifacts(prefix, policy, images):
+    """生成原accepted连接的未启用socket与模板；原owner退休之前禁止强制kill。"""
+    config, _ = broker_artifacts(prefix, policy, images)
+    text = validate_broker_prefix(prefix, policy)
+    def quoted(value):
+        return '"' + value.replace('%', '%%').replace('"', '\\"') + '"'
+    service = ('[Unit]\nDescription=DiskGraph original guardian connection\nAfter=local-fs.target\n\n'
+               '[Service]\nType=simple\nUser=root\nGroup=root\n'
+               f'ExecStart={quoted(text + "/images/diskgraph-supervisor")} --config '
+               f'{quoted(text + "/supervisor-config.json")} --connection\n'
+               'StandardInput=socket\nStandardOutput=journal\nStandardError=journal\n'
+               'Restart=no\nKillMode=mixed\nSendSIGKILL=no\nTimeoutStopSec=infinity\n'
+               'CapabilityBoundingSet=CAP_SETUID CAP_SETGID CAP_KILL\n'
+               'AmbientCapabilities=CAP_SETUID\nNoNewPrivileges=yes\n'
+               'ProtectSystem=strict\n'
+               f'ReadWritePaths={quoted(text)}\nRestrictAddressFamilies=AF_UNIX\n')
+    socket = ('[Unit]\nDescription=DiskGraph authenticated local guardian\n\n'
+              # ListenStream按单个原路径解析，不使用ExecStart的参数引号；specifier仍须转义。
+              f'[Socket]\nListenStream={text.replace("%", "%%")}/front.sock\n'
+              'Accept=yes\nPassCredentials=yes\nSocketMode=0600\n'
+              f'SocketUser={policy["frontend_uids"][0]}\n'
+              'MaxConnections=4\nMaxConnectionsPerSource=4\nRemoveOnStop=no\n'
+              '\n[Install]\nWantedBy=sockets.target\n')
+    return config, service, socket
+
 def verify_root_directory(fd):
     """以打开对象验证 root 目录；不修复已存在目录的所有权或权限。"""
     info = os.fstat(fd)
@@ -173,7 +199,7 @@ def validate_elf_header(block, target):
         raise ValueError('ELF image type, machine or version mismatch')
 
 
-def install_images(archive, images, target, with_broker=False):
+def install_images(archive, images, target, with_broker=False, with_guardian=False):
     """从已核验 root 独占快照流式安装三个固定镜像；不调用 extractall 或执行镜像。"""
     result, manifest, seen = {}, None, set()
     expected_root = 'diskgraph-' + target
@@ -200,13 +226,14 @@ def install_images(archive, images, target, with_broker=False):
                         raise ValueError('oversized worker manifest')
                     manifest = json.loads(package.extractfile(member).read(16385))
                 elif name in (*NAMES, 'diskgraph-supervisor'):
-                    result[name] = write_at(images, name, package.extractfile(member), MAX_IMAGE_BYTES, 0o555,
+                    mode = 0o511 if with_guardian and name in NAMES else 0o555
+                    result[name] = write_at(images, name, package.extractfile(member), MAX_IMAGE_BYTES, mode,
                                             validate_header=lambda block: validate_elf_header(block, target))
                     if result[name]['bytes'] != member.size or not member.size:
                         raise ValueError('incomplete or empty role image')
                 else:
                     raise ValueError('unknown executable entry')
-    required = set(NAMES) | ({'diskgraph-supervisor'} if with_broker else set())
+    required = set(NAMES) | ({'diskgraph-supervisor'} if with_broker or with_guardian else set())
     if not required.issubset(result) or not isinstance(manifest, dict):
         raise ValueError('incomplete package image set')
     if manifest.get('schema_version') != 1 or manifest.get('target') != target or manifest.get('protocol_version') != 2 or manifest.get('pinned_scanner_revision') != PIN:
@@ -218,11 +245,14 @@ def install_images(archive, images, target, with_broker=False):
     return result, manifest
 
 
-def prepare(archive_path, expected_sha256, prefix, service_uid, service_gid, frontend_uids, with_broker=False):
+def prepare(archive_path, expected_sha256, prefix, service_uid, service_gid, frontend_uids,
+            with_broker=False, with_guardian=False, frontend_gid=None):
     """准备新隔离部署，返回真实对象回执；失败保留未启用的部分树，不重置任何旧槽。"""
     import io
     policy = validate_identities(service_uid, service_gid, frontend_uids)
-    if with_broker:
+    if with_guardian and (with_broker or type(frontend_gid) is not int or not 0 < frontend_gid < (1 << 32) - 1):
+        raise ValueError('guardian requires a separate mode and explicit customer data GID')
+    if with_broker or with_guardian:
         validate_broker_prefix(prefix, policy)
     if sys.platform != 'linux' or os.geteuid() != 0:
         raise PermissionError('requires the isolated Linux root installer; no desktop fallback')
@@ -250,7 +280,8 @@ def prepare(archive_path, expected_sha256, prefix, service_uid, service_gid, fro
             os.fchmod(images, 0o755)
             archive_fd = os.open('.source.tar.gz', os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=prefix_fd)
             with os.fdopen(archive_fd, 'rb') as snapshot:
-                binaries, worker = install_images(snapshot, images, target, with_broker=with_broker)
+                binaries, worker = install_images(snapshot, images, target, with_broker=with_broker,
+                                                  with_guardian=with_guardian)
         finally:
             os.close(images)
         os.mkdir('state', mode=0o755, dir_fd=prefix_fd)
@@ -263,7 +294,7 @@ def prepare(archive_path, expected_sha256, prefix, service_uid, service_gid, fro
             os.fsync(state_fd)
         finally:
             os.close(state_fd)
-        data_parent = os.open('state', os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=prefix_fd) if with_broker else os.dup(prefix_fd)
+        data_parent = os.open('state', os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=prefix_fd) if with_broker or with_guardian else os.dup(prefix_fd)
         try:
             os.mkdir('data', mode=0o700, dir_fd=data_parent)
             data_fd = os.open('data', os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=data_parent)
@@ -271,21 +302,33 @@ def prepare(archive_path, expected_sha256, prefix, service_uid, service_gid, fro
         finally:
             os.close(data_parent)
         try:
-            os.fchown(data_fd, service_uid, service_gid)
+            data_owner = (policy['frontend_uids'][0], frontend_gid) if with_guardian else (service_uid, service_gid)
+            os.fchown(data_fd, *data_owner)
             os.fchmod(data_fd, 0o700)
             os.fsync(data_fd)
+            data_info = os.fstat(data_fd)
+            if (data_info.st_uid, data_info.st_gid, stat.S_IMODE(data_info.st_mode)) != (*data_owner, 0o700):
+                raise ValueError('actual data directory ownership or privacy mismatch')
         finally:
             os.close(data_fd)
         if with_broker:
             config, unit = broker_artifacts(prefix, policy, binaries)
             write_at(prefix_fd, 'supervisor-config.json', io.BytesIO((json.dumps(config) + '\n').encode()), 4096, 0o600)
             write_at(prefix_fd, 'diskgraph-supervisor.service', io.BytesIO(unit.encode()), 4096, 0o644)
+        elif with_guardian:
+            config, unit, socket = guardian_artifacts(prefix, policy, binaries)
+            write_at(prefix_fd, 'supervisor-config.json', io.BytesIO((json.dumps(config) + '\n').encode()), 4096, 0o600)
+            write_at(prefix_fd, 'diskgraph-guardian@.service', io.BytesIO(unit.encode()), 4096, 0o644)
+            write_at(prefix_fd, 'diskgraph-guardian.socket', io.BytesIO(socket.encode()), 4096, 0o644)
         receipt = {'schema_version': 1, 'status': 'prepared_not_enabled', 'target': target,
                    'archive_sha256': expected_sha256, 'identity_policy': policy,
                    'role_images': binaries, 'worker_manifest': worker,
                    'state_identity': {'device': state_info.st_dev, 'inode': state_info.st_ino},
                    'bootstrap_slot': bootstrap, 'service_slot': service,
                    'services_started': False, 'broker_artifacts_prepared': with_broker, 'broker_authenticated': False,
+                   'guardian_artifacts_prepared': with_guardian, 'data_owner': list(data_owner),
+                   'data_identity': {'device': data_info.st_dev, 'inode': data_info.st_ino,
+                                     'uid': data_info.st_uid, 'gid': data_info.st_gid, 'mode': stat.S_IMODE(data_info.st_mode)},
                    'supervisor_lifecycle_qualified': False}
         write_at(prefix_fd, 'supervisor-deployment.json', io.BytesIO((json.dumps(receipt, indent=2) + '\n').encode()), 16384, 0o644)
         os.unlink('.source.tar.gz', dir_fd=prefix_fd)
@@ -305,9 +348,14 @@ def main():
     parser.add_argument('--service-uid', type=int, required=True)
     parser.add_argument('--service-gid', type=int, required=True)
     parser.add_argument('--frontend-uid', type=int, action='append', required=True)
-    parser.add_argument('--with-broker', action='store_true', help='prepare fixed doctor broker and unenabled systemd unit')
+    modes = parser.add_mutually_exclusive_group()
+    modes.add_argument('--with-broker', action='store_true', help='prepare fixed legacy broker and unenabled systemd unit')
+    modes.add_argument('--with-guardian', action='store_true', help='prepare customer executor layout and unenabled socket/service template')
+    parser.add_argument('--frontend-gid', type=int, help='trusted installation owner GID for customer data; not request authentication')
     args = parser.parse_args()
-    receipt = prepare(args.archive, args.expected_sha256, args.prefix, args.service_uid, args.service_gid, args.frontend_uid, with_broker=args.with_broker)
+    receipt = prepare(args.archive, args.expected_sha256, args.prefix, args.service_uid, args.service_gid,
+                      args.frontend_uid, with_broker=args.with_broker, with_guardian=args.with_guardian,
+                      frontend_gid=args.frontend_gid)
     print(json.dumps(receipt, indent=2))
 
 

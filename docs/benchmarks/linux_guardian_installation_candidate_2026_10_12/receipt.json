@@ -1,0 +1,28 @@
+{
+  "source_base": "49ddf45681041a18561ff058df7f424c85fe8de6",
+  "candidate_uncommitted": true,
+  "source_sha256": {
+    "scripts/prepare_linux_supervisor_installation.py": "1673efd99e24d82901da896b67a77a788230a07764e72476d72c45c2e1f27e0b",
+    "scripts/qualify_linux_guardian.py": "fa4ae32d04c43a36f93c75bbb7fb1772788f0ec41a375d46ec6e01c6ab7ebff3",
+    "scripts/qualify_linux_broker_wire_client.py": "c324d4b813f9e25d6d23d5efb7309d53f39b8291c0cb8b9f673c68ee4a3ad26c",
+    "scripts/tests/test_linux_guardian_installation.py": "960fb9e19ac298a7a90c988aefd09462f8d68be61f67e9214f4c4ed5001a27b5",
+    "crates/diskgraph-engine/src/supervisor_service/linux_guardian.rs": "bd117344be17b59f827166309eaf3e62e2f58e99af54683923e7ad8b0f3cc3d5",
+    "crates/diskgraph-engine/src/supervisor_service/linux_guardian_shutdown.rs": "5cfdacd7bfaccfeb2514a2cc84171bb0f697cd99317390ef9df60a666175b09b",
+    ".github/workflows/ci.yml": "e165681899f75c7c53be01584d815da9f60bab56385252b5d9e98c8fb10d0335"
+  },
+  "installer_api_red_errors": 5,
+  "installer_api_red_is_runtime_proof": false,
+  "listen_path_behavior_red_failures": 1,
+  "guardian_installer_tests_passed": 4,
+  "legacy_installation_tests_passed": 19,
+  "linux_script_tests_passed": 65,
+  "ci_contract_tests_passed": 6,
+  "macos_source_layout_tests_passed": 6,
+  "macos_engine_all_target_clippy": true,
+  "native_guardian_shutdown_executed": false,
+  "native_guardian_installation_executed": false,
+  "systemd_unit_verified": false,
+  "systemd_unit_started": false,
+  "services_installed": false,
+  "production_ready": false
+}

@@ -1,3 +1,4 @@
+use super::linux_guardian_shutdown::LinuxGuardianShutdown;
 use super::{
     HeldInstallationImage, InstallationConfig, LinuxExecutorRequest, linux_broker,
     root_installation_path,
@@ -30,13 +31,14 @@ impl LinuxGuardian {
         stream: UnixStream,
         deadline: Instant,
     ) -> io::Result<()> {
+        let stopped = LinuxGuardianShutdown::install()?;
         validate_original_stream(&stream)?;
         let config = InstallationConfig::open_root(config_path, deadline)?;
         let output = UnixForegroundOutput::new(stream)?;
         let mut connection =
             LinuxFrontendConnection::new(output, config.frontend_uid).map_err(io::Error::other)?;
         let cancel = AtomicBool::new(false);
-        let (query, deadline) = linux_broker::receive_query(&mut connection, deadline, &cancel)?;
+        let (query, deadline) = linux_broker::receive_query(&mut connection, deadline, stopped)?;
         let image = HeldInstallationImage::open(&config.cli_path, &config.cli_sha256, deadline)?
             .into_file();
         let worker =
@@ -111,7 +113,7 @@ impl LinuxGuardian {
             return Err(io::Error::other("guardian birth or identity unconfirmed"));
         }
         // 从此仅专用服务身份处置控制/管道/原pidfd；没有客户文件、Engine或root目录句柄。
-        let result = linux_broker::deliver(&mut owner, &mut connection, deadline, &cancel);
+        let result = linux_broker::deliver(&mut owner, &mut connection, deadline, stopped);
         drop(connection);
         // 公开连接的超时/断开不污染私有恢复资格；真实私有错误由原reader锁存后独立确认。
         retain_original(owner, false);

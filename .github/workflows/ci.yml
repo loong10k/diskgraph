@@ -866,7 +866,7 @@ jobs:
             for guardian_case in valid invalid_uid invalid_gid nonroot; do
               sudo "$fixture/guardian-identity" "$guardian_case" || exit $?
             done
-            sudo env DG_ISOLATED_ROOT_ACCEPTANCE=1 python3 scripts/qualify_linux_guardian.py --cli "$cli_image" --worker "$worker_image" --broker "$broker_image" --receipt "$fixture/guardian-receipt.json" || exit $?
+            sudo env DG_ISOLATED_ROOT_ACCEPTANCE=1 python3 scripts/qualify_linux_guardian.py --cli "$cli_image" --worker "$worker_image" --broker "$broker_image" --mcp "$mcp_image" --receipt "$fixture/guardian-receipt.json" || exit $?
           } 2>&1 | tee "$fixture/qualification.log"
       - name: Preserve Linux root atomic supervisor birth primitive
         if: ${{ always() && runner.os == 'Linux' && (steps.linux_supervisor_spawn.outcome == 'success' || steps.linux_supervisor_spawn.outcome == 'failure') }}
