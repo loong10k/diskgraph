@@ -284,6 +284,20 @@ impl McpService {
         }
     }
 
+    /// 将原服务交给用户执行器的退休责任，不接收 guardian 的容量槽。
+    /// 参数：scan 为同次启动的原扫描恢复责任，调用前须停止并 join runner。
+    /// 返回：保留原 Engine 的执行器材料，绑定时继续校验原资源池。
+    #[cfg(target_os = "linux")]
+    pub fn into_executor_parts(
+        self,
+        scan: Option<ScanWorkerRecovery>,
+    ) -> diskgraph_engine::ExecutorParts {
+        diskgraph_engine::ExecutorParts {
+            engine: self.engine,
+            scan,
+        }
+    }
+
     /// 读取服务启用的工具集合。
     /// 参数：无。返回：当前工具 profile。
     pub fn profile(&self) -> ToolProfile {

@@ -294,8 +294,9 @@ fn expired_lifecycle_round(pending: bool) {
     control
         .foreground_ended_lifecycle(0, false, &cancel, deadline())
         .unwrap();
-    let until = Instant::now() + Duration::from_millis(20);
-    // 原池真实轮询之后模拟调度停顿，确保耗尽的是通知阶段而非入口检查。
+    let until = Instant::now() + Duration::from_secs(2);
+    // 给原槽真实fsync留出夹具时间；随后仍精确耗尽同一期限，验证未开始的通知延后。
+    // 20ms曾在Intel CI先耗尽槽同步预算，未到达本测试要验证的通知阶段。
     control.after_retirement_poll = Some(Box::new(move || {
         std::thread::sleep(until.saturating_duration_since(Instant::now()));
     }));

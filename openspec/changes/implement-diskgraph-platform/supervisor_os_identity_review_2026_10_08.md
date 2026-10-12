@@ -101,3 +101,11 @@ source27fe83c8 CI38186034323已终结：20成功、3失败、0取消。macOS/Win
 用户executor采用独立版本化请求，不复用service supervisor的目录/namespace/slot材料。请求只包含实际UID/GID、完整辅助组的有界数量与摘要、固定worker FD7及完整镜像预期、固定私有控制FD6、原数据目录和同本机原绝对期限。容量目录、slot、namespace、任意命令、worker路径或trusted_local字段一律拒绝；旧service supervisor材料不能隐式转换。解析只验证有限数据，不认证发送者、不采用FD、不打开数据库、不发Ready、不授予CLEAN。真正出生入口必须先验证原父逐消息内核身份及JSON摘要，再核对原进程完整身份、收敛隐私、采用原worker/控制句柄，最后才能建立Engine；该产品链仍需实现及实测。
 
 该请求解析器已实现：严格字段反序列化在4096字节限制内拒绝重复/未知字段、非法UID/GID、固定FD替换、超组数或镜像字节上限及原期限过期。5项回归通过；新API首次E0432仅是接口缺失，另重复UID的实际行为RED0/1修复后通过。Engine all-targets Clippy、6项源码规范、项目fmt和OpenSpec strict通过。此处data_dir仅是固定配置的UTF-8请求字段，不以此证明非UTF-8用户定位或真实文件读取。发送者认证、原进程身份核对、采用FD、CLI/MCP实际executor启动和guardian原wait仍未完成；不勾选父项。见docs/benchmarks/executor_birth_request_2026_10_12。
+
+### 无容量句柄的原出生认证通道
+
+独立executor出生通道采用原未命名AF_UNIX datagram，接收端须在发送前启用SO_PASSCRED。固定40字节只携带协议magic与原JSON摘要，逐消息核对原父PID/UID/GID；不传递任何SCM_RIGHTS。错误会话、截断、意外FD、凭据错配、错误方向、重复使用、取消和期限过期均拒绝且锁存；已接收意外FD先关闭，再检查接收后的取消/期限。不以socket创建者凭据替代实际发送者，不发CLEAN，不创建Engine。原guardian/executor产品出生仍须另绑定此通道、原进程及原句柄。
+
+2026-10-12 已加入 LinuxExecutorBirth 消费入口及 CLI/MCP 接线：在数据库出生前核对原 root 父逐消息凭据、JSON 摘要、真实/有效/保存 UID/GID、完整辅助组摘要以及固定 worker/control 原句柄；executor 不采用容量槽。MCP 的 trusted_local 继续由传输选择，不从出生请求取得。新增六项通道测试及两项实际 CLI 拒绝测试尚未在 Linux 执行，本机 macOS 检查不替代该验收；root/guardian 生产端及三平台端到端链仍未完成，不勾选父项。
+
+CI 38191843133 的 macOS Intel 原测试在槽同步阶段返回 Slot(Deadline)，未到达通知过期注入点。仅将该测试夹具的原期限从 20ms 调整为 2s，并仍在原资源轮询后耗尽同一期限，保留未发送通知延期及下一轮完成断言；不修改产品控制、查询或授权期限。本机针对性回归通过，Intel 原平台复验仍待运行。

@@ -10,6 +10,30 @@ use std::sync::atomic::AtomicBool;
 use std::time::{Duration, Instant};
 
 impl CliEngineHost {
+    /// 参数：control为已认证executor原通道，deadline为原启动期限；返回：无容量槽的原资源绑定和Ready。
+    /// 失败保留同一资源owner；guardian容量及原child wait责任不进入用户地址空间。
+    pub(super) fn attach_executor_control(
+        &mut self,
+        control: UnixControlWriter,
+        deadline: Instant,
+    ) -> Result<(), EngineError> {
+        let parts = diskgraph_engine::ExecutorParts {
+            engine: Arc::clone(&self.engine),
+            scan: self.recovery.take(),
+        };
+        let owner = match diskgraph_engine::ExecutorResourceOwner::bind(parts) {
+            Ok(owner) => owner,
+            Err(parts) => {
+                self.recovery = parts.scan;
+                return Err(BusinessError::RecoveryUnconfirmed.into());
+            }
+        };
+        let mut owner = SupervisorControlOwner::for_executor(owner, control);
+        let ready = owner.ready_lifecycle(&AtomicBool::new(false), deadline);
+        self.control_owner = Some(owner);
+        ready.map_err(|_| BusinessError::RecoveryUnconfirmed.into())
+    }
+
     /// 参数：control 为原已认证出生通道，deadline 为原构造期限；返回：原绑定及 Ready，或保留材料的失败。
     pub(super) fn attach_control(
         &mut self,

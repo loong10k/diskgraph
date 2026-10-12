@@ -56,3 +56,10 @@ pub use linux_control_reader::LinuxControlReader;
 
 #[cfg(all(test, target_os = "linux"))]
 mod linux_control_reader_tests;
+
+#[cfg(target_os = "linux")]
+mod linux_executor_materials;
+#[cfg(target_os = "linux")]
+pub use linux_executor_materials::LinuxExecutorMaterials;
+#[cfg(all(test, target_os = "linux"))]
+mod linux_executor_materials_tests;

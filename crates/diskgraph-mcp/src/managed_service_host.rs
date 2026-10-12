@@ -29,6 +29,26 @@ impl ManagedServiceHost {
         deadline: Instant,
     ) -> Result<Self, EngineError> {
         #[cfg(target_os = "linux")]
+        if let Some(birth) =
+            diskgraph_engine::LinuxExecutorBirth::receive_from_environment(deadline)?
+        {
+            if config.data_dir != birth.data_dir() {
+                return Err(diskgraph_core::BusinessError::PermissionDenied.into());
+            }
+            let (host, writer, deadline) = birth.into_host(runtime, deadline)?;
+            // 传输决定本地信任；出生材料不能授予远程管理员，也不移交 guardian 容量槽。
+            let (service, recovery) =
+                McpService::open_with_host_until(config, Some(host), trusted_local, deadline)?;
+            return Self {
+                service,
+                recovery,
+                slot: None,
+                control: None,
+                namespace_guard: None,
+            }
+            .attach_executor_control(writer, deadline);
+        }
+        #[cfg(target_os = "linux")]
         if let Some(birth) = diskgraph_engine::LinuxSupervisorBirth::receive_from_environment()? {
             if !birth.is_lifecycle() || config.data_dir != birth.data_dir() {
                 return Err(diskgraph_core::BusinessError::PermissionDenied.into());
@@ -60,6 +80,39 @@ impl ManagedServiceHost {
         )
         .map_err(|error| EngineError::Io(std::io::Error::other(error)))?;
         Self::open(config, host, trusted_local, deadline)
+    }
+
+    #[cfg(target_os = "linux")]
+    fn attach_executor_control(
+        mut self,
+        writer: diskgraph_engine::recovery_control::UnixControlWriter,
+        deadline: Instant,
+    ) -> Result<Self, EngineError> {
+        let parts = self
+            .service
+            .clone()
+            .into_executor_parts(self.recovery.take());
+        let owner = match diskgraph_engine::ExecutorResourceOwner::bind(parts) {
+            Ok(owner) => owner,
+            Err(parts) => {
+                // 协议尚未启动；先释放全部服务引用，随后等待原扫描资源实际退休。
+                drop(self.service);
+                drop(parts.engine);
+                crate::scan_worker_shutdown::finish(parts.scan.as_ref());
+                return Err(diskgraph_core::BusinessError::RecoveryUnconfirmed.into());
+            }
+        };
+        let mut owner = SupervisorControlOwner::for_executor(owner, writer);
+        if owner
+            .ready_lifecycle(&std::sync::atomic::AtomicBool::new(false), deadline)
+            .is_err()
+        {
+            drop(self.service);
+            crate::scan_worker_shutdown::finish_controlled(owner, 10, false);
+            return Err(diskgraph_core::BusinessError::RecoveryUnconfirmed.into());
+        }
+        self.control = Some(owner);
+        Ok(self)
     }
 
     #[cfg(any(target_os = "linux", test))]

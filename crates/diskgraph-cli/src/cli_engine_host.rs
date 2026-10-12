@@ -37,6 +37,28 @@ impl CliEngineHost {
             return Err(diskgraph_core::BusinessError::BudgetExceeded.into());
         }
         #[cfg(target_os = "linux")]
+        if let Some(birth) =
+            diskgraph_engine::LinuxExecutorBirth::receive_from_environment(deadline)?
+        {
+            if config.data_dir != birth.data_dir() {
+                return Err(diskgraph_core::BusinessError::PermissionDenied.into());
+            }
+            let runtime = Self::runtime_budget(&config)?;
+            let (host, control, deadline) = birth.into_host(runtime, deadline)?;
+            let (engine, recovery) = Engine::open_with_scan_worker_until(config, host, deadline)?;
+            let mut opened = Self {
+                engine: Arc::new(engine),
+                recovery: Some(recovery),
+                slot: None,
+                namespace_guard: None,
+                control_owner: None,
+            };
+            if let Err(error) = opened.attach_executor_control(control, deadline) {
+                return opened.execute(|_| Err(error));
+            }
+            return opened.finish_open_until(deadline);
+        }
+        #[cfg(target_os = "linux")]
         if let Some(birth) = diskgraph_engine::LinuxSupervisorBirth::receive_from_environment()? {
             if config.data_dir != birth.data_dir() {
                 return Err(diskgraph_core::BusinessError::PermissionDenied.into());

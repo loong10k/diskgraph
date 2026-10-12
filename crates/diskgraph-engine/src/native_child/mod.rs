@@ -242,3 +242,18 @@ mod linux_executor_privacy;
     target_endian = "little"
 ))]
 pub use linux_executor_privacy::LinuxExecutorPrivacy;
+
+#[cfg(all(
+    target_os = "linux",
+    any(target_arch = "x86_64", target_arch = "aarch64"),
+    target_pointer_width = "64",
+    target_endian = "little"
+))]
+mod linux_executor_birth;
+#[cfg(all(
+    target_os = "linux",
+    any(target_arch = "x86_64", target_arch = "aarch64"),
+    target_pointer_width = "64",
+    target_endian = "little"
+))]
+pub use linux_executor_birth::LinuxExecutorBirth;

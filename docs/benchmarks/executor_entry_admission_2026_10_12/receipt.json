@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "source_parent": "144008183da661a73da71f7a71e1e050089a2966",
+  "platform": "macOS ARM64",
+  "production_ready": false,
+  "local_checks": {
+    "engine_cli_mcp_all_targets_clippy": "passed; Linux cfg bodies excluded",
+    "project_fmt": "passed",
+    "engine_source_layout": 6,
+    "mcp_source_layout": 11,
+    "original_executor_resource_regression": 4,
+    "intel_failure_target_regression": 1,
+    "openspec_strict": "passed",
+    "control_owner_regression": 11
+  },
+  "linux_tests_not_run": [
+    "linux_executor_materials_tests (6)",
+    "executor_startup_rejection (2)"
+  ],
+  "remaining": [
+    "Linux bodies require native compilation and tests",
+    "root/guardian producer not connected",
+    "three-platform user executor service acceptance incomplete",
+    "macOS Intel actual replay pending"
+  ],
+  "ci_failure": {
+    "run": 38191843133,
+    "source": "28343f7c341385c6876deb67aa13a542091221ad",
+    "job": 114626054201,
+    "test": "supervisor_control_owner_tests::lifecycle_retired_resources_defer_unstarted_completion_on_expired_round",
+    "actual_error": "Slot(Deadline) before notification injection",
+    "test_fixture_only_change": "20ms to 2s; original notification expiry assertion preserved; no product budget change"
+  },
+  "source_sha256": {
+    "crates/diskgraph-engine/src/native_child/linux_executor_birth.rs": "21b54a9e3cde814518b1315788a29db08fd8871824d8c27158a81bc375ef7754",
+    "crates/diskgraph-engine/src/recovery_control/linux_executor_materials.rs": "18f094ea403f21889dcb06e41ecf6c8388fbeea21f15efdd20bb8fa584eef017",
+    "crates/diskgraph-engine/src/recovery_control/linux_executor_materials_tests.rs": "5850707c8ca154eec21159ba3656957621dced0e97cdefb91adffc51ac92a340",
+    "crates/diskgraph-cli/src/cli_engine_host.rs": "23f2cf647a50753add23feb814b7d84a0c953565aefad23f739f924265b64e0a",
+    "crates/diskgraph-cli/src/cli_engine_host/supervised.rs": "a88822ea95d8b861e6e93488e469c0eb7cf33943b684b0e5cb8521c58dbc172b",
+    "crates/diskgraph-cli/tests/executor_startup_rejection.rs": "ef980d64caa51c991311104024dd343809f22f336b7a59ee5adca92666ebe0fb",
+    "crates/diskgraph-mcp/src/managed_service_host.rs": "cb14f4b0f09accb89058199ed751bd62d905293e6080c1b4f61b388f0e919512",
+    "crates/diskgraph-mcp/src/mcp_service.rs": "879d76038a21df8d70aa3e7ce1cb44e8c1a115d72f404de5915b5321e92a9299",
+    "crates/diskgraph-engine/src/supervisor_control_owner_tests.rs": "104a33714ce4ea612436a589eb4281ced7d2a4c753c06d6a839220f43f043e31"
+  }
+}
