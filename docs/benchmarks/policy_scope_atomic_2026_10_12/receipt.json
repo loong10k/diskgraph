@@ -1,0 +1,80 @@
+{
+  "base_commit": "ab4ae5f5224c25eb3e114a6f3db54ce72c540785",
+  "candidate_sources": {
+    "crates/diskgraph-store/src/policy_scope_permission.rs": "a9413cad806e1ac2015cd6d6379609fa0fed95d1453265aeeb87ec85e530680d",
+    "crates/diskgraph-store/src/policy_scope_permission_tests.rs": "cc9a2496998de586016e66a1298c459421922b8e24fb3014457346ef65cc2448",
+    "crates/diskgraph-engine/src/revision_authorization.rs": "d8c8ae9f834148b8642fab74b44b8bb2bc610910ec2ce63d3194d253f0b14f1c"
+  },
+  "logs": {
+    "clippy.log": {
+      "sha256": "edeebd1e8a26f5bf440b5284267619776f6b94a61e69891549ec90b032ed3884",
+      "file": "clippy.log.gz"
+    },
+    "green.log": {
+      "sha256": "6ec2108ce9f88e04b116b9b12f5c116496c053f705a3b2bf874da2cd68e01728",
+      "file": "green.log.gz"
+    },
+    "layout.log": {
+      "sha256": "a899970e56f79f4331a820ba253ec7cffc078df98db0385dfee9dbfa4c7966da",
+      "file": "layout.log.gz"
+    },
+    "red.log": {
+      "sha256": "d6f8b3192a7f565bdbcb1a470e8fea2e05aa914a597d46c23c90fb2cc4ed5a39",
+      "file": "red.log.gz"
+    },
+    "relation.log": {
+      "sha256": "5335506c8079485940ffcc36705635992e6589881b161957c69c9e9a007dea78",
+      "file": "relation.log.gz"
+    },
+    "release.log": {
+      "sha256": "50bf9de5c2eb5c479f730408f00787965f1fa0a3d8607643c39d28c8c29ce7c9",
+      "file": "release.log.gz"
+    },
+    "scope_projection.log": {
+      "sha256": "8d9c038793a9d7aabea6478deb32273189556c47d88f3d1053c01d99e806b703",
+      "file": "scope_projection.log.gz"
+    },
+    "store.log": {
+      "sha256": "ecf61ea3f55446eaf72d8aa2268ad73d0f86a99f9d4f1448831946a317b20d58",
+      "file": "store.log.gz"
+    },
+    "store_layout.log": {
+      "sha256": "bc17fa8247fe778f8b44984cadca23ff0d7c52ab20f4e9ada18e18f2af093e6e",
+      "file": "store_layout.log.gz"
+    },
+    "terminal_capability.log": {
+      "sha256": "81bb77678dd3f6865e4b6a1a28fdc8e35b3f5300161401b520d7b43f45a80608",
+      "file": "terminal_capability.log.gz"
+    },
+    "upstream.log": {
+      "sha256": "5d83d0ca15a354670237e21084c8290f2ff4732d38ebcc53810c3d60302a9426",
+      "file": "upstream.log.gz"
+    }
+  },
+  "full_store_worktree": {
+    "passed": 385,
+    "ignored": 8,
+    "includes_protected_uncommitted_tests": 2,
+    "new_benchmark_added_after_this_full_run": true
+  },
+  "scope_projection": {
+    "passed": 5
+  },
+  "terminal_capability": {
+    "passed": 14
+  },
+  "relation_tests": {
+    "passed": 9,
+    "failed": 8,
+    "failed_at": "Engine::open without trusted macOS installation",
+    "native_qualification": false
+  },
+  "windows_timeout_fixed": false,
+  "macos_terminal_timeout_fixed": false,
+  "production_ready": false,
+  "budgets_unchanged": {
+    "database_ms": 250,
+    "capability_ms": 50
+  },
+  "native_ci_pending": true
+}

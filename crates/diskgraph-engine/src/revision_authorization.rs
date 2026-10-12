@@ -453,11 +453,9 @@ impl Engine {
                 // 请求能力只是上限；持久策略存在时，始终与当前数据库授权取交集。
                 let denied = if scope == &admin_scope() {
                     control.policy_permission(principal, permission, scope)? == Some(false)
-                } else if control.policy_state()?.is_some() {
-                    control.live_permission(principal, permission, scope)? == Some(false)
                 } else {
                     // 没有持久策略的可信内部兼容入口仍由传入 authorizer 决定。
-                    false
+                    control.policy_scope_permission(principal, permission, scope)? == Some(false)
                 };
                 if denied {
                     Err(EngineError::Business(BusinessError::PermissionDenied))

@@ -127,6 +127,9 @@ mod plan_store;
 mod policy_permission;
 #[cfg(test)]
 mod policy_permission_tests;
+mod policy_scope_permission;
+#[cfg(test)]
+mod policy_scope_permission_tests;
 mod policy_store;
 #[cfg(test)]
 mod process_job_protocol_contract_tests;
