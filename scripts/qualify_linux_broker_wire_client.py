@@ -25,7 +25,7 @@ def request(mode):
         query.update(command='scope', subcommand='remove', options=[['scope', 'a']])
     elif mode == 'unknown_field':
         body['environment'] = {'DISKGRAPH_LINUX_SUPERVISOR_FD': '5'}
-    elif mode != 'doctor':
+    elif mode not in ('doctor', 'disconnect'):
         raise ValueError('unknown fixed qualification case')
     return b'DG_FRONT_QUERY_V1\n' + json.dumps(body).encode('utf-8')
 
@@ -59,6 +59,10 @@ def main():
         connection.connect(path)
         connection.sendall(request(mode))
         connection.shutdown(socket.SHUT_WR)
+        if mode == 'disconnect':
+            print(json.dumps({'mode': mode, 'public_disconnected': True,
+                              'private_completion_injected': False}))
+            return
         while True:
             connection.settimeout(remaining(original_deadline))
             kind, size = struct.unpack('>BI', exact(connection, 5, original_deadline))

@@ -144,3 +144,50 @@ long dg_linux_supervisor_spawn(const struct dg_supervisor_request *request,
 /* 供受信executor原入口调用，与原生角色验收共用真实内核操作。 */
 long dg_linux_executor_seal_privacy(void) { return dg_executor_seal_privacy(); }
 long dg_linux_executor_kernel_policy(void) { return dg_executor_kernel_policy(); }
+
+/* 原guardian在同一进程完成永久降权；不创建Engine、不触碰客户文件、不转移原child owner。 */
+long dg_linux_guardian_drop_identity(uint32_t uid, uint32_t gid) {
+    if (!uid || !gid || uid == UINT32_MAX || gid == UINT32_MAX) return -EINVAL;
+    uint32_t ur, ue, us, gr, ge, gs;
+    long result = dg_raw(SYS_getresuid, (long)&ur, (long)&ue, (long)&us, 0, 0, 0);
+    if (result < 0) return result;
+    result = dg_raw(SYS_getresgid, (long)&gr, (long)&ge, (long)&gs, 0, 0, 0);
+    if (result < 0) return result;
+    if (ur || ue || us || gr || ge || gs) return -EPERM;
+    result = dg_executor_kernel_policy();
+    if (result < 0) return result;
+    result = dg_raw(SYS_prctl, PR_SET_KEEPCAPS, 0, 0, 0, 0, 0);
+    if (result < 0) return result;
+    result = dg_raw(SYS_prctl, PR_CAP_AMBIENT, PR_CAP_AMBIENT_CLEAR_ALL, 0, 0, 0, 0);
+    if (result < 0) return result;
+    result = dg_raw(SYS_prctl, PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0, 0);
+    if (result < 0) return result;
+    result = dg_raw(SYS_setgroups, 0, 0, 0, 0, 0, 0);
+    if (result < 0) return result;
+    result = dg_raw(SYS_setresgid, gid, gid, gid, 0, 0, 0);
+    if (result < 0) return result;
+    result = dg_raw(SYS_setresuid, uid, uid, uid, 0, 0, 0);
+    if (result < 0) return result;
+    const struct __user_cap_header_struct header = {_LINUX_CAPABILITY_VERSION_3, 0};
+    struct __user_cap_data_struct capabilities[2] = {{0, 0, 0}, {0, 0, 0}};
+    result = dg_raw(SYS_capset, (long)&header, (long)&capabilities, 0, 0, 0, 0);
+    if (result < 0) return result;
+    result = dg_raw(SYS_capget, (long)&header, (long)&capabilities, 0, 0, 0, 0);
+    if (result < 0) return result;
+    for (int index = 0; index < 2; ++index)
+        if (capabilities[index].effective || capabilities[index].permitted || capabilities[index].inheritable)
+            return -EPERM;
+    result = dg_raw(SYS_getresuid, (long)&ur, (long)&ue, (long)&us, 0, 0, 0);
+    if (result < 0) return result;
+    result = dg_raw(SYS_getresgid, (long)&gr, (long)&ge, (long)&gs, 0, 0, 0);
+    if (result < 0) return result;
+    if (ur != uid || ue != uid || us != uid || gr != gid || ge != gid || gs != gid)
+        return -EPERM;
+    result = dg_raw(SYS_getgroups, 0, 0, 0, 0, 0, 0);
+    if (result < 0) return result;
+    if (result || dg_raw(SYS_prctl, PR_GET_NO_NEW_PRIVS, 0, 0, 0, 0, 0) != 1)
+        return -EPERM;
+    result = dg_raw(SYS_prctl, PR_SET_DUMPABLE, 0, 0, 0, 0, 0);
+    if (result < 0) return result;
+    return dg_raw(SYS_prctl, PR_GET_DUMPABLE, 0, 0, 0, 0, 0) == 0 ? 0 : -EPERM;
+}

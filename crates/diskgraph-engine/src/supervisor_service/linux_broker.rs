@@ -300,7 +300,8 @@ impl LinuxBroker {
     }
 }
 
-fn receive_query(
+/// 参数：原认证连接、deadline/cancel为原请求预算；返回：有界固定查询及未刷新的原期限。
+pub(super) fn receive_query(
     connection: &mut LinuxFrontendConnection,
     deadline: Instant,
     cancel: &AtomicBool,
@@ -337,7 +338,8 @@ fn receive_query(
     ))
 }
 
-fn send(
+/// 参数：原连接、帧类型/有限内容及原预算；返回：完整交付或原错误，不改变私有退休资格。
+pub(super) fn send(
     connection: &mut LinuxFrontendConnection,
     kind: u8,
     bytes: &[u8],
@@ -348,7 +350,8 @@ fn send(
     connection.write_output_until(bytes, deadline, cancel)
 }
 
-fn deliver(
+/// 参数：原进程owner、原公开连接及原请求预算；返回：前台结果交付或错误，仍保留原owner。
+pub(super) fn deliver(
     owner: &mut LinuxSupervisorProcess,
     connection: &mut LinuxFrontendConnection,
     deadline: Instant,

@@ -16,4 +16,6 @@ struct dg_supervisor_request {
 };
 long dg_linux_supervisor_spawn(const struct dg_supervisor_request *request,
     int *pidfd, uint64_t *old_mask, int *mask_active);
+/* 仅单线程可信guardian完成原executor出生/认证后调用；成功后永久无root身份或能力。 */
+long dg_linux_guardian_drop_identity(uint32_t uid, uint32_t gid);
 #endif

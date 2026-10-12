@@ -13,6 +13,12 @@ SPEC.loader.exec_module(MODULE)
 
 
 class WireFixtureTests(unittest.TestCase):
+    def test_disconnect_uses_same_authenticated_read_only_query(self):
+        namespace = types.SimpleNamespace(st_dev=4, st_ino=8)
+        with mock.patch.object(MODULE.os, 'stat', return_value=namespace), \
+                mock.patch.object(MODULE.time, 'monotonic_ns', return_value=123):
+            self.assertEqual(MODULE.request('disconnect'), MODULE.request('doctor'))
+
     def test_negative_requests_keep_same_real_clock_shape(self):
         namespace = types.SimpleNamespace(st_dev=4, st_ino=8)
         with mock.patch.object(MODULE.os, 'stat', return_value=namespace), \

@@ -15,6 +15,8 @@ pub(super) struct LinuxSupervisorAbi {
 }
 
 unsafe extern "C" {
+    /// 参数：固定专用uid/gid；返回：原guardian永久降权并核验成功，或负errno；失败不可回滚。
+    pub(super) fn dg_linux_guardian_drop_identity(uid: u32, gid: u32) -> libc::c_long;
     /// 参数：无；返回：固定内核策略0/2准入或原错误，不创建child或认领槽。
     pub(super) fn dg_linux_executor_kernel_policy() -> libc::c_long;
 

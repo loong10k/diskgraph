@@ -241,7 +241,21 @@ mod linux_executor_privacy;
     target_pointer_width = "64",
     target_endian = "little"
 ))]
+mod linux_guardian_identity;
+#[cfg(all(
+    target_os = "linux",
+    any(target_arch = "x86_64", target_arch = "aarch64"),
+    target_pointer_width = "64",
+    target_endian = "little"
+))]
 pub use linux_executor_privacy::LinuxExecutorPrivacy;
+#[cfg(all(
+    target_os = "linux",
+    any(target_arch = "x86_64", target_arch = "aarch64"),
+    target_pointer_width = "64",
+    target_endian = "little"
+))]
+pub(crate) use linux_guardian_identity::LinuxGuardianIdentity;
 
 #[cfg(all(
     target_os = "linux",

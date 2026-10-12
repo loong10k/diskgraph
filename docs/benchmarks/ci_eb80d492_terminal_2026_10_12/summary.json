@@ -1,0 +1,11 @@
+{
+  "source": "eb80d4928e35426d754afd5dbee94df8b7a6cbd2",
+  "run": 38195149112,
+  "url": "https://github.com/loong10k/diskgraph/actions/runs/38195149112",
+  "completed_success": 23,
+  "failed": 0,
+  "native_packages": 5,
+  "guardian_candidate_included": false,
+  "three_platform_independent_service_qualified": false,
+  "production_ready": false
+}

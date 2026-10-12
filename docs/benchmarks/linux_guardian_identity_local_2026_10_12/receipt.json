@@ -1,0 +1,47 @@
+{
+  "source_base": "eb80d4928e35426d754afd5dbee94df8b7a6cbd2",
+  "candidate_uncommitted": true,
+  "source_sha256": {
+    "crates/diskgraph-engine/src/native_child/linux_supervisor_spawn.c": "861f8a2032f6121cc54588602d80b1dc0debe57ca627699f08899eedc1d000d9",
+    "crates/diskgraph-engine/src/native_child/linux_guardian_identity.rs": "483f9202b620d7246b0b9f3cea1147728d46367a7cae285566f1cbc2d86d95a8",
+    "crates/diskgraph-engine/src/supervisor_service/linux_guardian.rs": "63be2f7f91e3001dacd17cab7d589cd767c51faff379e60b869d5c1fcbc379bd",
+    "scripts/fixtures/linux_guardian_identity.c": "c48c4ceda4fef395366462b87eca382de0627840bf542c50547fa3b373ffc853",
+    "scripts/qualify_linux_guardian.py": "9eb3cab1feb22a84ae55ac6851679e566805ddca231ef5d237fd20c13ec75e94"
+  },
+  "local_linux_arm64_c_identity_cases": {
+    "valid": {
+      "uid": 23111,
+      "gid": 23113,
+      "groups": 0,
+      "zero_capabilities": true,
+      "no_new_privs": 1,
+      "dumpable": 0,
+      "root_regain_errno": 1,
+      "passed": true
+    },
+    "invalid_uid": {
+      "invalid_identity_refused_before_mutation": true,
+      "passed": true
+    },
+    "invalid_gid": {
+      "invalid_identity_refused_before_mutation": true,
+      "passed": true
+    },
+    "nonroot": {
+      "nonroot_refused": true,
+      "passed": true
+    }
+  },
+  "c_strict_cross_compilation": [
+    "aarch64-linux-musl",
+    "x86_64-linux-musl"
+  ],
+  "x86_execution": false,
+  "macos_source_layout_passed": 6,
+  "macos_engine_clippy": true,
+  "linux_rust_guardian_executed": false,
+  "cli_mcp_complete_qualified": false,
+  "production_ready": false,
+  "services_installed": false,
+  "wire_fixture_unit_tests_passed": 4
+}

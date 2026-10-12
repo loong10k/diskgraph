@@ -58,7 +58,17 @@ pub use linux_broker::LinuxBroker;
     target_os = "linux",
     any(target_arch = "x86_64", target_arch = "aarch64")
 ))]
+mod linux_guardian;
+#[cfg(all(
+    target_os = "linux",
+    any(target_arch = "x86_64", target_arch = "aarch64")
+))]
 pub use linux_broker_client::{run_client, run_query};
+#[cfg(all(
+    target_os = "linux",
+    any(target_arch = "x86_64", target_arch = "aarch64")
+))]
+pub use linux_guardian::LinuxGuardian;
 
 mod linux_executor_request;
 #[cfg(test)]
