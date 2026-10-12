@@ -45,3 +45,9 @@ MCP binary 在镜像与传输安全校验后、数据库/bootstrap之前预留�
 ## 新增源码组织门禁补验
 
 6029b83 的 Linux stable job112764052987 实际失败目标为 engine/source_layout：本批恢复域对象缺中文来源，home的两个pub(super)函数缺参数/返回契约。已补齐注释，原规范门禁与生产行为不改。当前本地engine门禁5/1，仅剩受保护未提交Linux候选四处文档缺项，不能称全通过；本批三处报错已消失。MCP测试path覆盖改为标准managed_service_host/tests.rs挂载，原测试内容不变；service_source_layout11/0、binary行为7/0。两个独立审查批准；提交后的完整源码门禁仍须新CI证明。
+
+## macOS guardian 永久身份切换前置
+
+独立 guardian 单线程启动入口使用 Darwin setgroups/setgid/setuid，必须清除继承组、保留唯一专用服务组，复核真实/有效UID/GID与组列表，并确认saved-root不可恢复。非法或非root输入在身份修改前拒绝；部分降权失败不能继续业务分发或丢弃原owner。客户executor不使用该服务身份，仍要求完整客户OS凭据。
+
+新增生产身份切换接口与独立进程夹具。本机非法身份、非root调用两项实际拒绝；正向root降权、再次恢复root UID/GID失败接入三项macOS CI，仅临时runner执行，不安装账号或桌面服务。该API尚未接入完整macOS guardian启动/私有认证/退休链路，不关闭平台服务父项；新增接口不存在可运行旧实现，因此不声称已取得行为RED。

@@ -400,6 +400,32 @@ jobs:
           retention-days: 7
       - name: Build
         run: cargo build --workspace --all-targets --locked
+      - name: Native macOS guardian permanent service identity
+        if: runner.os == 'macOS'
+        timeout-minutes: 5
+        run: |
+          fixture=target/debug/examples/macos_guardian_identity_fixture
+          "$fixture" invalid > "$RUNNER_TEMP/macos-guardian-identity.log" 2>&1
+          "$fixture" nonroot >> "$RUNNER_TEMP/macos-guardian-identity.log" 2>&1
+          sudo env GITHUB_ACTIONS=true RUNNER_ENVIRONMENT=github-hosted DG_ISOLATED_ROOT_ACCEPTANCE=1 "$fixture" invalid >> "$RUNNER_TEMP/macos-guardian-identity.log" 2>&1
+          sudo env GITHUB_ACTIONS=true RUNNER_ENVIRONMENT=github-hosted DG_ISOLATED_ROOT_ACCEPTANCE=1 "$fixture" drop >> "$RUNNER_TEMP/macos-guardian-identity.log" 2>&1
+          python - <<'PYTHON'
+          import os
+          from pathlib import Path
+          log = (Path(os.environ['RUNNER_TEMP']) / 'macos-guardian-identity.log').read_text()
+          if (log.count('DG_MACOS_GUARDIAN_INVALID_UNCHANGED=1') != 2
+              or log.count('DG_MACOS_GUARDIAN_NONROOT_UNCHANGED=1') != 1
+              or log.count('DG_MACOS_GUARDIAN_PERMANENT_IDENTITY=1') != 1):
+              raise RuntimeError('all original macOS identity cases must execute')
+          PYTHON
+      - name: Preserve macOS guardian identity evidence
+        if: always() && runner.os == 'macOS'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: macos-guardian-identity-${{ matrix.os }}-${{ matrix.rust }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/macos-guardian-identity.log
+          if-no-files-found: error
+          retention-days: 7
       - name: Build actual Windows scan worker for protocol qualification
         if: runner.os == 'Windows'
         run: |

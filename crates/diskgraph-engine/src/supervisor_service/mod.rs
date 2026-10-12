@@ -25,6 +25,10 @@ mod held_installation_image;
 #[cfg(all(test, any(target_os = "linux", target_os = "macos")))]
 mod held_installation_image_tests;
 mod installation_config;
+#[cfg(target_os = "macos")]
+mod macos_guardian_identity;
+#[cfg(target_os = "macos")]
+pub use macos_guardian_identity::MacosGuardianIdentity;
 #[cfg(test)]
 mod installation_config_tests;
 #[cfg(any(target_os = "linux", target_os = "macos"))]
