@@ -95,3 +95,9 @@ source27fe83c8的三项Linux原生出生验收均在executor_private退出9，�
 本次本地隔离Linux ARM64共25个C场景按预期通过，其中denied_groups预期driver42并保留原wait证据；独立同UID观察者在实际exec后收敛前后读取environ均精确EACCES。实际内核策略为0；模式1的真实普通入口拒绝已验，内核策略1只完成分类与读取拒绝单测，不能冒充修改内核后的实测。x86_64只完成严格交叉编译。Engine Clippy、6项源码布局、项目指定范围fmt及OpenSpec strict通过，vendored源码未修改。证据见docs/benchmarks/executor_privacy_seal_2026_10_12。
 
 source27fe83c8 CI38186034323已终结：20成功、3失败、0取消。macOS/Windows完整矩阵和五项原生包通过，三Linux失败只位于executor_private原生C验收；Linux真实CLI/stdio/认证HTTP及原doctor监督构造步骤通过。这些是原source的证据，不证明本次修复或完整guardian/user executor接线通过；实际策略2与新的Rust Linux入口仍待新CI。原终结日志/夹具/作业状态保存在docs/benchmarks/ci_27fe83c8_terminal_2026_10_12，不勾选生产父项。
+
+### 用户executor独立出生请求合同
+
+用户executor采用独立版本化请求，不复用service supervisor的目录/namespace/slot材料。请求只包含实际UID/GID、完整辅助组的有界数量与摘要、固定worker FD7及完整镜像预期、固定私有控制FD6、原数据目录和同本机原绝对期限。容量目录、slot、namespace、任意命令、worker路径或trusted_local字段一律拒绝；旧service supervisor材料不能隐式转换。解析只验证有限数据，不认证发送者、不采用FD、不打开数据库、不发Ready、不授予CLEAN。真正出生入口必须先验证原父逐消息内核身份及JSON摘要，再核对原进程完整身份、收敛隐私、采用原worker/控制句柄，最后才能建立Engine；该产品链仍需实现及实测。
+
+该请求解析器已实现：严格字段反序列化在4096字节限制内拒绝重复/未知字段、非法UID/GID、固定FD替换、超组数或镜像字节上限及原期限过期。5项回归通过；新API首次E0432仅是接口缺失，另重复UID的实际行为RED0/1修复后通过。Engine all-targets Clippy、6项源码规范、项目fmt和OpenSpec strict通过。此处data_dir仅是固定配置的UTF-8请求字段，不以此证明非UTF-8用户定位或真实文件读取。发送者认证、原进程身份核对、采用FD、CLI/MCP实际executor启动和guardian原wait仍未完成；不勾选父项。见docs/benchmarks/executor_birth_request_2026_10_12。

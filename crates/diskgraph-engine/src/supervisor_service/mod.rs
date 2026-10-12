@@ -59,3 +59,9 @@ pub use linux_broker::LinuxBroker;
     any(target_arch = "x86_64", target_arch = "aarch64")
 ))]
 pub use linux_broker_client::{run_client, run_query};
+
+mod linux_executor_request;
+#[cfg(test)]
+mod linux_executor_request_tests;
+pub use linux_executor_request::LinuxExecutorRequest;
+mod linux_executor_wire;
