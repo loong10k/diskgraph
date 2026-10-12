@@ -60,16 +60,18 @@ def customer_query(prefix, endpoint, original_slot, arguments, expected_success=
 
 def qualify_scan_mainline(workspace, prefix, endpoint, original_slot):
     """实际无损注册、扫描发布、Unicode查询、重扫与拒绝入队；每步复用真实socket配置。"""
-    roots = [workspace / ('scan-root-' + suffix) for suffix in ('\udcff', '\udcfe')]
+    roots = [workspace / 'scan-root-unicode',
+             *[workspace / ('scan-root-' + suffix) for suffix in ('\udcff', '\udcfe')]]
     for root in roots:
         root.mkdir(mode=0o700)
         os.chown(root, 23112, 23112)
-    for name in ('hello.txt', 'İSTANBUL.txt', 'raw-\udcff.txt'):
+    for name in ('hello.txt', 'İSTANBUL.txt', '替换字符-\ufffd.txt'):
         (roots[0] / name).write_bytes(b'original customer scan input\n')
-    (roots[1] / 'other.txt').write_bytes(b'different raw directory\n')
+    for root in roots[1:]:
+        (root / 'other.txt').write_bytes(b'different raw directory\n')
     scopes = [customer_query(prefix, endpoint, original_slot, ['scope', 'add', '--root', str(root)])['data']['scope_id']
               for root in roots]
-    if scopes[0] == scopes[1]:
+    if len(set(scopes)) != len(scopes):
         raise AssertionError('distinct non-UTF-8 roots collapsed to display identity')
     indexed = customer_query(prefix, endpoint, original_slot,
                              ['index', '--scope', scopes[0], '--wait', '--max-nodes-per-scan=100',
@@ -89,6 +91,17 @@ def qualify_scan_mainline(workspace, prefix, endpoint, original_slot):
     latest = customer_query(prefix, endpoint, original_slot, ['node', '--scope', scopes[0]])['data']
     if synced['state'] != 'completed' or synced['revision_id'] == indexed['revision_id'] or latest['revision_id'] != synced['revision_id']:
         raise AssertionError('rescan did not atomically publish new latest revision')
+    # 固定上游仅保留显示名称；原始编码注册须无损，无法无损扫描时必须拒绝发布。
+    # 普通主线不得靠此拒绝冒充成功，也不能删除原始路径的负向验收。
+    for scope in scopes[1:]:
+        refused = customer_query(prefix, endpoint, original_slot,
+                                 ['index', '--scope', scope, '--wait'], expected_success=False)
+        if refused.get('error', {}).get('code') != 'unsupported':
+            raise AssertionError('raw root scan did not preserve explicit unsupported classification')
+        unpublished = customer_query(prefix, endpoint, original_slot,
+                                     ['node', '--scope', scope], expected_success=False)
+        if unpublished.get('error', {}).get('code') != 'not_indexed':
+            raise AssertionError('unsupported raw root published a queryable revision')
     database = prefix / 'state/data/diskgraph-control.sqlite'
     def queued_count():
         with sqlite3.connect('file:' + str(database) + '?mode=ro', uri=True) as connection:
@@ -100,6 +113,7 @@ def qualify_scan_mainline(workspace, prefix, endpoint, original_slot):
     return {'passed': True, 'actual_index_and_sync_completed': True, 'distinct_raw_root_ids': True,
             'scope_id': scopes[0], 'revision_id': synced['revision_id'],
             'selected_root_files': 3, 'unicode_search': True, 'unknown_scope_did_not_enqueue': True,
+            'raw_root_scan_refused_without_revision': True,
             'original_slot_retired_after_each_command': True, 'production_ready': False}
 
 

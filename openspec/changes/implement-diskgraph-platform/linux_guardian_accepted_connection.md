@@ -82,3 +82,13 @@ guardian新增固定scope add、index与无collector的sync命令，仍只改变
 7af8 Windows stable job114659992942 的Engine实际794/1/8；唯一失败为未继承parent handle的stdout缺isolated标记，exit_code原断言已通过。当前日志没有原父事件状态或输出，不能认定handle泄露、数字复用或输出丢失。仅增加同一原父事件即时观察与最多2048字节stdout/stderr诊断，保留两个原断言、原期限和原进程，不称根因修复。原始日志及候选诊断摘要将随新验收保留。
 
 该Windows诊断另记录子进程实际SetEvent返回值；两个原负例断言通过后才触发同一原父事件正控并要求WAIT_OBJECT_0，不用正控替代继承负例。原日志见 `docs/benchmarks/windows_parent_event_diagnostic_7af8_2026_10_12/receipt.json`；Windows条件主体本机未执行，不称根因修复。
+
+## 368e6691 实际 guardian 扫描验收修正
+
+CI 38210169373 的 Linux x86 stable job114682339163 已通过实际 systemd socket 启动，进入客户 index 后返回 unsupported。当前转换层 `diskgraph-disktree::convert_tree` 明确拒绝非 Unicode 根；固定上游的显示名称也无法可靠恢复非 Unicode 子项。原夹具却把非 UTF-8 根和子项作为成功发布输入，与既有安全拒绝契约冲突；这不是认证出生、systemd 启动或扫描选项映射失败的证据。
+
+夹具改为以 Unicode 根和三个合法 Unicode 文件完成 index/node/search/sync 主线，包括真实替换字符名称；保留两个不同原始编码根的无损注册检查，各自 index 必须返回 unsupported，随后 node 必须返回 not_indexed，禁止发布错误定位。非 UTF-8 扫描发布仍为未完成能力，未修改上游源码、pin、摘要或转换层的拒绝逻辑，也未关闭全平台生产父项。
+
+新增夹具回归首先在 macOS 因真实创建非法编码路径失败，属于环境故障；将仅此模拟测试的原始路径文件操作隔离后，原夹具因错误要求非 UTF-8 成功发布而断言失败，形成行为 RED。修正后 guardian 脚本测试8/8通过。模拟结果仅证明验收脚本遵循当前契约，新的真实 Linux CLI/stdio MCP 主线尚待 CI。原始 Linux 与 macOS 失败日志保存于 `docs/benchmarks/guardian_fixture_contract_368e6691_2026_10_12/`。
+
+同一运行 macOS stable job114682339146 实际 Engine 855通过、1失败、15忽略；失败为 candidate_and_impact_data_expiry_after_read_keep_timely_authorized_prefixes，真实读后 hook 已消费，terminal_reader_open 墙钟319054微秒、线程CPU377微秒，返回 BudgetExceeded。该观测不能单独证明 SQL 性能根因，不增大原窗口、不以重跑成功关闭问题。整体生产验收继续开放。

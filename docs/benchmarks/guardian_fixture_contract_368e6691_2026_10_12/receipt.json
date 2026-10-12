@@ -1,0 +1,30 @@
+{
+  "ci_source": "368e6691c33367b128d60079efb226ea2e444ce5",
+  "ci_run": 38210169373,
+  "logs": {
+    "linux_stable": {
+      "sha256": "13656385630c52bcd979ef8ea6640c3e1a586b33fbb904341742d7f62e8bb9fc",
+      "compressed_file": "linux_stable.log.gz"
+    },
+    "macos_stable": {
+      "sha256": "27431892a95e7b823a3eb049c3296c6f635879accd0357b28c2abbebc20aa5ce",
+      "compressed_file": "macos_stable.log.gz"
+    }
+  },
+  "candidate_files": {
+    "scripts/qualify_linux_guardian_unit.py": "b00fa994329fbb4db1bb2bb58429358ba0c73cb2349e477e927a28a53e9a2675",
+    "scripts/tests/test_linux_guardian_unit_fixture.py": "2ee063477bda4b37dfd0d4cc5bafeced5243bb405853fea2271783265752ba31"
+  },
+  "script_tests": {
+    "passed": 8,
+    "failed": 0,
+    "native_service_proof": false
+  },
+  "raw_path_publication_supported": false,
+  "production_ready": false,
+  "limitations": [
+    "native corrected guardian mainline pending",
+    "macOS terminal authorization window failure remains open",
+    "other platform service qualification remains open"
+  ]
+}
