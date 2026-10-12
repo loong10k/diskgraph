@@ -22,6 +22,7 @@ struct base_request {
     unsigned short filter_count; const struct sock_filter *filter;
 };
 #include "../../../crates/diskgraph-engine/src/native_child/linux_supervisor_spawn.h"
+#include "../../../crates/diskgraph-engine/src/native_child/linux_executor_privacy.h"
 #ifdef BASELINE
 extern long dg_linux_atomic_spawn(const struct base_request *, int *, uint64_t *, int *);
 #else
@@ -44,9 +45,40 @@ static int send_kind(int fd, uint32_t kind) {
     struct message message = {kind, 0, 0};
     return send(fd, &message, sizeof(message), MSG_NOSIGNAL) == (ssize_t)sizeof(message);
 }
+static int same_uid_observer(pid_t original, const char *phase) {
+    fflush(stdout);
+    pid_t observer = fork();
+    if (observer < 0) return 0;
+    if (observer == 0) {
+        if (syscall(SYS_close_range, 3, UINT32_MAX, 0) || setgroups(0, NULL) ||
+            setresgid(23111, 23111, 23111) || setresuid(23111, 23111, 23111)) _exit(46);
+        char path[64];
+        int length = snprintf(path, sizeof(path), "/proc/%d/environ", original);
+        if (length <= 0 || length >= (int)sizeof(path)) _exit(46);
+        int environment = open(path, O_RDONLY | O_CLOEXEC);
+        int rejected = environment < 0 && errno == EACCES;
+        printf("{\"same_uid_environ_denied\":%s,\"phase\":\"%s\",\"errno\":%d}\n",
+            rejected ? "true" : "false", phase, environment < 0 ? errno : 0);
+        if (environment >= 0) close(environment);
+        fflush(stdout);
+        _exit(rejected ? 0 : 47);
+    }
+    int status = 0;
+    return waitpid(observer, &status, 0) == observer && WIFEXITED(status) && WEXITSTATUS(status) == 0;
+}
+
 int main(int argc, char **argv) {
     if (argc != 3 && argc != 4) return 40;
-    int input = open("/dev/null", O_RDONLY | O_CLOEXEC);
+    if (!strcmp(argv[2], "policy_classification")) {
+        int passed = dg_executor_protected_mode(0) && dg_executor_protected_mode(2) &&
+            !dg_executor_protected_mode(1) && !dg_executor_protected_mode(-1) && !dg_executor_protected_mode(3);
+        printf("{\"protected_policy_classification\":%s}\n", passed ? "true" : "false");
+        return passed ? 0 : 42;
+    }
+    int executor_private = !strcmp(argv[2], "executor_private");
+    int private_input[2] = {-1, -1};
+    if (executor_private && pipe2(private_input, O_CLOEXEC)) return 40;
+    int input = executor_private ? private_input[0] : open("/dev/null", O_RDONLY | O_CLOEXEC);
     int output[2], errors[2], startup[2], materials[2], control[2], leak[2];
     if (input < 0 || pipe2(output, O_CLOEXEC) || pipe2(errors, O_CLOEXEC) || pipe2(leak, O_CLOEXEC | O_NONBLOCK)) abort();
     pair(SOCK_SEQPACKET, startup); pair(SOCK_DGRAM, materials); pair(SOCK_STREAM, control);
@@ -67,10 +99,11 @@ int main(int argc, char **argv) {
     if (!strcmp(argv[2], "missing_groups")) request.group_count = 1;
     if (!strcmp(argv[2], "oversized_groups")) { request.group_count = 65537; request.groups = executor_groups; }
     if (!strcmp(argv[2], "sentinel_group")) { executor_groups[0] = UINT32_MAX; request.group_count = 1; request.groups = executor_groups; }
-    int executor_private = !strcmp(argv[2], "executor_private");
     int executor_acl = !strcmp(argv[2], "executor_acl");
     int executor_public = !strcmp(argv[2], "executor_public") || executor_acl;
     int denied_access = !strcmp(argv[2], "denied_access");
+    int denied_policy = !strcmp(argv[2], "denied_policy");
+    int unprotected_entry = !strcmp(argv[2], "unprotected_entry");
     if (executor_acl) {
         /* 实际POSIX ACL授予客户读取；不能把mode位当作完整凭据判断。 */
         struct acl_entry { uint16_t tag, permissions; uint32_t id; };
@@ -92,7 +125,7 @@ int main(int argc, char **argv) {
             WEXITSTATUS(acl_status) != 0) return 43;
         printf("{\"acl_read_permission_verified\":true}\n");
     }
-    if (executor_private || executor_public || denied_access) request.executor_protection = 1;
+    if (executor_private || executor_public || denied_access || denied_policy) request.executor_protection = 1;
     if (!strcmp(argv[2], "invalid_protection")) request.executor_protection = 2;
     int held_worker = !strcmp(argv[2], "held_worker");
     if (held_worker) {
@@ -108,15 +141,15 @@ int main(int argc, char **argv) {
         if (writable < 0) abort();
         request.worker_fd = high(writable); close(writable);
     }
-    char *args[] = {argv[1], supplementary ? "supplementary" : held_worker ? "held_worker" : executor_private ? "private_executor" : NULL,
+    char *args[] = {argv[1], supplementary ? "supplementary" : held_worker ? "held_worker" : executor_private ? "private_executor" : unprotected_entry ? "reject_unprotected" : NULL,
         held_worker ? argv[3] : NULL, NULL}; char *environment[] = {NULL};
     request.argv = args; request.envp = environment;
     /* 仅本次隔离driver拒绝setgroups；真实child必须报告降权阶段并保留原pidfd退休。 */
     int denied_groups = !strcmp(argv[2], "denied_groups");
-    if (denied_groups || denied_access) {
+    if (denied_groups || denied_access || denied_policy) {
         const struct sock_filter deny[] = {
             BPF_STMT(BPF_LD | BPF_W | BPF_ABS, offsetof(struct seccomp_data, nr)),
-            BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, denied_groups ? SYS_setgroups : SYS_faccessat2, 0, 1),
+            BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, denied_groups ? SYS_setgroups : denied_policy ? SYS_openat : SYS_faccessat2, 0, 1),
             BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_ERRNO | (denied_groups ? EPERM : ENOSYS)),
             BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_ALLOW),
         };
@@ -172,6 +205,20 @@ int main(int argc, char **argv) {
     } else {
         handshake = send_kind(startup[0], 3) && receive(startup[0], 1) && send_kind(startup[0], 4);
     }
+    int privacy_confirmed = !executor_private;
+    if (executor_private) {
+        int before = -1, after = -1;
+        int observed_before = handshake && read(output[0], &before, sizeof(before)) == (ssize_t)sizeof(before);
+        int first_denied = observed_before && dg_executor_protected_mode(before) && same_uid_observer((pid_t)pid, "before_seal");
+        char command = 'C';
+        if (observed_before && write(private_input[1], &command, 1) != 1) abort();
+        int observed_after = observed_before && read(output[0], &after, sizeof(after)) == (ssize_t)sizeof(after);
+        int second_denied = observed_after && after == 0 && same_uid_observer((pid_t)pid, "after_seal");
+        command = 'D';
+        if (observed_after && write(private_input[1], &command, 1) != 1) abort();
+        close(private_input[1]);
+        privacy_confirmed = first_denied && second_denied;
+    }
     char buffer[4096]; ssize_t size = read(output[0], buffer, sizeof(buffer) - 1);
     if (size > 0) { buffer[size] = 0; fputs(buffer, stdout); }
     siginfo_t info = {0};
@@ -189,5 +236,5 @@ int main(int argc, char **argv) {
         info.si_status == 127 ? 0 : 42;
     if (signal_after_ready) return signalled == 0 && waited && public_eof &&
         info.si_code == CLD_KILLED && info.si_status == SIGKILL ? 0 : 42;
-    return waited && public_eof && handshake && info.si_code == CLD_EXITED && info.si_status == 0 ? 0 : 42;
+    return privacy_confirmed && waited && public_eof && handshake && info.si_code == CLD_EXITED && info.si_status == 0 ? 0 : 42;
 }

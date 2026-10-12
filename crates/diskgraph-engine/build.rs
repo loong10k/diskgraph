@@ -9,6 +9,7 @@ fn main() {
     println!("cargo:rerun-if-changed=src/native_child/linux_supervisor_spawn.c");
     println!("cargo:rerun-if-changed=src/native_child/linux_supervisor_spawn.h");
     println!("cargo:rerun-if-changed=src/native_child/linux_atomic_syscall.h");
+    println!("cargo:rerun-if-changed=src/native_child/linux_executor_privacy.h");
     println!("cargo:rerun-if-changed=src/macos_installation_metadata.c");
     println!("cargo:rerun-if-changed=src/native_child/macos_native_spawn.c");
     if target_os == "macos" {

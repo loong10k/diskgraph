@@ -77,25 +77,30 @@ def qualify(driver, role, output, baseline=None):
         worker = root / 'worker'
         worker.write_bytes(b'DG_HELD_WORKER\n')
         worker.chmod(0o511)
+        result['kernel_suid_dumpable'] = Path('/proc/sys/fs/suid_dumpable').read_text().strip()
         private_role = root / 'private_role'
         result['images']['private_role'] = copy_fixture(role, private_role)
         private_role.chmod(0o511)
-        errors = {'invalid_protection': 22, 'root_uid': 1, 'root_gid': 1, 'sentinel_uid': 1, 'sentinel_gid': 1,
+        errors = {'denied_policy': 38, 'invalid_protection': 22, 'root_uid': 1, 'root_gid': 1, 'sentinel_uid': 1, 'sentinel_gid': 1,
                   'aliased_fd': 22, 'low_fd': 22, 'nonroot': 1,
                   'missing_groups': 22, 'oversized_groups': 22, 'sentinel_group': 22,
                   'low_worker': 22, 'aliased_worker': 22, 'writable_worker': 22}
-        for case in ('clean', 'supplementary', 'held_worker', 'executor_private', 'executor_public', 'executor_acl', 'denied_access', *errors, 'bad_image', 'denied_groups', 'signal_after_ready'):
+        for case in ('policy_classification', 'unprotected_entry', 'clean', 'supplementary', 'held_worker', 'executor_private', 'executor_public', 'executor_acl', 'denied_access', *errors, 'bad_image', 'denied_groups', 'signal_after_ready'):
             arguments = [str(root / 'driver'), str(malformed if case == 'bad_image' else private_role if case == 'executor_private' else root / 'role'), case]
             if case == 'held_worker': arguments.append(str(worker))
             exit_code, stdout, stderr = run_driver(arguments, root, case == 'nonroot')
             records = [json.loads(line) for line in stdout.splitlines()]
             acl_verified = case != 'executor_acl' or records[:1] == [{'acl_read_permission_verified': True}]
             proof_records = records[1:] if case == 'executor_acl' else records
-            if case in ('clean', 'supplementary'):
+            if case == 'policy_classification':
+                passed = exit_code == 0 and records == [{'protected_policy_classification': True}]
+            elif case == 'unprotected_entry':
+                passed = exit_code == 0 and records[0] == {'unsafe_entry_rejected': True, 'dumpable': 1} and records[-1]['original_pidfd_waited'] and records[-1]['handshake'] and records[-1]['exit_code'] == 0
+            elif case in ('clean', 'supplementary'):
                 passed = exit_code == 0 and records[0]['passed'] and records[-1]['original_pidfd_waited'] and records[-1]['public_eof_before_init'] and records[-1]['exit_code'] == 0
                 passed = passed and records[0]['groups'] == (2 if case == 'supplementary' else 0)
             elif case == 'executor_private':
-                passed = exit_code == 0 and records[0] == {'passed': True, 'dumpable': 0} and records[-1]['original_pidfd_waited'] and records[-1]['handshake'] and records[-1]['exit_code'] == 0
+                passed = exit_code == 0 and len(records) == 5 and records[0] == {'same_uid_environ_denied': True, 'phase': 'before_seal', 'errno': 13} and records[1] == {'same_uid_environ_denied': True, 'phase': 'after_seal', 'errno': 13} and records[2]['passed'] and records[2]['dumpable_before'] in (0, 2) and records[2]['dumpable'] == 0 and records[-1]['original_pidfd_waited'] and records[-1]['handshake'] and records[-1]['exit_code'] == 0
             elif case in ('executor_public', 'executor_acl', 'denied_access'):
                 passed = acl_verified and exit_code == 0 and len(proof_records) == 2 and proof_records[0]['startup_kind'] == 2 and proof_records[0]['startup_phase'] == 19 and proof_records[0]['startup_errno'] == (38 if case == 'denied_access' else 13) and proof_records[-1]['original_pidfd_waited'] and not records[-1]['handshake'] and records[-1]['exit_code'] == 127
             elif case == 'held_worker':

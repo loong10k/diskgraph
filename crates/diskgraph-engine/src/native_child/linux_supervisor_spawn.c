@@ -1,5 +1,6 @@
 #define _GNU_SOURCE
 #include "linux_supervisor_spawn.h"
+#include "linux_executor_privacy.h"
 #include "linux_atomic_syscall.h"
 #include <errno.h>
 #include <fcntl.h>
@@ -127,6 +128,10 @@ long dg_linux_supervisor_spawn(const struct dg_supervisor_request *request,
         if (flags < 0) return flags;
         if ((flags & O_ACCMODE) != O_RDONLY || (flags & O_PATH)) return -EINVAL;
     }
+    if (request->executor_protection) {
+        long policy = dg_executor_kernel_policy();
+        if (policy < 0) return policy;
+    }
     const uint64_t blocked = UINT64_MAX;
     long result = dg_raw(SYS_rt_sigprocmask, SIG_SETMASK, (long)&blocked, (long)old_mask, 8, 0, 0);
     if (result < 0) return result;
@@ -135,3 +140,7 @@ long dg_linux_supervisor_spawn(const struct dg_supervisor_request *request,
     if (result == 0) supervisor_child(request);
     return result;
 }
+
+/* 供受信executor原入口调用，与原生角色验收共用真实内核操作。 */
+long dg_linux_executor_seal_privacy(void) { return dg_executor_seal_privacy(); }
+long dg_linux_executor_kernel_policy(void) { return dg_executor_kernel_policy(); }

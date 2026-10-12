@@ -15,6 +15,9 @@ pub(super) struct LinuxSupervisorAbi {
 }
 
 unsafe extern "C" {
+    /// 参数：无；返回：固定内核策略0/2准入或原错误，不创建child或认领槽。
+    pub(super) fn dg_linux_executor_kernel_policy() -> libc::c_long;
+
     /// 参数：固定出生材料、原 pidfd 和 mask 输出；返回：原 PID 或负原 errno。
     pub(super) fn dg_linux_supervisor_spawn(
         request: *const LinuxSupervisorAbi,

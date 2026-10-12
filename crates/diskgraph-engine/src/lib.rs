@@ -490,5 +490,6 @@ pub use linux_supervisor_admitted_host::LinuxSupervisorAdmittedHost;
     target_endian = "little"
 ))]
 pub use native_child::{
-    LinuxSupervisorLaunchError, LinuxSupervisorLauncher, LinuxSupervisorProcess,
+    LinuxExecutorPrivacy, LinuxSupervisorLaunchError, LinuxSupervisorLauncher,
+    LinuxSupervisorProcess,
 };

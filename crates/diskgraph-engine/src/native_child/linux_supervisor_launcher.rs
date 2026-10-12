@@ -62,6 +62,10 @@ impl LinuxSupervisorLauncher {
         environment: Vec<CString>,
         identity: &LinuxPeerUnixIdentity,
     ) -> io::Result<Self> {
+        let policy = unsafe { super::linux_supervisor_abi::dg_linux_executor_kernel_policy() };
+        if policy < 0 {
+            return Err(io::Error::from_raw_os_error((-policy) as i32));
+        }
         let mut prepared =
             Self::prepare(image, args, environment, (identity.uid(), identity.gid()))?;
         prepared.groups = identity.supplementary_groups().to_vec();

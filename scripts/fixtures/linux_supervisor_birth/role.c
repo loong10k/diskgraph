@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <signal.h>
+#include "../../../crates/diskgraph-engine/src/native_child/linux_executor_privacy.h"
 
 /* 固定ELF夹具，不创建Engine或授予任意命令；观察真正exec后的身份与白名单。 */
 static int notification(unsigned version, unsigned sequence, const char *value) {
@@ -117,8 +118,26 @@ int main(int argc, char **argv) {
         }
         close(connection); return 0;
     }
-    if (argc == 2 && strcmp(argv[1], "private_executor") == 0 &&
-        prctl(PR_GET_DUMPABLE, 0, 0, 0, 0) != 0) return 9;
+    if (argc == 2 && strcmp(argv[1], "reject_unprotected") == 0) {
+        int before = prctl(PR_GET_DUMPABLE, 0, 0, 0, 0);
+        long rejected = dg_executor_seal_privacy();
+        int after = prctl(PR_GET_DUMPABLE, 0, 0, 0, 0);
+        int passed = before == 1 && rejected == -EPERM && after == 1;
+        printf("{\"unsafe_entry_rejected\":%s,\"dumpable\":%d}\n", passed ? "true" : "false", after);
+        return passed ? 0 : 9;
+    }
+    int private_executor = argc == 2 && strcmp(argv[1], "private_executor") == 0;
+    int dumpable_before = -1;
+    if (private_executor) {
+        dumpable_before = prctl(PR_GET_DUMPABLE, 0, 0, 0, 0);
+        if (!dg_executor_protected_mode(dumpable_before) ||
+            write(1, &dumpable_before, sizeof(dumpable_before)) != (ssize_t)sizeof(dumpable_before)) return 9;
+        char command = 0;
+        if (read(0, &command, 1) != 1 || command != 'C' || dg_executor_seal_privacy() < 0) return 9;
+        int after = prctl(PR_GET_DUMPABLE, 0, 0, 0, 0);
+        if (after != 0 || write(1, &after, sizeof(after)) != (ssize_t)sizeof(after) ||
+            read(0, &command, 1) != 1 || command != 'D') return 9;
+    }
     struct __user_cap_header_struct header = {_LINUX_CAPABILITY_VERSION_3, 0};
     struct __user_cap_data_struct data[2] = {{0}, {0}};
     int cap_ok = syscall(SYS_capget, &header, data) == 0;
@@ -160,9 +179,9 @@ int main(int argc, char **argv) {
     if (held_worker)
         printf("{\"passed\":%s,\"held_worker_read\":%s,\"worker_path_eacces\":%s}\n",
             passed ? "true" : "false", worker_ok ? "true" : "false", path_denied ? "true" : "false");
-    else if (argc == 2 && strcmp(argv[1], "private_executor") == 0)
-        printf("{\"passed\":%s,\"dumpable\":%d}\n", passed ? "true" : "false",
-            prctl(PR_GET_DUMPABLE, 0, 0, 0, 0));
+    else if (private_executor)
+        printf("{\"passed\":%s,\"dumpable_before\":%d,\"dumpable\":%d}\n",
+            passed ? "true" : "false", dumpable_before, prctl(PR_GET_DUMPABLE, 0, 0, 0, 0));
     else printf("{\"passed\":%s,\"uid\":%u,\"gid\":%u,\"groups\":%d,\"private_endpoints\":%s,\"capabilities_empty\":%s,\"whitelist\":%s,\"no_new_privs\":%s}\n",
         passed ? "true" : "false", getuid(), getgid(), getgroups(0, NULL),
         endpoints ? "true" : "false", cap_ok ? "true" : "false",

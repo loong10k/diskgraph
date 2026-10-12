@@ -1,0 +1,13 @@
+{
+  "source": "27fe83c8e25776911c69f357ecffabe2e38a3ca7",
+  "run": "https://github.com/loong10k/diskgraph/actions/runs/38186034323",
+  "terminal": true,
+  "job_results": {
+    "success": 20,
+    "failure": 3,
+    "cancelled": 0
+  },
+  "failure_boundary": "Only three Linux native C executor_private cases fail. Actual post-exec nonzero dumpability not captured by this source. No proven value 2.",
+  "production_ready": false,
+  "guardian_user_executor_product_routing": false
+}
