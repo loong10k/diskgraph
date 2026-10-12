@@ -26,6 +26,16 @@ pub(super) fn open_directory(path: &Path, deadline: Instant) -> io::Result<(File
     open_raw(path, deadline, true)
 }
 
+/// 参数：path为公开root安装文件、deadline为原期限；返回：原普通文件与不可写目录链。
+/// 不要求调用者为root；文件仍须root所有、单链接、不允许组或其他用户写入。
+#[cfg(all(
+    target_os = "linux",
+    any(target_arch = "x86_64", target_arch = "aarch64")
+))]
+pub(super) fn open_public(path: &Path, deadline: Instant) -> io::Result<(File, Vec<File>)> {
+    open_raw(path, deadline, false)
+}
+
 fn open_raw(path: &Path, deadline: Instant, leaf_directory: bool) -> io::Result<(File, Vec<File>)> {
     check(deadline)?;
     let text = path

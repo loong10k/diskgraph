@@ -39,6 +39,13 @@ class GuardianInstallationTests(unittest.TestCase):
         self.assertNotIn('ProtectHome=yes', service)
         self.assertNotIn('Restart=always', service)
 
+    def test_public_binding_contains_only_fixed_installed_identities(self):
+        config = {'socket_path': '/var/lib/dg/front.sock', 'frontend_uid': 23112,
+                  'service_uid': 23111, 'service_gid': 23113, 'data_dir': '/private'}
+        self.assertEqual(MODULE.guardian_frontend_binding(config), {
+            'schema_version': 1, 'socket_path': '/var/lib/dg/front.sock',
+            'frontend_uid': 23112, 'guardian_uid': 23111, 'guardian_gid': 23113})
+
     def test_conflicting_modes_and_missing_customer_gid_refuse_before_files(self):
         for options in ({'with_broker': True, 'with_guardian': True, 'frontend_gid': 23112},
                         {'with_guardian': True}, {'with_guardian': True, 'frontend_gid': 0}):

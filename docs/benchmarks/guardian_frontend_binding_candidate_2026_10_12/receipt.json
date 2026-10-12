@@ -1,0 +1,46 @@
+{
+  "scope": "actual customer CLI guardian frontend identity transition",
+  "parent_commit": "7af8f3bba10361b2a6785429e68c2f0b7eb2d0a5",
+  "production_ready": false,
+  "native_linux_executed": false,
+  "source_sha256": {
+    ".github/workflows/ci.yml": "6e1a8ee28d7d74b93ca7d080ee9d4c7cd11af05b1331b24815ba7ff479407606",
+    "scripts/prepare_linux_supervisor_installation.py": "48941ac52c829bbb91b5ad923df7fff13db0a73c41ac44e5f3f5423aea8a7e9d",
+    "scripts/tests/test_linux_guardian_installation.py": "4da5ecbf1c8a3355a790db7ade045907c06abbdae04880a891ece738c556690e",
+    "crates/diskgraph-engine/src/supervisor_service/guardian_frontend_binding.rs": "bff0e02775c0d4c05c69479325224e71203b43dd653f9f5b43d1c74a39d3f977",
+    "crates/diskgraph-engine/src/supervisor_service/guardian_frontend_binding_tests.rs": "d9671a28408ed1d24eac69d69e827d9ab91c0356ea0273a8948d306f53649e88",
+    "crates/diskgraph-engine/src/supervisor_service/linux_guardian_frontend.rs": "ae17ea6d5f642e046a18233b2bef0657f2cfda5737c8a9b7008d408505ba2ebc",
+    "crates/diskgraph-engine/src/supervisor_service/linux_guardian_frontend_tests.rs": "e095ed2d5fd95f92af705b7ad9e318d4c826ef738510f6c9a350c9820926f444",
+    "crates/diskgraph-engine/src/supervisor_service/linux_broker_client.rs": "692da13ef50bc4978ac23fe63ecbfb3b8c9fdb15e4688b3c751a17b5c14e1831",
+    "crates/diskgraph-engine/src/supervisor_service/linux_guardian.rs": "a03e3bc22962c6cefd9adb74de1d3c7917b98198681e20def63677e01f3cd46f",
+    "crates/diskgraph-engine/src/supervisor_service/mod.rs": "2356dd4134a3b3e9b5200d3025b45b2986debcd785c98dda79a45ba3f11715a9",
+    "crates/diskgraph-engine/src/supervisor_service/root_installation_path.rs": "6515f4d8e2bd5fd6555d8fc518427e04743b6eef0bd7acd46d3d59c603319306"
+  },
+  "local_validation": {
+    "installation_api_red": "missing guardian_frontend_binding attribute; API absence, not native execution",
+    "python_linux_tests": 67,
+    "supervisor_service_mac_tests": 20,
+    "engine_source_layout": 6,
+    "pinned_upstream": 4,
+    "engine_mac_all_target_clippy": "passed",
+    "openspec_strict": "passed",
+    "yaml": "parsed with existing Anaconda PyYAML; default python has no yaml"
+  },
+  "native_pending": [
+    "actual customer CLI accepted socket",
+    "actual generated systemd socket/template",
+    "three ignored root SCM_CREDENTIALS/manifest tests",
+    "actual nonroot greeting rejection"
+  ],
+  "preserved": [
+    "original immediate disconnect fixture unchanged",
+    "original private birth and owner retirement independent of public greeting delivery",
+    "legacy broker root/PID credentials unchanged",
+    "vendored source/pin/digests unchanged"
+  ],
+  "remaining": [
+    "supervised scan and MCP mainline",
+    "macOS/Windows service installation and native acceptance",
+    "pending I/O/stop and OS credential fidelity"
+  ]
+}

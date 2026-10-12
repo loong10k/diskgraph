@@ -105,6 +105,12 @@ impl LinuxGuardian {
             }
         };
         let authenticated = send_authentication(&mut owner, deadline, &cancel);
+        // 原child已出生；root握手失败只关闭公开交付，不撤销原私有认证或退休责任。
+        let greeting = connection.write_output_until(
+            super::linux_guardian_frontend::ROOT_HELLO,
+            deadline,
+            stopped,
+        );
         let sealed = LinuxGuardianIdentity::enter(config.service_uid, config.service_gid);
         if authenticated.is_err() || sealed.is_err() {
             // 认证/身份切换失败不交付公开业务结果，仍保留原child与全局槽。
@@ -113,7 +119,8 @@ impl LinuxGuardian {
             return Err(io::Error::other("guardian birth or identity unconfirmed"));
         }
         // 从此仅专用服务身份处置控制/管道/原pidfd；没有客户文件、Engine或root目录句柄。
-        let result = linux_broker::deliver(&mut owner, &mut connection, deadline, stopped);
+        let result = greeting
+            .and_then(|()| linux_broker::deliver(&mut owner, &mut connection, deadline, stopped));
         drop(connection);
         // 公开连接的超时/断开不污染私有恢复资格；真实私有错误由原reader锁存后独立确认。
         retain_original(owner, false);

@@ -861,6 +861,11 @@ jobs:
             sudo env DG_LINUX_SUPERVISOR_CLI="$cli_image" "$test_binary" "$image_case" --ignored --exact --nocapture || exit $?
             broker_image="$(cat "$fixture/diskgraph-supervisor.path")" || exit $?
             mcp_image="$(cat "$fixture/diskgraph-mcp.path")" || exit $?
+            for guardian_frontend_case in original_root_greeting_binds_same_pid_to_installed_guardian_identity malformed_or_truncated_original_root_greeting_is_refused original_public_binding_refuses_symlinks_foreign_owner_and_oversize_without_fallback; do
+              case_name="supervisor_service::linux_guardian_frontend_tests::$guardian_frontend_case"
+              "$test_binary" "$case_name" --ignored --exact --list | grep -Fx "$case_name: test" || exit $?
+              sudo "$test_binary" "$case_name" --ignored --exact --nocapture || exit $?
+            done
             python3 -m unittest discover -s scripts/tests -p 'test_linux_guardian*.py' -v || exit $?
             sudo env DG_ISOLATED_ROOT_ACCEPTANCE=1 python3 scripts/qualify_linux_public_broker.py --cli "$cli_image" --worker "$worker_image" --broker "$broker_image" --mcp "$mcp_image" --systemd --receipt "$fixture/public-broker-receipt.json" || exit $?
             cc -std=c11 -O2 -Wall -Wextra -Werror -I crates/diskgraph-engine/src/native_child scripts/fixtures/linux_guardian_identity.c crates/diskgraph-engine/src/native_child/linux_supervisor_spawn.c -o "$fixture/guardian-identity" || exit $?

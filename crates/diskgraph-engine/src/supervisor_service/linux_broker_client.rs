@@ -29,8 +29,15 @@ fn run(socket: &Path, query: Option<&super::BrokerQuery>) -> io::Result<i32> {
             .ok_or_else(|| io::Error::other("fixed socket parent missing"))?,
         deadline,
     )?;
+    let binding = super::linux_guardian_frontend::installed_binding(socket, deadline)?;
     let metadata = std::fs::symlink_metadata(socket)?;
-    if !metadata.file_type().is_socket() || metadata.uid() != 0 || metadata.nlink() != 1 {
+    if !metadata.file_type().is_socket()
+        || !(metadata.uid() == 0
+            || binding.as_ref().is_some_and(|value| {
+                metadata.uid() == value.frontend_uid() && metadata.mode() & 0o777 == 0o600
+            }))
+        || metadata.nlink() != 1
+    {
         return Err(io::Error::other("untrusted broker socket"));
     }
     let mut stream = connect(socket, deadline)?;
@@ -80,6 +87,11 @@ fn run(socket: &Path, query: Option<&super::BrokerQuery>) -> io::Result<i32> {
         }
     }
     stream.shutdown(std::net::Shutdown::Write)?;
+    let expected = if let Some(binding) = binding.as_ref() {
+        super::linux_guardian_frontend::authenticate(&mut stream, binding, deadline)?
+    } else {
+        expected
+    };
     let output = OriginalClientOutput::new()?;
     let mut body = [0; 4096];
     let mut total = 0u64;
@@ -189,7 +201,9 @@ fn connect(path: &Path, deadline: Instant) -> io::Result<UnixStream> {
     }
 }
 
-fn read_exact(
+/// 参数：原stream、目标缓冲、不可变发送凭据及原期限；返回：完整原字节或身份/EOF拒绝。
+/// 每笔recvmsg继续核对同一发送者，握手读取不能绕过原期限或辅助FD处置。
+pub(super) fn read_exact(
     stream: &mut UnixStream,
     bytes: &mut [u8],
     expected: &crate::recovery_slot::LinuxSupervisorPeer,

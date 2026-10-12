@@ -97,6 +97,13 @@ def guardian_artifacts(prefix, policy, images):
               '\n[Install]\nWantedBy=sockets.target\n')
     return config, service, socket
 
+def guardian_frontend_binding(config):
+    """公开root安装身份绑定，不交付私有容量、镜像或出生材料。"""
+    return {'schema_version': 1, 'socket_path': config['socket_path'],
+            'frontend_uid': config['frontend_uid'], 'guardian_uid': config['service_uid'],
+            'guardian_gid': config['service_gid']}
+
+
 def verify_root_directory(fd):
     """以打开对象验证 root 目录；不修复已存在目录的所有权或权限。"""
     info = os.fstat(fd)
@@ -320,6 +327,8 @@ def prepare(archive_path, expected_sha256, prefix, service_uid, service_gid, fro
             write_at(prefix_fd, 'supervisor-config.json', io.BytesIO((json.dumps(config) + '\n').encode()), 4096, 0o600)
             write_at(prefix_fd, 'diskgraph-guardian@.service', io.BytesIO(unit.encode()), 4096, 0o644)
             write_at(prefix_fd, 'diskgraph-guardian.socket', io.BytesIO(socket.encode()), 4096, 0o644)
+            write_at(prefix_fd, 'guardian-frontend.json',
+                     io.BytesIO((json.dumps(guardian_frontend_binding(config)) + '\n').encode()), 4096, 0o644)
         receipt = {'schema_version': 1, 'status': 'prepared_not_enabled', 'target': target,
                    'archive_sha256': expected_sha256, 'identity_policy': policy,
                    'role_images': binaries, 'worker_manifest': worker,
