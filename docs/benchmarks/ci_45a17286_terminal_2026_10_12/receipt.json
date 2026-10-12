@@ -1,0 +1,42 @@
+{
+  "source_commit": "45a17286bdef5e6bf4dd4d5be48fc3143da4df8f",
+  "run_id": 38215593380,
+  "conclusion": "failure",
+  "passed_jobs": 20,
+  "total_jobs": 23,
+  "windows": {
+    "msrv": {
+      "log_sha256": "08860a8fa5413a88fba7b701f5a1399df3238462290a8299c5ce31d24f8a37c0",
+      "policy_revocation_actual_ok_count": 1,
+      "scope_original_budget_actual_ok_count": 2,
+      "job_conclusion": "success"
+    },
+    "stable": {
+      "log_sha256": "39642247311654543379f6044cef7f2b864f1b260e5480768c7c08ba90024ae1",
+      "policy_revocation_actual_ok_count": 1,
+      "scope_original_budget_actual_ok_count": 2,
+      "job_conclusion": "success"
+    }
+  },
+  "linux": {
+    "stable": {
+      "log_sha256": "14be50c0bda5c9ac860b3f156f6a878dbfb2ee2d834f34a47b08748e10455fae",
+      "actual_node_response_files": 3,
+      "failure": "fixture reads top-level node instead of envelope.data.node",
+      "original_eof_and_retirement_not_qualified": true
+    },
+    "arm": {
+      "log_sha256": "04c8612789fc678273be5070f68962fcf4b646ed56fbb644c2ebe35c73bd4fdf",
+      "actual_node_response_files": 3,
+      "failure": "fixture reads top-level node instead of envelope.data.node",
+      "original_eof_and_retirement_not_qualified": true
+    }
+  },
+  "production_ready": false,
+  "limitations": [
+    "Full macOS/Windows guardian service wiring remains incomplete",
+    "New 8ce80fcf fixture repair and 1b2ce9db identity primitive are not covered by this run",
+    "Passing prior macOS expiry regression does not establish root cause closure",
+    "No Windows desktop installation or runtime evidence claimed"
+  ]
+}

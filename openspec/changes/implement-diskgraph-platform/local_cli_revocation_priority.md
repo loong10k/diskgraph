@@ -15,3 +15,7 @@
 本机回归使用合成元数据和真实 staging/revision，不冒充物理扫描、Windows CLI进程或全workspace验收；原 Windows MSRV CLI flow 用例保持原断言，待新CI执行。原生 macOS stable 的终检读取超时、修正后的 Linux guardian 正常扫描/stdio MCP、其他平台独立服务及最终同SHA验收继续开放。未改变数据库250ms、能力50ms或整次查询预算。
 
 候选源码、RED/GREEN和检查日志摘要见 `docs/benchmarks/local_revoked_policy_368e6691_2026_10_12/receipt.json`。
+
+45a17286 的 CI38215593380 已终态20/23；Windows stable/job114699450569 与 MSRV/job114699450581 均成功，原 CLI flow policy_revocation_denies_everything_until_republish 在两份真实日志均实际执行并通过，原 scope 短预算资格也分别实际通过两次。此证据完成本次已知本地快照撤销优先级的 Windows 回归，不声称关闭其余延迟来源、Windows桌面服务或完整生产父项。
+
+三项Linux作业仅在MCP信封断言处失败；实际返回原scope/revision、ok=true、data.node.files=3。8ce80fcf修正后正常EOF与原容量退休尚待新CI，不以成功查询替代退休。原始job状态、Windows完整日志及Linux x86/ARM日志摘要见 `docs/benchmarks/ci_45a17286_terminal_2026_10_12/`。
