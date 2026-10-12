@@ -14,7 +14,9 @@
     "crates/diskgraph-engine/src/supervisor_service/linux_broker_client.rs": "692da13ef50bc4978ac23fe63ecbfb3b8c9fdb15e4688b3c751a17b5c14e1831",
     "crates/diskgraph-engine/src/supervisor_service/linux_guardian.rs": "a03e3bc22962c6cefd9adb74de1d3c7917b98198681e20def63677e01f3cd46f",
     "crates/diskgraph-engine/src/supervisor_service/mod.rs": "af9adff8750213530503d7783e2421666b5567171f2442b9d4f331bf24d69e93",
-    "crates/diskgraph-engine/src/supervisor_service/root_installation_path.rs": "6515f4d8e2bd5fd6555d8fc518427e04743b6eef0bd7acd46d3d59c603319306"
+    "crates/diskgraph-engine/src/supervisor_service/root_installation_path.rs": "6515f4d8e2bd5fd6555d8fc518427e04743b6eef0bd7acd46d3d59c603319306",
+    "crates/diskgraph-cli/src/supervised_entry.rs": "9a731497c79c4399e5ff262e335a9d747582510cf7f3361e0035cc9c70796448",
+    "scripts/qualify_linux_guardian.py": "f7f28211a5cd51d55a6811c4823be93c068baf44789af377b6e3bb0d04f9d1d3"
   },
   "local_validation": {
     "installation_api_red": "missing guardian_frontend_binding attribute; API absence, not native execution",
@@ -24,7 +26,8 @@
     "pinned_upstream": 4,
     "engine_mac_all_target_clippy": "passed",
     "openspec_strict": "passed",
-    "yaml": "parsed with existing Anaconda PyYAML; default python has no yaml"
+    "yaml": "parsed with existing Anaconda PyYAML; default python has no yaml",
+    "cli_route_tests": 3
   },
   "native_pending": [
     "actual customer CLI accepted socket",
@@ -42,5 +45,13 @@
     "supervised scan and MCP mainline",
     "macOS/Windows service installation and native acceptance",
     "pending I/O/stop and OS credential fidelity"
-  ]
+  ],
+  "native_pre_fix_red": {
+    "run": 38202907367,
+    "job": 114659992984,
+    "source": "7af8f3bba10361b2a6785429e68c2f0b7eb2d0a5",
+    "actual_failure": "actual customer CLI returned nonzero with empty stdout/stderr in first guardian direct accepted case",
+    "original_log_sha256": "6ccc6f33a32bd84ed30ce790509172b5f85134d3db5429c243f87fca3f26bc08",
+    "root_cause_evidence": "current source enforces original root listener PID/UID/GID for all responses, while guardian sends after dedicated identity drop; log does not contain internal client error"
+  }
 }

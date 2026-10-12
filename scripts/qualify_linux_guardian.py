@@ -111,7 +111,7 @@ def qualify(args, disconnect=False, stop_before_query=False):
                     guardian.send_signal(signal.SIGTERM)
                 output, errors = frontend.communicate(timeout=35)
                 if frontend.returncode != 0:
-                    raise AssertionError(('customer query failed', output, errors))
+                    raise AssertionError(('customer query failed', frontend.returncode, output, errors))
                 row = json.loads(output)
                 if not (stop_before_query or disconnect) and row.get('ok') is not True:
                     raise AssertionError('actual CLI frontend did not return successful doctor envelope')

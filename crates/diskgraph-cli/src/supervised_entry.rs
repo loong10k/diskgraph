@@ -27,7 +27,10 @@ pub(crate) fn run(cli: &Cli) -> CliExit {
                 &crate::supervised_query::from_command(&cli.command)
                     .expect("validated read-only query"),
             )
-            .unwrap_or(10),
+            .unwrap_or_else(|error| {
+                eprintln!("diskgraph: supervisor query failed: {error}");
+                10
+            }),
         )
     }
     #[cfg(not(all(

@@ -50,3 +50,5 @@ systemd 属性依据官方 [socket contract](https://raw.githubusercontent.com/s
 握手交付失败与原恢复责任分开：即时断开夹具仍在原请求发送后立即关闭，不等待新握手；原 guardian 完成原私有出生认证，永久降权后继续原 wait/退休，不据公开握手错误释放或抛弃原 owner。该既有负例保留原断开时序与客户数据库断言。
 
 本机共同组件20/20、源码布局6/6、Linux安装脚本67/67、vendor pin/摘要4/4及macOS Engine all-target Clippy通过。安装绑定首次测试为API缺失错误，不称原生行为红灯。三项真实root消息/原manifest负例已接入Linux独立root门禁，并检查精确测试存在；仍未执行。候选源码摘要与实际边界见 `docs/benchmarks/guardian_frontend_binding_candidate_2026_10_12/receipt.json`。
+
+7af8f3bb 的 CI38202907367/Linux stable job114659992984 原生第一例真实客户CLI失败，stdout/stderr为空，未进入systemd验收；原日志已保留在上述候选回执。日志只证明公开CLI失败，凭据不兼容原因来自当前源码核对，不能把它说成日志已显示的诊断。公开CLI现在将实际监督协议错误写stderr，夹具也保留真实退出码，便于下一轮区分准入/握手/交付错误；退出码与stdout协议不变。
