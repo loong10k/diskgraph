@@ -259,11 +259,19 @@ fn measured<T>(work: impl FnOnce() -> T) -> (T, usize) {
 
 fn successful_display(field_bytes: usize) {
     let (_directory, engine, principal, _scope, policy) = fixture(field_bytes);
+    let started = Instant::now();
+    let terminal_start = Cell::new(None);
+    let consumer_start = Cell::new(None);
+    let consumer_end = Cell::new(None);
     let authorizer = CallbackAuthorizer {
         policy: &policy,
         calls: Cell::new(0),
         allowed: Cell::new(0),
-        callback: |_| {},
+        callback: |call| {
+            if call == 2 {
+                terminal_start.set(Some(started.elapsed().as_micros()));
+            }
+        },
     };
     let consumed = Cell::new(false);
     let actual_root = Cell::new(false);
@@ -275,6 +283,7 @@ fn successful_display(field_bytes: usize) {
             &authorizer,
             budget(),
             |reader, snapshot, mut reads| {
+                consumer_start.set(Some(started.elapsed().as_micros()));
                 consumed.set(true);
                 let parent = reader
                     .navigation_node_with_budget(snapshot, 1, &mut reads)?
@@ -282,12 +291,17 @@ fn successful_display(field_bytes: usize) {
                 actual_root.set(parent.id == 1 && parent.name == "root" && parent.size_known);
                 shared_charge
                     .set(reads.nodes_read() == 1 && reads.remaining_raw_bytes() < RAW_BYTES);
+                consumer_end.set(Some(started.elapsed().as_micros()));
                 Ok(RevisionDisplayCompletion::Complete)
             },
         )
     });
     eprintln!(
-        "scope_projection optional_each={field_bytes} deadline_ms=50 consumed={} auth_calls={} allowed={} requested={requested} result={result:?}",
+        "scope_projection optional_each={field_bytes} deadline_ms=50 elapsed_us={} consumer_start_us={:?} consumer_end_us={:?} terminal_start_us={:?} consumed={} auth_calls={} allowed={} requested={requested} result={result:?}",
+        started.elapsed().as_micros(),
+        consumer_start.get(),
+        consumer_end.get(),
+        terminal_start.get(),
         consumed.get(),
         authorizer.calls.get(),
         authorizer.allowed.get()

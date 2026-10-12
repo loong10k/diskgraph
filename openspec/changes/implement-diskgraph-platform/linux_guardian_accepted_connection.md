@@ -8,6 +8,8 @@ stdio单行请求与HTTP正文采用1MiB上限（stdio包括行终止字节）�
 
 两项固定MCP描述/镜像绑定测试确认行为RED0/2；CLI serve监督入口确认行为RED0/1。候选实现后本机监督组件26/26、CLI监督6/6、MCP前端1/1、stdio有界读取2/2、Engine规范6/6、MCP规范11/11、guardian脚本7/7与旧安装回归19/19通过，三包macOS all-target Clippy通过。有界读取先由源码确认旧lines无上限，新增纯读取回归通过；没有把它说成完整服务运行红灯。Linux条件代码尚未原生编译或执行，不关闭平台父项；候选接口及预算见 `docs/linux_guardian_stdio.md`。
 
+57d71c0d的Windows stable job114670916260终态失败，Engine原句柄隔离用例通过；唯一失败目标为 scope_authorization_projection_tests 的普通scope完整display：消费者已进入、两次授权允许、Rust requested=3841，实际返回BudgetExceeded。后续步骤运行不代表完整测试成功；原日志保存于 `docs/benchmarks/scope_projection_windows_57d71c0d_2026_10_12/`。原50ms整次查询、250ms数据库窗口、50ms能力回调预算及所有原成功断言保持不变，仅增加成功/失败路径的消费者与末段回调时间诊断，未把诊断称为修复。本机该5项回归与目标Clippy通过，不能替代Windows失败验收；此前句柄异常也不能据本轮一次通过声明根因已消除。
+
 ## 扫描配置兼容验收
 
 监督入口的 index/sync 必须传递实际 CLI 指定的节点与编码 staging 预算，以及 apparent-size、no-hidden、one-filesystem、cross-filesystems、depth、no-dedup-hardlinks。参数仍采用固定白名单并逐项验证，值与开关保持单一 argv；真实客户 executor 使用既有 CLI/Engine 配置解析和预算检查，不新增执行身份或数据域选择能力。非扫描命令不得静默忽略这些覆盖。验收要求真实 Clap 往返保持全部配置，非法数字/主体/数据目录注入被拒绝，原生扫描使用明确的小预算完成正常发布；实现与原生验证分别记录，不提前关闭父项。

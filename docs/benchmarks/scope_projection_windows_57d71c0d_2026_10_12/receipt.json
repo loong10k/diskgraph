@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "ci_source": "57d71c0dd6bf2dd93ea4acffe3149adff93f82e2",
+  "run_id": 38206461160,
+  "job_id": 114670916260,
+  "job_conclusion": "failure",
+  "failed_target": "ordinary_scope_completes_the_real_display_request_within_the_original_budget",
+  "result": "BudgetExceeded",
+  "consumer_reached": true,
+  "authorization_calls": 2,
+  "allowed_calls": 2,
+  "rust_requested_bytes": 3841,
+  "original_query_budget_ms": 50,
+  "handle_isolation_case_this_run": "passed; intermittent root cause not established",
+  "original_log_sha256": "45e291c5d7c70cfc2aa58a294316e9e460b37061eb4384cab0b61d13dfec8eb0",
+  "diagnostic_source_sha256": "2676b215027ee60752c2e2bf2d95e8dcb4d04e0afe16cd66d28690aaff58b63d",
+  "local_scope_projection_passed": 5,
+  "root_cause_fixed": false,
+  "production_ready": false
+}
