@@ -1,0 +1,32 @@
+{
+  "base_sha": "94e4ab7a271e160b6d35f520633f7bee50c497b3",
+  "disposition": "rejected; all experiment source, dependency and specification edits reversed; patch retained only as evidence",
+  "patch_sha256": "78c37ecf38a06f40a7e1be24304d524082b3e306c8f35ca13a694582dde8a9e0",
+  "production_ready": false,
+  "os": "macos",
+  "behavior_red": "compiled statement count 0, expected 1; preceding missing feature compile error was not semantic RED",
+  "candidate_regression": {
+    "passed": 306,
+    "failed": 0,
+    "ignored": 3,
+    "seconds": 46.98
+  },
+  "scope_microbenchmark": {
+    "samples_per_variant": 1000,
+    "cached_p50_ms": 0.00025,
+    "cached_p95_ms": 0.000292,
+    "compiled_p50_ms": 0.000792,
+    "compiled_p95_ms": 0.000917
+  },
+  "candidate_positive_synthetic_query": {
+    "samples": 100,
+    "request_wall_p50_ms": 1.019875,
+    "request_wall_p95_ms": 1.371209
+  },
+  "limitations": [
+    "in-memory alternating microbenchmark is not native large-directory qualification",
+    "full query was not an alternating paired comparison; no end-to-end improvement established",
+    "candidate test results do not qualify restored production source",
+    "hashlink and rusqlite cache feature were not retained"
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "artifact_id": 11522733771,
+  "run": 37712488081,
+  "job": 113101368745,
+  "candidate": "249f6e5bfd858c60638641838eee2b31d6b3cc81",
+  "baseline": "2a2f8281f9f211b6632bdb26afdcd4a4fb21a44d",
+  "verified_metrics": [
+    "20000-wide-round1-baseline.json",
+    "20000-wide-round1-candidate.json",
+    "20000-wide-round2-candidate.json",
+    "20000-wide-round2-baseline.json",
+    "200000-wide-round1-baseline.json",
+    "200000-wide-round1-candidate.json",
+    "200000-wide-round2-candidate.json",
+    "200000-wide-round2-baseline.json",
+    "300-deep-round1-baseline.json",
+    "300-deep-round1-candidate.json",
+    "300-deep-round2-candidate.json",
+    "300-deep-round2-baseline.json"
+  ],
+  "verified_fixtures": 3,
+  "native_qualified_runs": 12,
+  "pairs": [
+    {
+      "candidate_minus_baseline_scan_high_water_rss_bytes": 0,
+      "candidate_over_baseline_scan_seconds": 0.9263334680372055,
+      "fixture": "20000-wide",
+      "round": 1
+    },
+    {
+      "candidate_minus_baseline_scan_high_water_rss_bytes": 0,
+      "candidate_over_baseline_scan_seconds": 0.985345937482343,
+      "fixture": "20000-wide",
+      "round": 2
+    },
+    {
+      "candidate_minus_baseline_scan_high_water_rss_bytes": 12165120,
+      "candidate_over_baseline_scan_seconds": 0.9529022105154296,
+      "fixture": "200000-wide",
+      "round": 1
+    },
+    {
+      "candidate_minus_baseline_scan_high_water_rss_bytes": 12128256,
+      "candidate_over_baseline_scan_seconds": 0.9660167127180722,
+      "fixture": "200000-wide",
+      "round": 2
+    },
+    {
+      "candidate_minus_baseline_scan_high_water_rss_bytes": 0,
+      "candidate_over_baseline_scan_seconds": 1.6571991821901113,
+      "fixture": "300-deep",
+      "round": 1
+    },
+    {
+      "candidate_minus_baseline_scan_high_water_rss_bytes": 0,
+      "candidate_over_baseline_scan_seconds": 1.2765675234905294,
+      "fixture": "300-deep",
+      "round": 2
+    }
+  ],
+  "limitations": [
+    "Same runner and pre-created roots; caches are not dropped or claimed cold.",
+    "Host and reaped child RSS are separate high waters; their sum is conservative and not simultaneous live RSS.",
+    "Historical baseline uses its original Engine entry; candidate uses explicit process host, with distinct adapter fingerprints.",
+    "Database lengths and signed deltas are logical file sizes, not physical write bytes.",
+    "Query phase includes preserved explicit rebuildable fixture evidence insertion.",
+    "Qualification is persisted Linux capture; Unsupported is failure, not a performance result.",
+    "Two alternating rounds describe this host only; no performance improvement threshold."
+  ],
+  "parent_high_water_difference_is_not_total_memory_difference": true
+}

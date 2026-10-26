@@ -1,0 +1,41 @@
+{
+  "production_commit": "c71a8557fb3591bdd4797626812659288410b2c0",
+  "head": "d94a39fd3ed9d7ea7a2265b9fead8062deb51fb7",
+  "engine_source_mismatches": [],
+  "first_result": {
+    "pass": 469,
+    "fail": 186,
+    "ignored": 9,
+    "seconds": 98.1,
+    "exit": 101
+  },
+  "first_environment_defect": "DISKGRAPH_ENGINE_SCAN_WORKER omitted; actual scan recovery tests explicitly panic before target behavior",
+  "git_environment_defect": "container Git 2.39.5 rejects --no-lazy-fetch; security argument retained, no fallback",
+  "attribution": "not every failure classified yet; do not claim all failures are environmental",
+  "corrected_run": {
+    "terminal": true,
+    "docker_exit": 125,
+    "cargo_result": "181 passed; 474 failed; 9 ignored",
+    "seconds": 17.93,
+    "environment_failure": "Docker containerd metadata.db read-only filesystem; actual tests show ReadOnlyFilesystem errno30 and SQLite SystemIoFailure",
+    "host_available": "1.1 GiB at observation",
+    "qualification": "invalid for product acceptance; preserve evidence and stop local container launches",
+    "raw_sha256": "b39a1a9dc5a0158a3786d4421495773c40879d0a8ed324f559a656aced626b45"
+  },
+  "raw_log_sha256": "5c83add5a9edd51853a02b6099bb08ae6900b0bcc9607a40547e0d51606b14e8",
+  "qualification": "not passed, not full production acceptance",
+  "original_container_state": {
+    "Status": "dead",
+    "Running": false,
+    "Paused": false,
+    "Restarting": false,
+    "OOMKilled": false,
+    "Dead": true,
+    "Pid": 0,
+    "ExitCode": 101,
+    "Error": "write /var/lib/desktop-containerd/daemon/io.containerd.metadata.v1.bolt/meta.db: read-only file system",
+    "StartedAt": "2026-10-07T22:59:56.179273463Z",
+    "FinishedAt": "2026-10-07T23:00:14.644198596Z"
+  },
+  "recovery_boundary": "original test container dead with Pid0; removal refused because containerd metadata read-only; Docker Desktop restart permission requested because existing services would be interrupted"
+}

@@ -1,0 +1,196 @@
+{
+  "baseline": "1cc15c244e3dbb7f04cda25d392cc07dd4fce03e",
+  "candidate": "5ca2d40f23c210f890d7714620e2c115f5229807",
+  "binary_sha256": {
+    "baseline": {
+      "diskgraph": "a8c8c469bb33916e2fbb8f9c5869def1adc8ba1a0a641aec4f57cca6b25493d1",
+      "diskgraph-scan-worker": "a643e32a0dbf9e4eadf33f71236a47644eb3f9913f065fd8db0db61662187702"
+    },
+    "candidate": {
+      "diskgraph": "a8c8c469bb33916e2fbb8f9c5869def1adc8ba1a0a641aec4f57cca6b25493d1",
+      "diskgraph-scan-worker": "a643e32a0dbf9e4eadf33f71236a47644eb3f9913f065fd8db0db61662187702"
+    }
+  },
+  "records": [
+    {
+      "label": "paired-20000-round1-baseline",
+      "report": {
+        "version": "diskgraph 0.3.0",
+        "platform": "linux",
+        "files": 20000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 1.29,
+        "query_p50_ms": 12.141,
+        "query_p95_ms": 15.342,
+        "database_and_wal_bytes": 41414656,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      }
+    },
+    {
+      "label": "paired-20000-round1-candidate",
+      "report": {
+        "version": "diskgraph 0.3.0",
+        "platform": "linux",
+        "files": 20000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 1.163,
+        "query_p50_ms": 13.073,
+        "query_p95_ms": 19.838,
+        "database_and_wal_bytes": 41414656,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      }
+    },
+    {
+      "label": "paired-20000-round2-candidate",
+      "report": {
+        "version": "diskgraph 0.3.0",
+        "platform": "linux",
+        "files": 20000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 1.121,
+        "query_p50_ms": 12.94,
+        "query_p95_ms": 20.052,
+        "database_and_wal_bytes": 41414656,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      }
+    },
+    {
+      "label": "paired-20000-round2-baseline",
+      "report": {
+        "version": "diskgraph 0.3.0",
+        "platform": "linux",
+        "files": 20000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 1.134,
+        "query_p50_ms": 10.655,
+        "query_p95_ms": 13.29,
+        "database_and_wal_bytes": 41414656,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      }
+    },
+    {
+      "label": "paired-200000-round1-baseline",
+      "report": {
+        "version": "diskgraph 0.3.0",
+        "platform": "linux",
+        "files": 200000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 11.985,
+        "query_p50_ms": 11.853,
+        "query_p95_ms": 20.428,
+        "database_and_wal_bytes": 415858688,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      }
+    },
+    {
+      "label": "paired-200000-round1-candidate",
+      "report": {
+        "version": "diskgraph 0.3.0",
+        "platform": "linux",
+        "files": 200000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 12.267,
+        "query_p50_ms": 12.01,
+        "query_p95_ms": 84.007,
+        "database_and_wal_bytes": 415858688,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      }
+    },
+    {
+      "label": "paired-200000-round2-candidate",
+      "report": {
+        "version": "diskgraph 0.3.0",
+        "platform": "linux",
+        "files": 200000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 12.3,
+        "query_p50_ms": 10.573,
+        "query_p95_ms": 17.776,
+        "database_and_wal_bytes": 415858688,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      }
+    },
+    {
+      "label": "paired-200000-round2-baseline",
+      "report": {
+        "version": "diskgraph 0.3.0",
+        "platform": "linux",
+        "files": 200000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 13.092,
+        "query_p50_ms": 11.267,
+        "query_p95_ms": 16.242,
+        "database_and_wal_bytes": 415858688,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      }
+    }
+  ],
+  "limits": "AB/BA ordering, independent generated identical-shape fixtures; no CPU cache flush; no accepted SLO; no RSS comparison; Linux ARM64 only",
+  "production_acceptance": false,
+  "valid_baseline_comparison": false,
+  "invalid_reason": "shared Cargo target reused artifact after source rollback; both CLI hashes identical; all regression inferences withdrawn"
+}

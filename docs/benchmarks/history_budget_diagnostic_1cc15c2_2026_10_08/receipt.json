@@ -1,0 +1,52 @@
+{
+  "base_commit": "1cc15c244e3dbb7f04cda25d392cc07dd4fce03e",
+  "ci_run": 37672712701,
+  "ci_job": 112968279631,
+  "ci_result": {
+    "passed": 9,
+    "failed": 1
+  },
+  "diagnostic_overlay": "test fixture changes logs elapsed/error only; production unchanged",
+  "overlay_sha256": "e843292265670b397fc865edf17708f8239a258eada973f89ef7fa09ce61ce01",
+  "container": "Linux ARM64 Rust1.97.1",
+  "isolated_result": {
+    "passed": 1,
+    "failed": 0
+  },
+  "parallel_result": {
+    "passed": 10,
+    "failed": 0,
+    "cpu_limit": 2,
+    "test_threads": 10
+  },
+  "logs": {
+    "ci_red.log.gz": {
+      "raw_sha256": "57fbde3576e9cdb468b80f708cc2774113828d71fc26ac628b0c084b860bde7b",
+      "gzip_sha256": "11fa13d3727e4eb0ffc378ceb48781eca8140e62879fb03ec50a2fbbffcda6c4"
+    },
+    "setup_unsupported.log.gz": {
+      "raw_sha256": "446cf9bac4de9fa687a7ac4ad00788f6a80fa6198fdf8cbb79cf3e2ad1610cc6",
+      "gzip_sha256": "886eae98be6856c4efd8f62b84e6d8aa9c99f08adcfaef09d3188e1a6d747582"
+    },
+    "qualified_single.log.gz": {
+      "raw_sha256": "4e4b6a982abacb4717e5fbd921a022bdef9b14d28f166ab1adbc3c3b1ce5a20d",
+      "gzip_sha256": "09c093edc0827582c0b401afaf3b49f3f52a8a97dd3f95c6b6c16c5bb5eca1ed"
+    },
+    "parallel_matrix.log.gz": {
+      "raw_sha256": "56931e5e0ddcb0232771ee465569b334ecc3171a7452ad1198cdf2277b632bb6",
+      "gzip_sha256": "edeb21bdb165f84980d15afadb9da84fd8b98513be8dcbbf2109fdb56a57a1d7"
+    },
+    "worker_build.log.gz": {
+      "raw_sha256": "5ac55b648657f804ef41d03a06cd80d503242740c2777190f15140b7e888cbdf",
+      "gzip_sha256": "b7037c83b5aa37658af250036bd0cebd844af267c362d4c7d8ace9b4d816856d"
+    }
+  },
+  "limits": [
+    "CI Linux x8664 stable timeout not reproduced",
+    "error could be data/initial/terminal budget; original log does not distinguish",
+    "default budgets unchanged; success is not root-cause proof",
+    "first Unsupported is setup rejection not target RED",
+    "Windows/macOS and production acceptance remain open"
+  ],
+  "production_acceptance": false
+}

@@ -1,0 +1,24 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "WebCodex tool completed successfully."
+    }
+  ],
+  "structuredContent": {
+    "success": true,
+    "output": {
+      "language": "python",
+      "stdout_tail": "{\"file\": \"validation_v2/0.log\", \"text\": \"\\nrunning 1 test\\ntest native_child::windows::windows_dll_policy_tests::resumed_scan_rejects_unsigned_dll_and_loads_system32_dependency ... DG_DLL_POLICY_TIMEOUT mode=WorkerControl control_closed=true close_polling=false leader=Ok(false) exit=None stdout_eof=false stderr_eof=false output_bytes=16 job_query_ok=true active=2 result_exists=false\\nDG_JOB_DIAG stage=\\\"GetProcessId(held leader)\\\" pid=0 raw_os_error=6 error=Os { code: 6, kind: Uncategorized, message: \\\"\\u53e5\\u67c4\\u65e0\\u6548\\u3002\\\" } elapsed_us=11\\nDG_JOB_DIAG accounting_active=2 held_leader_pid=0 elapsed_us=1364 observations_are_not_atomic=true\\nDG_JOB_DIAG list_assigned=2 list_returned=2 returned_bytes=24 elapsed_us=1624\\nDG_JOB_DIAG listed_pid=60044 index=0 elapsed_us=2026\\nDG_JOB_DIAG pid=60044 opened_handle_in_job=1 elapsed_us=2272\\nDG_JOB_DIAG pid=60044 creation_filetime_100ns=134360416566235982 exit_filetime_100ns=0 elapsed_us=2482\\nDG_JOB_DIAG pid=60044 image=\\\"E:\\\\\\\\workspaces\\\\\\\\workspace-loong10k\\\\\\\\diskgraph_native_016bcd99_20261010\\\\\\\\target\\\\\\\\debug\\\\\\\\deps\\\\\\\\diskgraph_engine-46b7752420dbcdb6.exe\\\" elapsed_us=2718\\nDG_JOB_DIAG listed_pid=46484 index=1 elapsed_us=3834\\nDG_JOB_DIAG pid=46484 opened_handle_in_job=1 elapsed_us=3935\\nDG_JOB_DIAG pid=46484 creation_filetime_100ns=134360416567268387 exit_filetime_100ns=0 elapsed_us=3987\\nDG_JOB_DIAG pid=46484 image=\\\"C:\\\\\\\\Windows\\\\\\\\System32\\\\\\\\conhost.exe\\\" elapsed_us=4560\\n\\nthread 'native_child::windows::windows_dll_policy_tests::resumed_scan_rejects_unsigned_dll_and_loads_system32_dependency' (33772) panicked at crates\\\\diskgraph-engine\\\\src\\\\native_child\\\\windows\\\\windows_dll_policy_tests.rs:152:17:\\noriginal DLL policy deadline: timed out\\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\\nFAILED\\n\\nfailures:\\n\\nfailures:\\n    native_child::windows::windows_dll_policy_tests::resumed_scan_rejects_unsigned_dll_and_loads_system32_dependency\\n\\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 750 filtered out; finished in 20.47s\\n\\n\"}\n{\"file\": \"owner_receipt_v2.json\", \"text\": \"{\\\"exit_code\\\": 1, \\\"elapsed_seconds\\\": 34.171999999991385, \\\"job_retirement_confirmed\\\": true}\"}\n",
+      "workflow_recording_attention": {
+        "status": "recording_session_missing",
+        "candidate_session_id": "wc_sess_tdT_FU7pA0vVQmEa",
+        "project": "agent:home-wandl-61c36d31a9af4c1a:diskgraph-1bcb9f0f",
+        "reason": "same_window_recent_explicit_association"
+      },
+      "stdout_lines": 2
+    },
+    "error": null
+  },
+  "isError": false
+}

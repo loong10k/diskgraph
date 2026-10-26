@@ -1,0 +1,24 @@
+{
+  "base_commit": "1cc15c244e3dbb7f04cda25d392cc07dd4fce03e",
+  "test_only_overlay": true,
+  "platform": "Linux ARM64 Docker",
+  "rust": "1.97.1",
+  "cpu_limit": 2,
+  "test_threads": 10,
+  "result": {
+    "passed": 8,
+    "failed": 2,
+    "ignored": 0
+  },
+  "failures": [
+    "partial_unreadable_and_depth_coverage_never_claim_removed_paths",
+    "same_identity_renamed_path_is_one_addition_and_one_removal_not_growth"
+  ],
+  "root_cause_proven": false,
+  "production_acceptance": false,
+  "uncompressed_sha256": {
+    "trace_final.log.gz": "84aa4ecbf16c93ab210dd50ecb0f22fb19d3c720554f0516937c298b4c5e4766",
+    "executed_fixture.rs.txt": "9801664649e0b011b655dd2c0f19e1f188621ab490915693fe88208e1b9a834a",
+    "executed_request_authorizer.rs.txt": "025bdcacadf68d002a9cc2d3d43c1bbc0b6658d6cfb8a7212eea698e06fc8955"
+  }
+}

@@ -1,0 +1,4 @@
+{"p50_ns":6292,"p95_ns":9459,"phase":"control_existing_server_with_deadline","samples":1000}
+{"p50_ns":183459,"p95_ns":246334,"phase":"fresh_reader_open_configure","samples":1000}
+{"p50_ns":7333,"p95_ns":12417,"phase":"ownership_negative_query","samples":1000}
+{"p50_ns":21875,"p95_ns":28125,"phase":"reader_drop","samples":1000}

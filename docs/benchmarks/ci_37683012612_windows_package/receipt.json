@@ -1,0 +1,19 @@
+{
+  "run": 37683012612,
+  "job": 113004487156,
+  "commit": "b03de97b32e767c23b04e8308b876cd9eaee4a88",
+  "result": "success",
+  "platform": "x86_64-pc-windows-msvc",
+  "actual_counts": {
+    "stdio": 18,
+    "http": 13,
+    "upgrade_rollback": 7,
+    "controlled_load": 4
+  },
+  "archive_sha256": "96e570bc20394cc0d0729f7e9be65ccde3fa1b7440d97f090eaaf084f66b2b3c",
+  "worker_sha256": "80dcb0a79e791cb70dd3a5981b1fa70536d5ae05e7eda65b666bc7b3fcf16ee9",
+  "raw_sha256": "cf1e25dbbf795175b597bfbd14b88ee39e7f4427494aeded2e12cd12c448a255",
+  "full_windows_matrix_accepted": false,
+  "three_platform_accepted": false,
+  "supervisor_lifecycle_accepted": false
+}

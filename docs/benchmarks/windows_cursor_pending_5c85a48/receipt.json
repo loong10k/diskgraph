@@ -1,0 +1,58 @@
+{
+  "candidate": "5c85a48703ce23f7271d43d1f5273fa338428a32",
+  "run": 37601447468,
+  "test_source_sha256": "49e5fe841f1015be9ce197f002f0653508366116136307995e24a8c15016baca",
+  "native_tests": [
+    {
+      "rust": "stable",
+      "job": 112726538681,
+      "artifact": 11472828570,
+      "case": "cleanup_cursor_retains_current_child_across_open_failure_and_pending_deletion",
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0,
+      "log": "stable_cleanup_cursor_retains_current_child_across_open_failure_and_pending_deletion.log.gz",
+      "raw_sha256": "f799ce011f6aecf8cad2976cdd04da87c34858b969cab0d6792ca5c7db12621a",
+      "stored_sha256": "80e37109eec978613e7caf6e443f6ee0103329501dee596da165c8b74a47359c"
+    },
+    {
+      "rust": "stable",
+      "job": 112726538681,
+      "artifact": 11472828570,
+      "case": "cleanup_mark_requires_current_identity_and_live_budget_before_mutation",
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0,
+      "log": "stable_cleanup_mark_requires_current_identity_and_live_budget_before_mutation.log.gz",
+      "raw_sha256": "3f2c75fdc35a22952165447b0180ddec334968e6a58ca71ad449a24c7d4e312c",
+      "stored_sha256": "79ea10a001324b07d87e3150c73275fb7a44e2f5395970bdbfb11951bf562fbc"
+    },
+    {
+      "rust": "1.97.0",
+      "job": 112726538694,
+      "artifact": 11472957855,
+      "case": "cleanup_cursor_retains_current_child_across_open_failure_and_pending_deletion",
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0,
+      "log": "1.97.0_cleanup_cursor_retains_current_child_across_open_failure_and_pending_deletion.log.gz",
+      "raw_sha256": "0f1db6828405e0d54a8ba9516303904c03f1529f542fffa8527a17d13879aea3",
+      "stored_sha256": "a167ad9566225b5d78a18b41c2b44f21e1d52e41ce78689f2e867555dafc2818"
+    },
+    {
+      "rust": "1.97.0",
+      "job": 112726538694,
+      "artifact": 11472957855,
+      "case": "cleanup_mark_requires_current_identity_and_live_budget_before_mutation",
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0,
+      "log": "1.97.0_cleanup_mark_requires_current_identity_and_live_budget_before_mutation.log.gz",
+      "raw_sha256": "a8ca7639f4f5c69b1c5148af18aee19fb2938dc31bc0f3861eb8fe1449576e7f",
+      "stored_sha256": "00813cf60a204b9f3ef1f660faef807c8db9fe642e83e57febadf32a8f9b4cae"
+    }
+  ],
+  "acceptance": "two original cursor Pending cases, both Windows toolchains",
+  "full_windows_suite_acceptance": "pending",
+  "full_production_acceptance": false
+}

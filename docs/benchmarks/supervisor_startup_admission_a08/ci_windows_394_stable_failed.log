@@ -1,0 +1,1002 @@
+﻿2026-10-07T07:37:02.0413657Z Current runner version: '2.337.0'
+2026-10-07T07:37:02.0452547Z ##[group]Runner Image Provisioner
+2026-10-07T07:37:02.0453886Z Hosted Compute Agent
+2026-10-07T07:37:02.0454806Z Version: 20260901.588
+2026-10-07T07:37:02.0455908Z Commit: f88ec8081b781fac6c440065ac7ff9e710ce3d0b
+2026-10-07T07:37:02.0457133Z Build Date: 2026-09-01T19:56:44Z
+2026-10-07T07:37:02.0458280Z Worker ID: {64b737fa-bc2c-49a4-a1ba-451aeacfd1d8}
+2026-10-07T07:37:02.0460048Z Azure Region: eastus
+2026-10-07T07:37:02.0460940Z ##[endgroup]
+2026-10-07T07:37:02.0463271Z ##[group]Operating System
+2026-10-07T07:37:02.0464392Z Microsoft Windows Server 2025
+2026-10-07T07:37:02.0465451Z 10.0.26100
+2026-10-07T07:37:02.0466251Z Datacenter
+2026-10-07T07:37:02.0467074Z ##[endgroup]
+2026-10-07T07:37:02.0468027Z ##[group]Runner Image
+2026-10-07T07:37:02.0469075Z Image: windows-2025-vs2026
+2026-10-07T07:37:02.0470154Z Version: 20260925.250.1
+2026-10-07T07:37:02.0472786Z Included Software: https://github.com/actions/runner-images/blob/win25-vs2026/20260925.250/images/windows/Windows2025-VS2026-Readme.md
+2026-10-07T07:37:02.0475909Z Image Release: https://github.com/actions/runner-images/releases/tag/win25-vs2026%2F20260925.250
+2026-10-07T07:37:02.0477731Z ##[endgroup]
+2026-10-07T07:37:02.0480165Z ##[group]GITHUB_TOKEN Permissions
+2026-10-07T07:37:02.0483130Z Contents: read
+2026-10-07T07:37:02.0484081Z Metadata: read
+2026-10-07T07:37:02.0484982Z ##[endgroup]
+2026-10-07T07:37:02.0487814Z Secret source: Actions
+2026-10-07T07:37:02.0489283Z Cache mode: write
+2026-10-07T07:37:02.0490380Z Prepare workflow directory
+2026-10-07T07:37:02.0921670Z Prepare all required actions
+2026-10-07T07:37:02.0997365Z Getting action download info
+2026-10-07T07:37:02.2713576Z Download action repository 'actions/checkout@11d5960a326750d5838078e36cf38b85af677262' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-07T07:37:02.4158564Z Download action repository 'dtolnay/rust-toolchain@stable' (SHA:89b12181fb390509a0842a86cc55eeb8eb928c1d)
+2026-10-07T07:37:02.5236617Z Download action repository 'Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6' (SHA:6323deb102c322ba6fcbdcafc7e3dddab59af2b6)
+2026-10-07T07:37:02.7227341Z Download action repository 'actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-07T07:37:02.9677419Z Download action repository 'actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97' (SHA:5fda3b95a4ea91299a34e894583c3862153e4b97)
+2026-10-07T07:37:03.5147410Z Complete job name: Test (windows-latest / Rust stable)
+2026-10-07T07:37:03.7196843Z ##[group]Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+2026-10-07T07:37:03.7198113Z with:
+2026-10-07T07:37:03.7198611Z   repository: loong10k/diskgraph
+2026-10-07T07:37:03.7204218Z   token: ***
+2026-10-07T07:37:03.7204740Z   ssh-strict: true
+2026-10-07T07:37:03.7205242Z   ssh-user: git
+2026-10-07T07:37:03.7205755Z   persist-credentials: true
+2026-10-07T07:37:03.7206319Z   clean: true
+2026-10-07T07:37:03.7206864Z   sparse-checkout-cone-mode: true
+2026-10-07T07:37:03.7207465Z   fetch-depth: 1
+2026-10-07T07:37:03.7207944Z   fetch-tags: false
+2026-10-07T07:37:03.7208455Z   show-progress: true
+2026-10-07T07:37:03.7208870Z   lfs: false
+2026-10-07T07:37:03.7209256Z   submodules: false
+2026-10-07T07:37:03.7209667Z   set-safe-directory: true
+2026-10-07T07:37:03.7210131Z   allow-unsafe-pr-checkout: false
+2026-10-07T07:37:03.7210902Z env:
+2026-10-07T07:37:03.7211283Z   CARGO_TERM_COLOR: always
+2026-10-07T07:37:03.7211734Z   RUSTFLAGS: -D warnings
+2026-10-07T07:37:03.7212220Z ##[endgroup]
+2026-10-07T07:37:03.8733990Z Syncing repository: loong10k/diskgraph
+2026-10-07T07:37:03.8735877Z ##[group]Getting Git version info
+2026-10-07T07:37:03.8736520Z Working directory is 'D:\a\diskgraph\diskgraph'
+2026-10-07T07:37:03.9698794Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-07T07:37:04.4060930Z git version 2.55.0.windows.5
+2026-10-07T07:37:04.4110504Z ##[endgroup]
+2026-10-07T07:37:04.4131068Z Temporarily overriding HOME='D:\a\_temp\c84b8673-7d46-4137-b8e3-652f280c372d' before making global git config changes
+2026-10-07T07:37:04.4132408Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-07T07:37:04.4142180Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\diskgraph\diskgraph
+2026-10-07T07:37:04.4790125Z Deleting the contents of 'D:\a\diskgraph\diskgraph'
+2026-10-07T07:37:04.4796283Z ##[group]Initializing the repository
+2026-10-07T07:37:04.4805018Z [command]"C:\Program Files\Git\bin\git.exe" init D:\a\diskgraph\diskgraph
+2026-10-07T07:37:04.5672598Z Initialized empty Git repository in D:/a/diskgraph/diskgraph/.git/
+2026-10-07T07:37:04.5720321Z [command]"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/loong10k/diskgraph
+2026-10-07T07:37:04.6366342Z ##[endgroup]
+2026-10-07T07:37:04.6367766Z ##[group]Disabling automatic garbage collection
+2026-10-07T07:37:04.6376155Z [command]"C:\Program Files\Git\bin\git.exe" config --local gc.auto 0
+2026-10-07T07:37:04.6708016Z ##[endgroup]
+2026-10-07T07:37:04.6709138Z ##[group]Setting up auth
+2026-10-07T07:37:04.6721995Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-07T07:37:04.7050648Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-07T07:37:06.4901064Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-07T07:37:06.5208426Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-07T07:37:07.3083790Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-07T07:37:07.3568003Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-07T07:37:07.9430926Z [command]"C:\Program Files\Git\bin\git.exe" config --local http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+2026-10-07T07:37:07.9763380Z ##[endgroup]
+2026-10-07T07:37:07.9764220Z ##[group]Fetching the repository
+2026-10-07T07:37:07.9780956Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +394b3af3c4821d6e94904b4b37519fcb62b6ce2d:refs/remotes/origin/main
+2026-10-07T07:37:13.8162480Z From https://github.com/loong10k/diskgraph
+2026-10-07T07:37:13.8163642Z  * [new ref]         394b3af3c4821d6e94904b4b37519fcb62b6ce2d -> origin/main
+2026-10-07T07:37:13.8208357Z ##[endgroup]
+2026-10-07T07:37:13.8209010Z ##[group]Determining the checkout info
+2026-10-07T07:37:13.8212697Z ##[endgroup]
+2026-10-07T07:37:13.8228880Z [command]"C:\Program Files\Git\bin\git.exe" sparse-checkout disable
+2026-10-07T07:37:14.0467558Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all extensions.worktreeConfig
+2026-10-07T07:37:14.0802072Z ##[group]Checking out the ref
+2026-10-07T07:37:14.0810381Z [command]"C:\Program Files\Git\bin\git.exe" checkout --progress --force -B main refs/remotes/origin/main
+2026-10-07T07:37:15.1525756Z Updating files:  41% (3050/7357)
+2026-10-07T07:37:15.1678532Z Updating files:  42% (3090/7357)
+2026-10-07T07:37:15.1856793Z Updating files:  43% (3164/7357)
+2026-10-07T07:37:15.2015793Z Updating files:  44% (3238/7357)
+2026-10-07T07:37:15.2177935Z Updating files:  45% (3311/7357)
+2026-10-07T07:37:15.2459409Z Updating files:  46% (3385/7357)
+2026-10-07T07:37:15.3623911Z Updating files:  47% (3458/7357)
+2026-10-07T07:37:15.3810014Z Updating files:  48% (3532/7357)
+2026-10-07T07:37:15.3993251Z Updating files:  49% (3605/7357)
+2026-10-07T07:37:15.4155355Z Updating files:  50% (3679/7357)
+2026-10-07T07:37:15.4305578Z Updating files:  51% (3753/7357)
+2026-10-07T07:37:15.4454088Z Updating files:  52% (3826/7357)
+2026-10-07T07:37:15.4627417Z Updating files:  53% (3900/7357)
+2026-10-07T07:37:15.4822843Z Updating files:  54% (3973/7357)
+2026-10-07T07:37:15.5001056Z Updating files:  55% (4047/7357)
+2026-10-07T07:37:15.5189541Z Updating files:  56% (4120/7357)
+2026-10-07T07:37:15.5493813Z Updating files:  57% (4194/7357)
+2026-10-07T07:37:15.5677405Z Updating files:  58% (4268/7357)
+2026-10-07T07:37:15.5898721Z Updating files:  59% (4341/7357)
+2026-10-07T07:37:15.6056682Z Updating files:  60% (4415/7357)
+2026-10-07T07:37:15.6225722Z Updating files:  61% (4488/7357)
+2026-10-07T07:37:15.6381070Z Updating files:  62% (4562/7357)
+2026-10-07T07:37:15.6536043Z Updating files:  63% (4635/7357)
+2026-10-07T07:37:15.6688020Z Updating files:  64% (4709/7357)
+2026-10-07T07:37:15.6857694Z Updating files:  65% (4783/7357)
+2026-10-07T07:37:15.7034811Z Updating files:  66% (4856/7357)
+2026-10-07T07:37:15.7209896Z Updating files:  67% (4930/7357)
+2026-10-07T07:37:15.7448081Z Updating files:  68% (5003/7357)
+2026-10-07T07:37:15.7610045Z Updating files:  69% (5077/7357)
+2026-10-07T07:37:15.7861319Z Updating files:  70% (5150/7357)
+2026-10-07T07:37:15.8021905Z Updating files:  71% (5224/7357)
+2026-10-07T07:37:15.8206624Z Updating files:  72% (5298/7357)
+2026-10-07T07:37:15.8385310Z Updating files:  73% (5371/7357)
+2026-10-07T07:37:15.8531960Z Updating files:  74% (5445/7357)
+2026-10-07T07:37:15.8695428Z Updating files:  75% (5518/7357)
+2026-10-07T07:37:15.8865318Z Updating files:  76% (5592/7357)
+2026-10-07T07:37:15.9044697Z Updating files:  77% (5665/7357)
+2026-10-07T07:37:15.9293218Z Updating files:  78% (5739/7357)
+2026-10-07T07:37:15.9511452Z Updating files:  79% (5813/7357)
+2026-10-07T07:37:15.9672297Z Updating files:  80% (5886/7357)
+2026-10-07T07:37:15.9845654Z Updating files:  81% (5960/7357)
+2026-10-07T07:37:16.0014230Z Updating files:  82% (6033/7357)
+2026-10-07T07:37:16.0156270Z Updating files:  83% (6107/7357)
+2026-10-07T07:37:16.0437776Z Updating files:  84% (6180/7357)
+2026-10-07T07:37:16.0591754Z Updating files:  85% (6254/7357)
+2026-10-07T07:37:16.0737023Z Updating files:  86% (6328/7357)
+2026-10-07T07:37:16.0887804Z Updating files:  87% (6401/7357)
+2026-10-07T07:37:16.1033157Z Updating files:  88% (6475/7357)
+2026-10-07T07:37:16.1191483Z Updating files:  89% (6548/7357)
+2026-10-07T07:37:16.1336001Z Updating files:  90% (6622/7357)
+2026-10-07T07:37:16.1567686Z Updating files:  91% (6695/7357)
+2026-10-07T07:37:16.1598933Z Updating files:  91% (6753/7357)
+2026-10-07T07:37:16.1750381Z Updating files:  92% (6769/7357)
+2026-10-07T07:37:16.1899392Z Updating files:  93% (6843/7357)
+2026-10-07T07:37:16.2042218Z Updating files:  94% (6916/7357)
+2026-10-07T07:37:16.2183837Z Updating files:  95% (6990/7357)
+2026-10-07T07:37:16.2443121Z Updating files:  96% (7063/7357)
+2026-10-07T07:37:16.2626768Z Updating files:  97% (7137/7357)
+2026-10-07T07:37:16.2862966Z Updating files:  98% (7210/7357)
+2026-10-07T07:37:16.3051411Z Updating files:  99% (7284/7357)
+2026-10-07T07:37:16.3051835Z Updating files: 100% (7357/7357)
+2026-10-07T07:37:16.3052186Z Updating files: 100% (7357/7357), done.
+2026-10-07T07:37:16.3291729Z Switched to a new branch 'main'
+2026-10-07T07:37:16.3364224Z branch 'main' set up to track 'origin/main'.
+2026-10-07T07:37:16.3525233Z ##[endgroup]
+2026-10-07T07:37:16.3956684Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+2026-10-07T07:37:16.4229194Z 394b3af3c4821d6e94904b4b37519fcb62b6ce2d
+2026-10-07T07:37:16.4786511Z ##[group]Run dtolnay/rust-toolchain@stable
+2026-10-07T07:37:16.4786951Z with:
+2026-10-07T07:37:16.4787135Z   toolchain: stable
+2026-10-07T07:37:16.4787349Z   components: rustfmt, clippy
+2026-10-07T07:37:16.4787568Z env:
+2026-10-07T07:37:16.4787729Z   CARGO_TERM_COLOR: always
+2026-10-07T07:37:16.4787941Z   RUSTFLAGS: -D warnings
+2026-10-07T07:37:16.4788146Z ##[endgroup]
+2026-10-07T07:37:16.4854092Z ##[start-action display=Parse toolchain version;id=__dtolnay_rust-toolchain.parse]
+2026-10-07T07:37:16.5032510Z ##[group]Run if [[ -z $toolchain ]]; then
+2026-10-07T07:37:16.5032894Z [36;1mif [[ -z $toolchain ]]; then[0m
+2026-10-07T07:37:16.5033433Z [36;1m  # GitHub does not enforce `required: true` inputs itself. https://github.com/actions/runner/issues/1070[0m
+2026-10-07T07:37:16.5033987Z [36;1m  echo "'toolchain' is a required input" >&2[0m
+2026-10-07T07:37:16.5034269Z [36;1m  exit 1[0m
+2026-10-07T07:37:16.5034638Z [36;1melif [[ $toolchain =~ ^stable' '[0-9]+' '(year|month|week|day)s?' 'ago$ ]]; then[0m
+2026-10-07T07:37:16.5035041Z [36;1m  if [[ Windows == macOS ]]; then[0m
+2026-10-07T07:37:16.5035549Z [36;1m    echo "toolchain=1.$((($(date -v-$(sed 's/stable \([0-9]*\) \(.\).*/\1\2/' <<< $toolchain) +%s)/60/60/24-16569)/7/6))" >> $GITHUB_OUTPUT[0m
+2026-10-07T07:37:16.5036035Z [36;1m  else[0m
+2026-10-07T07:37:16.5036411Z [36;1m    echo "toolchain=1.$((($(date --date "${toolchain#stable }" +%s)/60/60/24-16569)/7/6))" >> $GITHUB_OUTPUT[0m
+2026-10-07T07:37:16.5036850Z [36;1m  fi[0m
+2026-10-07T07:37:16.5037127Z [36;1melif [[ $toolchain =~ ^stable' 'minus' '[0-9]+' 'releases?$ ]]; then[0m
+2026-10-07T07:37:16.5037638Z [36;1m  echo "toolchain=1.$((($(date +%s)/60/60/24-16569)/7/6-${toolchain//[^0-9]/}))" >> $GITHUB_OUTPUT[0m
+2026-10-07T07:37:16.5038075Z [36;1melif [[ $toolchain =~ ^1\.[0-9]+$ ]]; then[0m
+2026-10-07T07:37:16.5038571Z [36;1m  echo "toolchain=1.$((i=${toolchain#1.}, c=($(date +%s)/60/60/24-16569)/7/6, i+9*i*(10*i<=c)+90*i*(100*i<=c)))" >> $GITHUB_OUTPUT[0m
+2026-10-07T07:37:16.5039038Z [36;1melse[0m
+2026-10-07T07:37:16.5039252Z [36;1m  echo "toolchain=$toolchain" >> $GITHUB_OUTPUT[0m
+2026-10-07T07:37:16.5039522Z [36;1mfi[0m
+2026-10-07T07:37:16.5064915Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-07T07:37:16.5065319Z env:
+2026-10-07T07:37:16.5065497Z   CARGO_TERM_COLOR: always
+2026-10-07T07:37:16.5065729Z   RUSTFLAGS: -D warnings
+2026-10-07T07:37:16.5065930Z   toolchain: stable
+2026-10-07T07:37:16.5066109Z ##[endgroup]
+2026-10-07T07:37:16.6917370Z ##[end-action id=__dtolnay_rust-toolchain.parse;outcome=success;conclusion=success;duration_ms=206]
+2026-10-07T07:37:16.6986233Z ##[start-action display=Construct rustup command line;id=__dtolnay_rust-toolchain.flags]
+2026-10-07T07:37:16.7541477Z ##[group]Run echo "targets=$(for t in ${targets//,/ }; do echo -n ' --target' $t; done)" >> $GITHUB_OUTPUT
+2026-10-07T07:37:16.7542254Z [36;1mecho "targets=$(for t in ${targets//,/ }; do echo -n ' --target' $t; done)" >> $GITHUB_OUTPUT[0m
+2026-10-07T07:37:16.7542971Z [36;1mecho "components=$(for c in ${components//,/ }; do echo -n ' --component' $c; done)" >> $GITHUB_OUTPUT[0m
+2026-10-07T07:37:16.7543516Z [36;1mecho "downgrade=" >> $GITHUB_OUTPUT[0m
+2026-10-07T07:37:16.7583883Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-07T07:37:16.7584288Z env:
+2026-10-07T07:37:16.7584463Z   CARGO_TERM_COLOR: always
+2026-10-07T07:37:16.7584677Z   RUSTFLAGS: -D warnings
+2026-10-07T07:37:16.7584881Z   targets: 
+2026-10-07T07:37:16.7585075Z   components: rustfmt, clippy
+2026-10-07T07:37:16.7585304Z ##[endgroup]
+2026-10-07T07:37:16.8274979Z ##[end-action id=__dtolnay_rust-toolchain.flags;outcome=success;conclusion=success;duration_ms=128]
+2026-10-07T07:37:16.8277555Z ##[start-action display=Set $CARGO_HOME;id=__dtolnay_rust-toolchain.__run]
+2026-10-07T07:37:16.8412471Z ##[group]Run echo CARGO_HOME=${CARGO_HOME:-"$USERPROFILE\.cargo"} >> $GITHUB_ENV
+2026-10-07T07:37:16.8414678Z [36;1mecho CARGO_HOME=${CARGO_HOME:-"$USERPROFILE\.cargo"} >> $GITHUB_ENV[0m
+2026-10-07T07:37:16.8430202Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-07T07:37:16.8430591Z env:
+2026-10-07T07:37:16.8430762Z   CARGO_TERM_COLOR: always
+2026-10-07T07:37:16.8430979Z   RUSTFLAGS: -D warnings
+2026-10-07T07:37:16.8431180Z ##[endgroup]
+2026-10-07T07:37:16.8846106Z ##[end-action id=__dtolnay_rust-toolchain.__run;outcome=success;conclusion=success;duration_ms=56]
+2026-10-07T07:37:16.8848492Z ##[start-action display=Install rustup if needed;id=__dtolnay_rust-toolchain.__run_2]
+2026-10-07T07:37:16.8861727Z ##[end-action id=__dtolnay_rust-toolchain.__run_2;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-10-07T07:37:16.8864961Z ##[start-action display=Install rustup if needed on windows;id=__dtolnay_rust-toolchain.__run_3]
+2026-10-07T07:37:16.9013065Z ##[group]Run if ! command -v rustup &>/dev/null; then
+2026-10-07T07:37:16.9013448Z [36;1mif ! command -v rustup &>/dev/null; then[0m
+2026-10-07T07:37:16.9015459Z [36;1m  curl --proto '=https' --tlsv1.2 --retry 10 --retry-connrefused --location --silent --show-error --fail https://win.rustup.rs/x86_64 --output 'D:\a\_temp\rustup-init.exe'[0m
+2026-10-07T07:37:16.9016371Z [36;1m  'D:\a\_temp\rustup-init.exe' --default-toolchain none --no-modify-path -y[0m
+2026-10-07T07:37:16.9016811Z [36;1m  echo "$CARGO_HOME\bin" >> $GITHUB_PATH[0m
+2026-10-07T07:37:16.9017068Z [36;1mfi[0m
+2026-10-07T07:37:16.9032235Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-07T07:37:16.9032615Z env:
+2026-10-07T07:37:16.9032780Z   CARGO_TERM_COLOR: always
+2026-10-07T07:37:16.9032990Z   RUSTFLAGS: -D warnings
+2026-10-07T07:37:16.9033224Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-07T07:37:16.9033466Z ##[endgroup]
+2026-10-07T07:37:16.9593181Z ##[end-action id=__dtolnay_rust-toolchain.__run_3;outcome=success;conclusion=success;duration_ms=72]
+2026-10-07T07:37:16.9606329Z ##[start-action display=rustup toolchain install stable;id=__dtolnay_rust-toolchain.__run_4]
+2026-10-07T07:37:16.9748443Z ##[group]Run log=$(mktemp)
+2026-10-07T07:37:16.9748699Z [36;1mlog=$(mktemp)[0m
+2026-10-07T07:37:16.9748911Z [36;1mtrap 'rm -f "$log"' EXIT[0m
+2026-10-07T07:37:16.9749157Z [36;1mfor attempt in 1 2 3 4 5; do[0m
+2026-10-07T07:37:16.9749796Z [36;1m  if rustup toolchain install stable --component rustfmt --component clippy --profile minimal --no-self-update --force-non-host 2>&1 | tee "$log"; then[0m
+2026-10-07T07:37:16.9750737Z [36;1m    break[0m
+2026-10-07T07:37:16.9750916Z [36;1m  else[0m
+2026-10-07T07:37:16.9751086Z [36;1m    status=$?[0m
+2026-10-07T07:37:16.9751276Z [36;1m  fi[0m
+2026-10-07T07:37:16.9751543Z [36;1m  if [[ $attempt == 5 ]] || ! grep -Fq 'checksum failed for ' "$log" \[0m
+2026-10-07T07:37:16.9752077Z [36;1m      || ! grep -Fq 'this is likely due to an ongoing update of the official release server' "$log"; then[0m
+2026-10-07T07:37:16.9752534Z [36;1m    exit "$status"[0m
+2026-10-07T07:37:16.9752731Z [36;1m  fi[0m
+2026-10-07T07:37:16.9753062Z [36;1m  echo "Retrying rustup toolchain install in 30 seconds (retry $attempt of 4)" >&2[0m
+2026-10-07T07:37:16.9753467Z [36;1m  sleep 30[0m
+2026-10-07T07:37:16.9753641Z [36;1mdone[0m
+2026-10-07T07:37:16.9768885Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-07T07:37:16.9769292Z env:
+2026-10-07T07:37:16.9769467Z   CARGO_TERM_COLOR: always
+2026-10-07T07:37:16.9769679Z   RUSTFLAGS: -D warnings
+2026-10-07T07:37:16.9769913Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-07T07:37:16.9770457Z   RUSTUP_PERMIT_COPY_RENAME: 1
+2026-10-07T07:37:16.9770680Z ##[endgroup]
+2026-10-07T07:37:20.3962946Z info: syncing channel updates for stable-x86_64-pc-windows-msvc
+2026-10-07T07:37:20.9347542Z info: latest update on 2026-10-01 for version 1.99.0 (b940084d7 2026-09-28)
+2026-10-07T07:37:20.9663810Z info: removing previous version of component rustfmt
+2026-10-07T07:37:20.9822907Z info: removing previous version of component clippy
+2026-10-07T07:37:21.0138303Z info: removing previous version of component rust-std for target x86_64-pc-windows-gnu
+2026-10-07T07:37:21.1406040Z info: removing previous version of component rust-std for target i686-pc-windows-msvc
+2026-10-07T07:37:21.2355172Z info: removing previous version of component cargo
+2026-10-07T07:37:21.3313357Z info: removing previous version of component rust-std
+2026-10-07T07:37:21.4260534Z info: removing previous version of component rustc
+2026-10-07T07:37:21.5686912Z info: downloading 7 components
+2026-10-07T07:37:34.5452001Z 
+2026-10-07T07:37:34.5773134Z   stable-x86_64-pc-windows-msvc updated - rustc 1.99.0 (b940084d7 2026-09-28) (from rustc 1.98.1 (48a229cea 2026-09-01))
+2026-10-07T07:37:34.5773911Z 
+2026-10-07T07:37:34.6127882Z ##[end-action id=__dtolnay_rust-toolchain.__run_4;outcome=success;conclusion=success;duration_ms=17652]
+2026-10-07T07:37:34.6135429Z ##[start-action display=rustup default stable;id=__dtolnay_rust-toolchain.__run_5]
+2026-10-07T07:37:34.6280329Z ##[group]Run rustup default stable --force-non-host
+2026-10-07T07:37:34.6280687Z [36;1mrustup default stable --force-non-host[0m
+2026-10-07T07:37:34.6296653Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-07T07:37:34.6297036Z env:
+2026-10-07T07:37:34.6297208Z   CARGO_TERM_COLOR: always
+2026-10-07T07:37:34.6297434Z   RUSTFLAGS: -D warnings
+2026-10-07T07:37:34.6297663Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-07T07:37:34.6297920Z ##[endgroup]
+2026-10-07T07:37:34.8998757Z info: using existing install for stable-x86_64-pc-windows-msvc
+2026-10-07T07:37:34.9079972Z info: default toolchain set to stable-x86_64-pc-windows-msvc
+2026-10-07T07:37:34.9080294Z 
+2026-10-07T07:37:34.9285986Z   stable-x86_64-pc-windows-msvc unchanged - rustc 1.99.0 (b940084d7 2026-09-28)
+2026-10-07T07:37:34.9286378Z 
+2026-10-07T07:37:34.9373271Z ##[end-action id=__dtolnay_rust-toolchain.__run_5;outcome=success;conclusion=success;duration_ms=323]
+2026-10-07T07:37:34.9375783Z ##[start-action display=Create cachekey;id=__dtolnay_rust-toolchain.rustc-version]
+2026-10-07T07:37:34.9527493Z ##[group]Run DATE=$(rustc +stable --version --verbose | sed -ne 's/^commit-date: \(20[0-9][0-9]\)-\([01][0-9]\)-\([0-3][0-9]\)$/\1\2\3/p')
+2026-10-07T07:37:34.9528314Z [36;1mDATE=$(rustc +stable --version --verbose | sed -ne 's/^commit-date: \(20[0-9][0-9]\)-\([01][0-9]\)-\([0-3][0-9]\)$/\1\2\3/p')[0m
+2026-10-07T07:37:34.9528956Z [36;1mHASH=$(rustc +stable --version --verbose | sed -ne 's/^commit-hash: //p')[0m
+2026-10-07T07:37:34.9529440Z [36;1mecho "cachekey=$(echo $DATE$HASH | head -c12)" >> $GITHUB_OUTPUT[0m
+2026-10-07T07:37:34.9544663Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-07T07:37:34.9545023Z env:
+2026-10-07T07:37:34.9545192Z   CARGO_TERM_COLOR: always
+2026-10-07T07:37:34.9545403Z   RUSTFLAGS: -D warnings
+2026-10-07T07:37:34.9545643Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-07T07:37:34.9545887Z ##[endgroup]
+2026-10-07T07:37:35.8043366Z ##[end-action id=__dtolnay_rust-toolchain.rustc-version;outcome=success;conclusion=success;duration_ms=866]
+2026-10-07T07:37:35.8045727Z ##[start-action display=Disable incremental compilation;id=__dtolnay_rust-toolchain.__run_6]
+2026-10-07T07:37:35.8187383Z ##[group]Run if [ -z "${CARGO_INCREMENTAL+set}" ]; then
+2026-10-07T07:37:35.8187774Z [36;1mif [ -z "${CARGO_INCREMENTAL+set}" ]; then[0m
+2026-10-07T07:37:35.8188080Z [36;1m  echo CARGO_INCREMENTAL=0 >> $GITHUB_ENV[0m
+2026-10-07T07:37:35.8188339Z [36;1mfi[0m
+2026-10-07T07:37:35.8204404Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-07T07:37:35.8204786Z env:
+2026-10-07T07:37:35.8204960Z   CARGO_TERM_COLOR: always
+2026-10-07T07:37:35.8205176Z   RUSTFLAGS: -D warnings
+2026-10-07T07:37:35.8205406Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-07T07:37:35.8205657Z ##[endgroup]
+2026-10-07T07:37:35.8624068Z ##[end-action id=__dtolnay_rust-toolchain.__run_6;outcome=success;conclusion=success;duration_ms=57]
+2026-10-07T07:37:35.8626317Z ##[start-action display=Enable colors in Cargo output;id=__dtolnay_rust-toolchain.__run_7]
+2026-10-07T07:37:35.8776619Z ##[group]Run if [ -z "${CARGO_TERM_COLOR+set}" ]; then
+2026-10-07T07:37:35.8776993Z [36;1mif [ -z "${CARGO_TERM_COLOR+set}" ]; then[0m
+2026-10-07T07:37:35.8777478Z [36;1m  echo CARGO_TERM_COLOR=always >> $GITHUB_ENV[0m
+2026-10-07T07:37:35.8777754Z [36;1mfi[0m
+2026-10-07T07:37:35.8792817Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-07T07:37:35.8793187Z env:
+2026-10-07T07:37:35.8793361Z   CARGO_TERM_COLOR: always
+2026-10-07T07:37:35.8793573Z   RUSTFLAGS: -D warnings
+2026-10-07T07:37:35.8793808Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-07T07:37:35.8794067Z   CARGO_INCREMENTAL: 0
+2026-10-07T07:37:35.8794266Z ##[endgroup]
+2026-10-07T07:37:35.9201535Z ##[end-action id=__dtolnay_rust-toolchain.__run_7;outcome=success;conclusion=success;duration_ms=57]
+2026-10-07T07:37:35.9203829Z ##[start-action display=Enable Cargo sparse registry;id=__dtolnay_rust-toolchain.__run_8]
+2026-10-07T07:37:35.9335023Z ##[group]Run # implemented in 1.66, stabilized in 1.68, made default in 1.70
+2026-10-07T07:37:35.9335547Z [36;1m# implemented in 1.66, stabilized in 1.68, made default in 1.70[0m
+2026-10-07T07:37:35.9336215Z [36;1mif [ -z "${CARGO_REGISTRIES_CRATES_IO_PROTOCOL+set}" -o -f "D:\a\_temp"/.implicit_cargo_registries_crates_io_protocol ]; then[0m
+2026-10-07T07:37:35.9336881Z [36;1m  if rustc +stable --version --verbose | grep -q '^release: 1\.6[89]\.'; then[0m
+2026-10-07T07:37:35.9337381Z [36;1m    touch "D:\a\_temp"/.implicit_cargo_registries_crates_io_protocol || true[0m
+2026-10-07T07:37:35.9337848Z [36;1m    echo CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse >> $GITHUB_ENV[0m
+2026-10-07T07:37:35.9338323Z [36;1m  elif rustc +stable --version --verbose | grep -q '^release: 1\.6[67]\.'; then[0m
+2026-10-07T07:37:35.9338829Z [36;1m    touch "D:\a\_temp"/.implicit_cargo_registries_crates_io_protocol || true[0m
+2026-10-07T07:37:35.9339283Z [36;1m    echo CARGO_REGISTRIES_CRATES_IO_PROTOCOL=git >> $GITHUB_ENV[0m
+2026-10-07T07:37:35.9339610Z [36;1m  fi[0m
+2026-10-07T07:37:35.9339780Z [36;1mfi[0m
+2026-10-07T07:37:35.9355384Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-07T07:37:35.9355787Z env:
+2026-10-07T07:37:35.9355964Z   CARGO_TERM_COLOR: always
+2026-10-07T07:37:35.9356183Z   RUSTFLAGS: -D warnings
+2026-10-07T07:37:35.9356410Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-07T07:37:35.9356670Z   CARGO_INCREMENTAL: 0
+2026-10-07T07:37:35.9356873Z ##[endgroup]
+2026-10-07T07:37:36.1377811Z ##[end-action id=__dtolnay_rust-toolchain.__run_8;outcome=success;conclusion=success;duration_ms=217]
+2026-10-07T07:37:36.1381299Z ##[start-action display=Work around spurious network errors in curl 8.0;id=__dtolnay_rust-toolchain.__run_9]
+2026-10-07T07:37:36.1558197Z ##[group]Run # https://rust-lang.zulipchat.com/#narrow/stream/246057-t-cargo/topic/timeout.20investigation
+2026-10-07T07:37:36.1559547Z [36;1m# https://rust-lang.zulipchat.com/#narrow/stream/246057-t-cargo/topic/timeout.20investigation[0m
+2026-10-07T07:37:36.1560635Z [36;1mif rustc +stable --version --verbose | grep -q '^release: 1\.7[01]\.'; then[0m
+2026-10-07T07:37:36.1561471Z [36;1m  echo CARGO_HTTP_MULTIPLEXING=false >> $GITHUB_ENV[0m
+2026-10-07T07:37:36.1562008Z [36;1mfi[0m
+2026-10-07T07:37:36.1580671Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-07T07:37:36.1581066Z env:
+2026-10-07T07:37:36.1581249Z   CARGO_TERM_COLOR: always
+2026-10-07T07:37:36.1581467Z   RUSTFLAGS: -D warnings
+2026-10-07T07:37:36.1581705Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-07T07:37:36.1581970Z   CARGO_INCREMENTAL: 0
+2026-10-07T07:37:36.1582168Z ##[endgroup]
+2026-10-07T07:37:36.2634387Z ##[end-action id=__dtolnay_rust-toolchain.__run_9;outcome=success;conclusion=success;duration_ms=125]
+2026-10-07T07:37:36.2637980Z ##[start-action display=rustc +stable --version --verbose;id=__dtolnay_rust-toolchain.__run_10]
+2026-10-07T07:37:36.2777769Z ##[group]Run rustc +stable --version --verbose
+2026-10-07T07:37:36.2778091Z [36;1mrustc +stable --version --verbose[0m
+2026-10-07T07:37:36.2793155Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-07T07:37:36.2793722Z env:
+2026-10-07T07:37:36.2793894Z   CARGO_TERM_COLOR: always
+2026-10-07T07:37:36.2794104Z   RUSTFLAGS: -D warnings
+2026-10-07T07:37:36.2794326Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-07T07:37:36.2794574Z   CARGO_INCREMENTAL: 0
+2026-10-07T07:37:36.2794761Z ##[endgroup]
+2026-10-07T07:37:36.3663413Z rustc 1.99.0 (b940084d7 2026-09-28)
+2026-10-07T07:37:36.3663906Z binary: rustc
+2026-10-07T07:37:36.3664304Z commit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4
+2026-10-07T07:37:36.3664795Z commit-date: 2026-09-28
+2026-10-07T07:37:36.3665172Z host: x86_64-pc-windows-msvc
+2026-10-07T07:37:36.3665515Z release: 1.99.0
+2026-10-07T07:37:36.3666649Z LLVM version: 23.1.1
+2026-10-07T07:37:36.3798956Z ##[end-action id=__dtolnay_rust-toolchain.__run_10;outcome=success;conclusion=success;duration_ms=115]
+2026-10-07T07:37:36.4030899Z ##[group]Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6
+2026-10-07T07:37:36.4031334Z with:
+2026-10-07T07:37:36.4031557Z   prefix-key: v0-rust
+2026-10-07T07:37:36.4031760Z   add-job-id-key: true
+2026-10-07T07:37:36.4031980Z   add-rust-environment-hash-key: true
+2026-10-07T07:37:36.4032230Z   cache-targets: true
+2026-10-07T07:37:36.4032425Z   cache-all-crates: false
+2026-10-07T07:37:36.4032648Z   cache-workspace-crates: false
+2026-10-07T07:37:36.4032864Z   save-if: true
+2026-10-07T07:37:36.4033040Z   cache-provider: github
+2026-10-07T07:37:36.4033236Z   cache-bin: true
+2026-10-07T07:37:36.4033412Z   lookup-only: false
+2026-10-07T07:37:36.4033598Z   cmd-format: {0}
+2026-10-07T07:37:36.4033754Z env:
+2026-10-07T07:37:36.4033917Z   CARGO_TERM_COLOR: always
+2026-10-07T07:37:36.4034130Z   RUSTFLAGS: -D warnings
+2026-10-07T07:37:36.4034353Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-07T07:37:36.4035011Z   CARGO_INCREMENTAL: 0
+2026-10-07T07:37:36.4035260Z ##[endgroup]
+2026-10-07T07:37:38.7534086Z ##[group]Cache Configuration
+2026-10-07T07:37:38.7535018Z Cache Provider:
+2026-10-07T07:37:38.7535580Z     github
+2026-10-07T07:37:38.7536107Z Workspaces:
+2026-10-07T07:37:38.7536618Z     D:\a\diskgraph\diskgraph
+2026-10-07T07:37:38.7537207Z Cache Paths:
+2026-10-07T07:37:38.7537697Z     C:\Users\runneradmin\.cargo\bin
+2026-10-07T07:37:38.7538287Z     C:\Users\runneradmin\.cargo\.crates.toml
+2026-10-07T07:37:38.7538985Z     C:\Users\runneradmin\.cargo\.crates2.json
+2026-10-07T07:37:38.7539644Z     C:\Users\runneradmin\.cargo\registry
+2026-10-07T07:37:38.7540770Z     C:\Users\runneradmin\.cargo\git
+2026-10-07T07:37:38.7541432Z     D:\a\diskgraph\diskgraph\target
+2026-10-07T07:37:38.7542026Z Restore Key:
+2026-10-07T07:37:38.7542547Z     v0-rust-test-Windows_NT-x64-a24a2915
+2026-10-07T07:37:38.7543144Z Cache Key:
+2026-10-07T07:37:38.7543664Z     v0-rust-test-Windows_NT-x64-a24a2915-65a70141
+2026-10-07T07:37:38.7544379Z .. Prefix:
+2026-10-07T07:37:38.7544855Z   - v0-rust-test-Windows_NT-x64
+2026-10-07T07:37:38.7545450Z .. Environment considered:
+2026-10-07T07:37:38.7545985Z   - Rust Versions:
+2026-10-07T07:37:38.7546667Z     - 1.99.0 x86_64-pc-windows-msvc b940084d7eb6a299eb4bfeb8e34901bc051e7ac4
+2026-10-07T07:37:38.7547401Z   - CARGO_HOME
+2026-10-07T07:37:38.7547817Z   - CARGO_INCREMENTAL
+2026-10-07T07:37:38.7548329Z   - CARGO_TERM_COLOR
+2026-10-07T07:37:38.7548842Z   - RUSTFLAGS
+2026-10-07T07:37:38.7549342Z .. Lockfiles considered:
+2026-10-07T07:37:38.7549946Z   - D:\a\diskgraph\diskgraph\Cargo.lock
+2026-10-07T07:37:38.7551566Z   - D:\a\diskgraph\diskgraph\crates\diskgraph-cli\Cargo.toml
+2026-10-07T07:37:38.7552465Z   - D:\a\diskgraph\diskgraph\crates\diskgraph-core\Cargo.toml
+2026-10-07T07:37:38.7553321Z   - D:\a\diskgraph\diskgraph\crates\diskgraph-disktree\Cargo.toml
+2026-10-07T07:37:38.7554997Z   - D:\a\diskgraph\diskgraph\crates\diskgraph-engine\Cargo.toml
+2026-10-07T07:37:38.7556264Z   - D:\a\diskgraph\diskgraph\crates\diskgraph-ffi\Cargo.toml
+2026-10-07T07:37:38.7557888Z   - D:\a\diskgraph\diskgraph\crates\diskgraph-mcp\Cargo.toml
+2026-10-07T07:37:38.7559209Z   - D:\a\diskgraph\diskgraph\crates\diskgraph-ops\Cargo.toml
+2026-10-07T07:37:38.7561549Z   - D:\a\diskgraph\diskgraph\crates\diskgraph-scan-worker\Cargo.toml
+2026-10-07T07:37:38.7563194Z   - D:\a\diskgraph\diskgraph\crates\diskgraph-store\Cargo.toml
+2026-10-07T07:37:38.7564741Z   - D:\a\diskgraph\diskgraph\crates\diskgraph-testkit\Cargo.toml
+2026-10-07T07:37:38.7566316Z ##[endgroup]
+2026-10-07T07:37:38.7567173Z 
+2026-10-07T07:37:38.7567776Z ... Restoring cache ...
+2026-10-07T07:37:39.0091411Z Cache hit for restore-key: v0-rust-test-Windows_NT-x64-a24a2915-3001dd40
+2026-10-07T07:37:40.0470589Z Received 163577856 of 645393083 (25.3%), 155.5 MBs/sec
+2026-10-07T07:37:41.0591935Z Received 394264576 of 645393083 (61.1%), 187.0 MBs/sec
+2026-10-07T07:37:42.0606730Z Received 578813952 of 645393083 (89.7%), 183.0 MBs/sec
+2026-10-07T07:37:42.3929960Z Received 645393083 of 645393083 (100.0%), 183.8 MBs/sec
+2026-10-07T07:37:42.3930935Z Cache Size: ~615 MB (645393083 B)
+2026-10-07T07:37:42.3995103Z [command]"C:\Program Files\Git\usr\bin\tar.exe" -xf D:/a/_temp/5e7d865c-b1c8-4c33-bfd0-09aacd718aaa/cache.tzst -P -C D:/a/diskgraph/diskgraph --force-local --use-compress-program "zstd -d"
+2026-10-07T07:37:52.1940231Z Cache restored successfully
+2026-10-07T07:37:52.2309812Z Restored from cache key "v0-rust-test-Windows_NT-x64-a24a2915-3001dd40" full match: false.
+2026-10-07T07:37:52.2762189Z ##[group]Run ./scripts/configure_windows_exit_fixtures.ps1
+2026-10-07T07:37:52.2762677Z [36;1m./scripts/configure_windows_exit_fixtures.ps1[0m
+2026-10-07T07:37:52.3408196Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-07T07:37:52.3408598Z env:
+2026-10-07T07:37:52.3408809Z   CARGO_TERM_COLOR: always
+2026-10-07T07:37:52.3409075Z   RUSTFLAGS: -D warnings
+2026-10-07T07:37:52.3409335Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-07T07:37:52.3409627Z   CARGO_INCREMENTAL: 0
+2026-10-07T07:37:52.3409850Z   CACHE_ON_FAILURE: false
+2026-10-07T07:37:52.3410594Z ##[endgroup]
+2026-10-07T07:37:58.1366713Z windows_exit_status_fixture.c
+2026-10-07T07:38:03.5624214Z windows_exit_status_fixture.c
+2026-10-07T07:38:03.8746937Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-10-07T07:38:03.8747407Z with:
+2026-10-07T07:38:03.8747648Z   name: windows-cli-exit-fixtures-stable-37588103680
+2026-10-07T07:38:03.8748008Z   path: D:\a\_temp/diskgraph-windows-exit-fixtures/
+2026-10-07T07:38:03.8748306Z   if-no-files-found: error
+2026-10-07T07:38:03.8748524Z   compression-level: 6
+2026-10-07T07:38:03.8748717Z   overwrite: false
+2026-10-07T07:38:03.8748910Z   include-hidden-files: false
+2026-10-07T07:38:03.8749114Z env:
+2026-10-07T07:38:03.8749276Z   CARGO_TERM_COLOR: always
+2026-10-07T07:38:03.8749481Z   RUSTFLAGS: -D warnings
+2026-10-07T07:38:03.8749700Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-07T07:38:03.8749945Z   CARGO_INCREMENTAL: 0
+2026-10-07T07:38:03.8750142Z   CACHE_ON_FAILURE: false
+2026-10-07T07:38:03.8750554Z   DISKGRAPH_WINDOWS_EXIT_C0000000_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000000.exe
+2026-10-07T07:38:03.8751245Z   DISKGRAPH_WINDOWS_EXIT_C0000005_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000005.exe
+2026-10-07T07:38:03.8751683Z ##[endgroup]
+2026-10-07T07:38:04.0794836Z (node:1868) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-07T07:38:04.0796055Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-07T07:38:04.0878863Z With the provided path, there will be 5 files uploaded
+2026-10-07T07:38:04.0885053Z Artifact name is valid!
+2026-10-07T07:38:04.0887065Z Root directory input is valid!
+2026-10-07T07:38:04.2896838Z Beginning upload of artifact content to blob storage
+2026-10-07T07:38:04.3306313Z (node:1868) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-07T07:38:04.3863482Z Uploaded bytes 113298
+2026-10-07T07:38:04.4038986Z Finished uploading artifact content to blob storage!
+2026-10-07T07:38:04.4040158Z SHA256 digest of uploaded artifact zip is d640e6d4d4488cc787245266807f8aa79c741a17913a36e8d1078bbc5f2d1382
+2026-10-07T07:38:04.4042568Z Finalizing artifact upload
+2026-10-07T07:38:04.6009784Z Artifact windows-cli-exit-fixtures-stable-37588103680.zip successfully finalized. Artifact ID 11467273025
+2026-10-07T07:38:04.6011664Z Artifact windows-cli-exit-fixtures-stable-37588103680 has been successfully uploaded! Final size is 113298 bytes. Artifact ID is 11467273025
+2026-10-07T07:38:04.6022718Z Artifact download URL: https://github.com/loong10k/diskgraph/actions/runs/37588103680/artifacts/11467273025
+2026-10-07T07:38:04.6329724Z ##[group]Run cargo test -p diskgraph-engine --lib --locked windows_scan_image_lease_tests -- --nocapture
+2026-10-07T07:38:04.6330557Z [36;1mcargo test -p diskgraph-engine --lib --locked windows_scan_image_lease_tests -- --nocapture[0m
+2026-10-07T07:38:04.6399889Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-07T07:38:04.6400237Z env:
+2026-10-07T07:38:04.6400429Z   CARGO_TERM_COLOR: always
+2026-10-07T07:38:04.6400649Z   RUSTFLAGS: -D warnings
+2026-10-07T07:38:04.6400881Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-07T07:38:04.6401146Z   CARGO_INCREMENTAL: 0
+2026-10-07T07:38:04.6401347Z   CACHE_ON_FAILURE: false
+2026-10-07T07:38:04.6401770Z   DISKGRAPH_WINDOWS_EXIT_C0000000_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000000.exe
+2026-10-07T07:38:04.6402445Z   DISKGRAPH_WINDOWS_EXIT_C0000005_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000005.exe
+2026-10-07T07:38:04.6402909Z ##[endgroup]
+2026-10-07T07:38:05.0297371Z [1m[92m    Updating[0m crates.io index
+2026-10-07T07:38:14.2433094Z [1m[92m   Compiling[0m find-msvc-tools v0.1.14
+2026-10-07T07:38:14.2435715Z [1m[92m   Compiling[0m shlex v2.0.1
+2026-10-07T07:38:14.2453789Z [1m[92m   Compiling[0m windows-sys v0.61.2
+2026-10-07T07:38:14.2479290Z [1m[92m   Compiling[0m diskgraph-core v0.3.0 (D:\a\diskgraph\diskgraph\crates\diskgraph-core)
+2026-10-07T07:38:14.5698325Z [1m[92m   Compiling[0m diskgraph-scan-worker v0.3.0 (D:\a\diskgraph\diskgraph\crates\diskgraph-scan-worker)
+2026-10-07T07:38:15.2360323Z [1m[92m   Compiling[0m cc v1.5.1
+2026-10-07T07:38:17.6487289Z [1m[92m   Compiling[0m libsqlite3-sys v0.38.2
+2026-10-07T07:38:17.6488516Z [1m[92m   Compiling[0m diskgraph-engine v0.3.0 (D:\a\diskgraph\diskgraph\crates\diskgraph-engine)
+2026-10-07T07:38:20.2048882Z [1m[92m   Compiling[0m winapi-util v0.1.11
+2026-10-07T07:38:20.2050028Z [1m[92m   Compiling[0m tempfile v3.27.0
+2026-10-07T07:38:20.5133749Z [1m[92m   Compiling[0m diskgraph-disktree-core v0.3.0 (D:\a\diskgraph\diskgraph\crates\diskgraph-disktree-core)
+2026-10-07T07:38:20.9817809Z [1m[92m   Compiling[0m diskgraph-testkit v0.3.0 (D:\a\diskgraph\diskgraph\crates\diskgraph-testkit)
+2026-10-07T07:38:22.0784539Z [1m[92m   Compiling[0m diskgraph-disktree v0.3.0 (D:\a\diskgraph\diskgraph\crates\diskgraph-disktree)
+2026-10-07T07:38:23.0875252Z [1m[92m   Compiling[0m rusqlite v0.40.2
+2026-10-07T07:38:24.5171047Z [1m[92m   Compiling[0m diskgraph-store v0.3.0 (D:\a\diskgraph\diskgraph\crates\diskgraph-store)
+2026-10-07T07:38:34.1507481Z [1m[91merror[E0382][0m[1m[97m: borrow of moved value: `diagnostic`[0m
+2026-10-07T07:38:34.1508767Z    [1m[96m--> [0mcrates\diskgraph-engine\src\live_evidence\git_scoped_semantics_tests.rs:176:13
+2026-10-07T07:38:34.1509835Z     [1m[96m|[0m
+2026-10-07T07:38:34.1517177Z [1m[96m154[0m [1m[96m|[0m         let diagnostic = super::git_source_windows_diagnostic::GitSourceWindowsDiagnostic::new();
+2026-10-07T07:38:34.1519204Z     [1m[96m|[0m             [1m[96m----------[0m [1m[96mmove occurs because `diagnostic` has type `GitSourceWindowsDiagnostic`, which does not implement the `Copy` trait[0m
+2026-10-07T07:38:34.1520943Z [1m[96m...[0m
+2026-10-07T07:38:34.1521915Z [1m[96m163[0m [1m[96m|[0m         drop(diagnostic);
+2026-10-07T07:38:34.1522800Z     [1m[96m|[0m              [1m[96m----------[0m [1m[96mvalue moved here[0m
+2026-10-07T07:38:34.1523590Z [1m[96m...[0m
+2026-10-07T07:38:34.1524252Z [1m[96m176[0m [1m[96m|[0m             diagnostic.report();
+2026-10-07T07:38:34.1525262Z     [1m[96m|[0m             [1m[91m^^^^^^^^^^[0m [1m[91mvalue borrowed here after move[0m
+2026-10-07T07:38:34.1526046Z     [1m[96m|[0m
+2026-10-07T07:38:34.1526996Z [1m[92mnote[0m: if `GitSourceWindowsDiagnostic` implemented `Clone`, you could clone the value
+2026-10-07T07:38:34.1528368Z    [1m[96m--> [0mcrates\diskgraph-engine\src\live_evidence\git_source_windows_diagnostic.rs:17:1
+2026-10-07T07:38:34.1532133Z     [1m[96m|[0m
+2026-10-07T07:38:34.1533033Z [1m[96m 17[0m [1m[96m|[0m pub(super) struct GitSourceWindowsDiagnostic {
+2026-10-07T07:38:34.1534223Z     [1m[96m|[0m [1m[92m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[92mconsider implementing `Clone` for this type[0m
+2026-10-07T07:38:34.1535202Z     [1m[96m|[0m
+2026-10-07T07:38:34.1536194Z    [1m[96m::: [0mcrates\diskgraph-engine\src\live_evidence\git_scoped_semantics_tests.rs:163:14
+2026-10-07T07:38:34.1537095Z     [1m[96m|[0m
+2026-10-07T07:38:34.1537645Z [1m[96m163[0m [1m[96m|[0m         drop(diagnostic);
+2026-10-07T07:38:34.1538553Z     [1m[96m|[0m              [1m[96m----------[0m [1m[96myou could clone this value[0m
+2026-10-07T07:38:34.1539094Z 
+2026-10-07T07:38:35.7850923Z [1m[97mFor more information about this error, try `rustc --explain E0382`.[0m
+2026-10-07T07:38:35.8086908Z [1m[91merror[0m: could not compile `diskgraph-engine` (lib test) due to 1 previous error
+2026-10-07T07:38:35.9228768Z ##[error]Process completed with exit code 1.
+2026-10-07T07:38:35.9445759Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-10-07T07:38:35.9446236Z with:
+2026-10-07T07:38:35.9446509Z   name: windows-current-image-view-stable-37588103680
+2026-10-07T07:38:35.9446873Z   path: D:\a\_temp/windows-current-image-view.log
+2026-10-07T07:38:35.9447186Z   if-no-files-found: error
+2026-10-07T07:38:35.9447411Z   compression-level: 6
+2026-10-07T07:38:35.9447619Z   overwrite: false
+2026-10-07T07:38:35.9447818Z   include-hidden-files: false
+2026-10-07T07:38:35.9448031Z env:
+2026-10-07T07:38:35.9448203Z   CARGO_TERM_COLOR: always
+2026-10-07T07:38:35.9448416Z   RUSTFLAGS: -D warnings
+2026-10-07T07:38:35.9448654Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-07T07:38:35.9448910Z   CARGO_INCREMENTAL: 0
+2026-10-07T07:38:35.9449113Z   CACHE_ON_FAILURE: false
+2026-10-07T07:38:35.9449545Z   DISKGRAPH_WINDOWS_EXIT_C0000000_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000000.exe
+2026-10-07T07:38:35.9450235Z   DISKGRAPH_WINDOWS_EXIT_C0000005_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000005.exe
+2026-10-07T07:38:35.9450694Z ##[endgroup]
+2026-10-07T07:38:36.1494213Z (node:5360) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-07T07:38:36.1495789Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-07T07:38:36.1548959Z ##[error]No files were found with the provided path: D:\a\_temp/windows-current-image-view.log. No artifacts will be uploaded.
+2026-10-07T07:38:36.1839854Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-10-07T07:38:36.1840305Z with:
+2026-10-07T07:38:36.1840558Z   name: windows-process-image-name-stable-37588103680
+2026-10-07T07:38:36.1840930Z   path: D:\a\_temp/windows-process-image-name.log
+2026-10-07T07:38:36.1841233Z   if-no-files-found: error
+2026-10-07T07:38:36.1841464Z   compression-level: 6
+2026-10-07T07:38:36.1841668Z   overwrite: false
+2026-10-07T07:38:36.1841871Z   include-hidden-files: false
+2026-10-07T07:38:36.1842095Z env:
+2026-10-07T07:38:36.1842264Z   CARGO_TERM_COLOR: always
+2026-10-07T07:38:36.1842716Z   RUSTFLAGS: -D warnings
+2026-10-07T07:38:36.1842953Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-07T07:38:36.1843212Z   CARGO_INCREMENTAL: 0
+2026-10-07T07:38:36.1843427Z   CACHE_ON_FAILURE: false
+2026-10-07T07:38:36.1843865Z   DISKGRAPH_WINDOWS_EXIT_C0000000_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000000.exe
+2026-10-07T07:38:36.1844576Z   DISKGRAPH_WINDOWS_EXIT_C0000005_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000005.exe
+2026-10-07T07:38:36.1845030Z ##[endgroup]
+2026-10-07T07:38:36.3836808Z (node:10204) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-07T07:38:36.3838046Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-07T07:38:36.3888664Z ##[error]No files were found with the provided path: D:\a\_temp/windows-process-image-name.log. No artifacts will be uploaded.
+2026-10-07T07:38:36.4228478Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-10-07T07:38:36.4228964Z with:
+2026-10-07T07:38:36.4229212Z   name: windows-directory-sharing-stable-37588103680
+2026-10-07T07:38:36.4229596Z   path: D:\a\_temp/diskgraph-windows-directory-sharing/
+2026-10-07T07:38:36.4229912Z   if-no-files-found: error
+2026-10-07T07:38:36.4230137Z   compression-level: 6
+2026-10-07T07:38:36.4230339Z   overwrite: false
+2026-10-07T07:38:36.4230543Z   include-hidden-files: false
+2026-10-07T07:38:36.4230762Z env:
+2026-10-07T07:38:36.4230929Z   CARGO_TERM_COLOR: always
+2026-10-07T07:38:36.4231143Z   RUSTFLAGS: -D warnings
+2026-10-07T07:38:36.4231375Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-07T07:38:36.4231625Z   CARGO_INCREMENTAL: 0
+2026-10-07T07:38:36.4231826Z   CACHE_ON_FAILURE: false
+2026-10-07T07:38:36.4232242Z   DISKGRAPH_WINDOWS_EXIT_C0000000_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000000.exe
+2026-10-07T07:38:36.4232928Z   DISKGRAPH_WINDOWS_EXIT_C0000005_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000005.exe
+2026-10-07T07:38:36.4233372Z ##[endgroup]
+2026-10-07T07:38:36.6412129Z (node:2416) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-07T07:38:36.6413069Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-07T07:38:36.6455765Z ##[error]No files were found with the provided path: D:\a\_temp/diskgraph-windows-directory-sharing/. No artifacts will be uploaded.
+2026-10-07T07:38:36.6751733Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-10-07T07:38:36.6752185Z with:
+2026-10-07T07:38:36.6752616Z   name: windows-root-parent-stable-37588103680
+2026-10-07T07:38:36.6752969Z   path: D:\a\_temp/diskgraph-windows-root-parent/
+2026-10-07T07:38:36.6753269Z   if-no-files-found: error
+2026-10-07T07:38:36.6753493Z   retention-days: 7
+2026-10-07T07:38:36.6753692Z   compression-level: 6
+2026-10-07T07:38:36.6753889Z   overwrite: false
+2026-10-07T07:38:36.6754116Z   include-hidden-files: false
+2026-10-07T07:38:36.6754327Z env:
+2026-10-07T07:38:36.6754491Z   CARGO_TERM_COLOR: always
+2026-10-07T07:38:36.6754712Z   RUSTFLAGS: -D warnings
+2026-10-07T07:38:36.6754939Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-07T07:38:36.6755195Z   CARGO_INCREMENTAL: 0
+2026-10-07T07:38:36.6755394Z   CACHE_ON_FAILURE: false
+2026-10-07T07:38:36.6755847Z   DISKGRAPH_WINDOWS_EXIT_C0000000_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000000.exe
+2026-10-07T07:38:36.6756524Z   DISKGRAPH_WINDOWS_EXIT_C0000005_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000005.exe
+2026-10-07T07:38:36.6756975Z ##[endgroup]
+2026-10-07T07:38:36.8903531Z (node:6636) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-07T07:38:36.8904795Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-07T07:38:36.8949021Z ##[error]No files were found with the provided path: D:\a\_temp/diskgraph-windows-root-parent/. No artifacts will be uploaded.
+2026-10-07T07:38:36.9262886Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-10-07T07:38:36.9263344Z with:
+2026-10-07T07:38:36.9263599Z   name: windows-private-disposal-stable-37588103680
+2026-10-07T07:38:36.9263973Z   path: D:\a\_temp/diskgraph-windows-private-disposal/
+2026-10-07T07:38:36.9264288Z   if-no-files-found: error
+2026-10-07T07:38:36.9264514Z   retention-days: 7
+2026-10-07T07:38:36.9264714Z   compression-level: 6
+2026-10-07T07:38:36.9264914Z   overwrite: false
+2026-10-07T07:38:36.9265119Z   include-hidden-files: false
+2026-10-07T07:38:36.9265332Z env:
+2026-10-07T07:38:36.9265513Z   CARGO_TERM_COLOR: always
+2026-10-07T07:38:36.9265736Z   RUSTFLAGS: -D warnings
+2026-10-07T07:38:36.9265965Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-07T07:38:36.9266234Z   CARGO_INCREMENTAL: 0
+2026-10-07T07:38:36.9266434Z   CACHE_ON_FAILURE: false
+2026-10-07T07:38:36.9266888Z   DISKGRAPH_WINDOWS_EXIT_C0000000_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000000.exe
+2026-10-07T07:38:36.9267573Z   DISKGRAPH_WINDOWS_EXIT_C0000005_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000005.exe
+2026-10-07T07:38:36.9268031Z ##[endgroup]
+2026-10-07T07:38:37.1230750Z (node:4116) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-07T07:38:37.1231962Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-07T07:38:37.1282701Z ##[error]No files were found with the provided path: D:\a\_temp/diskgraph-windows-private-disposal/. No artifacts will be uploaded.
+2026-10-07T07:38:37.1600365Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-10-07T07:38:37.1600824Z with:
+2026-10-07T07:38:37.1601094Z   name: windows-registration-rejection-stable-37588103680
+2026-10-07T07:38:37.1601517Z   path: D:\a\_temp/diskgraph-windows-registration-rejection/
+2026-10-07T07:38:37.1601878Z   if-no-files-found: error
+2026-10-07T07:38:37.1602097Z   retention-days: 7
+2026-10-07T07:38:37.1602291Z   compression-level: 6
+2026-10-07T07:38:37.1602487Z   overwrite: false
+2026-10-07T07:38:37.1602689Z   include-hidden-files: false
+2026-10-07T07:38:37.1602901Z env:
+2026-10-07T07:38:37.1603069Z   CARGO_TERM_COLOR: always
+2026-10-07T07:38:37.1603286Z   RUSTFLAGS: -D warnings
+2026-10-07T07:38:37.1603508Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-07T07:38:37.1603764Z   CARGO_INCREMENTAL: 0
+2026-10-07T07:38:37.1603959Z   CACHE_ON_FAILURE: false
+2026-10-07T07:38:37.1604413Z   DISKGRAPH_WINDOWS_EXIT_C0000000_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000000.exe
+2026-10-07T07:38:37.1605074Z   DISKGRAPH_WINDOWS_EXIT_C0000005_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000005.exe
+2026-10-07T07:38:37.1605517Z ##[endgroup]
+2026-10-07T07:38:37.3598989Z (node:6984) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-07T07:38:37.3600742Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-07T07:38:37.3645591Z ##[error]No files were found with the provided path: D:\a\_temp/diskgraph-windows-registration-rejection/. No artifacts will be uploaded.
+2026-10-07T07:38:37.3948194Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-10-07T07:38:37.3948657Z with:
+2026-10-07T07:38:37.3948899Z   name: windows-child-membership-stable-37588103680
+2026-10-07T07:38:37.3949281Z   path: D:\a\_temp/diskgraph-windows-child-membership/
+2026-10-07T07:38:37.3949597Z   if-no-files-found: error
+2026-10-07T07:38:37.3949815Z   retention-days: 7
+2026-10-07T07:38:37.3950006Z   compression-level: 6
+2026-10-07T07:38:37.3950203Z   overwrite: false
+2026-10-07T07:38:37.3950405Z   include-hidden-files: false
+2026-10-07T07:38:37.3950621Z env:
+2026-10-07T07:38:37.3950788Z   CARGO_TERM_COLOR: always
+2026-10-07T07:38:37.3951007Z   RUSTFLAGS: -D warnings
+2026-10-07T07:38:37.3951470Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-07T07:38:37.3951727Z   CARGO_INCREMENTAL: 0
+2026-10-07T07:38:37.3951929Z   CACHE_ON_FAILURE: false
+2026-10-07T07:38:37.3952403Z   DISKGRAPH_WINDOWS_EXIT_C0000000_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000000.exe
+2026-10-07T07:38:37.3953081Z   DISKGRAPH_WINDOWS_EXIT_C0000005_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000005.exe
+2026-10-07T07:38:37.3953535Z ##[endgroup]
+2026-10-07T07:38:37.5915235Z (node:888) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-07T07:38:37.5915960Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-07T07:38:37.5965452Z ##[error]No files were found with the provided path: D:\a\_temp/diskgraph-windows-child-membership/. No artifacts will be uploaded.
+2026-10-07T07:38:37.6273758Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-10-07T07:38:37.6274250Z with:
+2026-10-07T07:38:37.6274487Z   name: windows-probe-deadline-stable-37588103680
+2026-10-07T07:38:37.6274850Z   path: D:\a\_temp/diskgraph-windows-probe-deadline/
+2026-10-07T07:38:37.6275163Z   if-no-files-found: error
+2026-10-07T07:38:37.6275382Z   retention-days: 7
+2026-10-07T07:38:37.6275577Z   compression-level: 6
+2026-10-07T07:38:37.6275772Z   overwrite: false
+2026-10-07T07:38:37.6275972Z   include-hidden-files: false
+2026-10-07T07:38:37.6276188Z env:
+2026-10-07T07:38:37.6276354Z   CARGO_TERM_COLOR: always
+2026-10-07T07:38:37.6276587Z   RUSTFLAGS: -D warnings
+2026-10-07T07:38:37.6276813Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-07T07:38:37.6277070Z   CARGO_INCREMENTAL: 0
+2026-10-07T07:38:37.6277274Z   CACHE_ON_FAILURE: false
+2026-10-07T07:38:37.6277733Z   DISKGRAPH_WINDOWS_EXIT_C0000000_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000000.exe
+2026-10-07T07:38:37.6278391Z   DISKGRAPH_WINDOWS_EXIT_C0000005_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000005.exe
+2026-10-07T07:38:37.6278844Z ##[endgroup]
+2026-10-07T07:38:37.8269462Z (node:9076) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-07T07:38:37.8270192Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-07T07:38:37.8317011Z ##[error]No files were found with the provided path: D:\a\_temp/diskgraph-windows-probe-deadline/. No artifacts will be uploaded.
+2026-10-07T07:38:37.8635456Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-10-07T07:38:37.8635940Z with:
+2026-10-07T07:38:37.8636176Z   name: windows-pool-unwind-stable-37588103680
+2026-10-07T07:38:37.8636542Z   path: D:\a\_temp/diskgraph-windows-pool-unwind/
+2026-10-07T07:38:37.8636845Z   if-no-files-found: error
+2026-10-07T07:38:37.8637067Z   retention-days: 7
+2026-10-07T07:38:37.8637271Z   compression-level: 6
+2026-10-07T07:38:37.8637478Z   overwrite: false
+2026-10-07T07:38:37.8637687Z   include-hidden-files: false
+2026-10-07T07:38:37.8637929Z env:
+2026-10-07T07:38:37.8638097Z   CARGO_TERM_COLOR: always
+2026-10-07T07:38:37.8638319Z   RUSTFLAGS: -D warnings
+2026-10-07T07:38:37.8638548Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-07T07:38:37.8638801Z   CARGO_INCREMENTAL: 0
+2026-10-07T07:38:37.8639014Z   CACHE_ON_FAILURE: false
+2026-10-07T07:38:37.8639464Z   DISKGRAPH_WINDOWS_EXIT_C0000000_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000000.exe
+2026-10-07T07:38:37.8640516Z   DISKGRAPH_WINDOWS_EXIT_C0000005_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000005.exe
+2026-10-07T07:38:37.8640966Z ##[endgroup]
+2026-10-07T07:38:38.0631488Z (node:6008) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-07T07:38:38.0632407Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-07T07:38:38.0678237Z ##[error]No files were found with the provided path: D:\a\_temp/diskgraph-windows-pool-unwind/. No artifacts will be uploaded.
+2026-10-07T07:38:38.0989096Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-10-07T07:38:38.0989715Z with:
+2026-10-07T07:38:38.0990085Z   name: windows-directory-retry-stable-37588103680
+2026-10-07T07:38:38.0990541Z   path: D:\a\_temp/diskgraph-windows-directory-retry/
+2026-10-07T07:38:38.0990993Z   if-no-files-found: error
+2026-10-07T07:38:38.0991288Z   compression-level: 6
+2026-10-07T07:38:38.0991601Z   overwrite: false
+2026-10-07T07:38:38.0991928Z   include-hidden-files: false
+2026-10-07T07:38:38.0992249Z env:
+2026-10-07T07:38:38.0992547Z   CARGO_TERM_COLOR: always
+2026-10-07T07:38:38.0992845Z   RUSTFLAGS: -D warnings
+2026-10-07T07:38:38.0993183Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-07T07:38:38.0993553Z   CARGO_INCREMENTAL: 0
+2026-10-07T07:38:38.0993861Z   CACHE_ON_FAILURE: false
+2026-10-07T07:38:38.0994382Z   DISKGRAPH_WINDOWS_EXIT_C0000000_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000000.exe
+2026-10-07T07:38:38.0995289Z   DISKGRAPH_WINDOWS_EXIT_C0000005_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000005.exe
+2026-10-07T07:38:38.0995822Z ##[endgroup]
+2026-10-07T07:38:38.3086073Z (node:3440) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-07T07:38:38.3087320Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-07T07:38:38.3133112Z ##[error]No files were found with the provided path: D:\a\_temp/diskgraph-windows-directory-retry/. No artifacts will be uploaded.
+2026-10-07T07:38:38.3428403Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-10-07T07:38:38.3428872Z with:
+2026-10-07T07:38:38.3429120Z   name: windows-enumerated-absence-stable-37588103680
+2026-10-07T07:38:38.3429515Z   path: D:\a\_temp/diskgraph-windows-enumerated-absence/
+2026-10-07T07:38:38.3429839Z   if-no-files-found: error
+2026-10-07T07:38:38.3430064Z   compression-level: 6
+2026-10-07T07:38:38.3430284Z   overwrite: false
+2026-10-07T07:38:38.3430481Z   include-hidden-files: false
+2026-10-07T07:38:38.3430698Z env:
+2026-10-07T07:38:38.3430864Z   CARGO_TERM_COLOR: always
+2026-10-07T07:38:38.3431099Z   RUSTFLAGS: -D warnings
+2026-10-07T07:38:38.3431347Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-07T07:38:38.3431612Z   CARGO_INCREMENTAL: 0
+2026-10-07T07:38:38.3431816Z   CACHE_ON_FAILURE: false
+2026-10-07T07:38:38.3432252Z   DISKGRAPH_WINDOWS_EXIT_C0000000_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000000.exe
+2026-10-07T07:38:38.3432960Z   DISKGRAPH_WINDOWS_EXIT_C0000005_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000005.exe
+2026-10-07T07:38:38.3433403Z ##[endgroup]
+2026-10-07T07:38:38.5395532Z (node:1192) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-07T07:38:38.5397262Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-07T07:38:38.5442267Z ##[error]No files were found with the provided path: D:\a\_temp/diskgraph-windows-enumerated-absence/. No artifacts will be uploaded.
+2026-10-07T07:38:38.5775729Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-10-07T07:38:38.5776188Z with:
+2026-10-07T07:38:38.5776436Z   name: windows-signature-policy-stable-37588103680
+2026-10-07T07:38:38.5776799Z   path: D:\a\_temp/windows-signature-policy.log
+2026-10-07T07:38:38.5777111Z   if-no-files-found: error
+2026-10-07T07:38:38.5777340Z   compression-level: 6
+2026-10-07T07:38:38.5777540Z   overwrite: false
+2026-10-07T07:38:38.5777739Z   include-hidden-files: false
+2026-10-07T07:38:38.5777960Z env:
+2026-10-07T07:38:38.5778127Z   CARGO_TERM_COLOR: always
+2026-10-07T07:38:38.5778344Z   RUSTFLAGS: -D warnings
+2026-10-07T07:38:38.5778588Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-07T07:38:38.5778849Z   CARGO_INCREMENTAL: 0
+2026-10-07T07:38:38.5779057Z   CACHE_ON_FAILURE: false
+2026-10-07T07:38:38.5779707Z   DISKGRAPH_WINDOWS_EXIT_C0000000_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000000.exe
+2026-10-07T07:38:38.5780407Z   DISKGRAPH_WINDOWS_EXIT_C0000005_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000005.exe
+2026-10-07T07:38:38.5780866Z ##[endgroup]
+2026-10-07T07:38:38.7822004Z (node:5088) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-07T07:38:38.7823307Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-07T07:38:38.7874947Z ##[error]No files were found with the provided path: D:\a\_temp/windows-signature-policy.log. No artifacts will be uploaded.
+2026-10-07T07:38:38.8248630Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-10-07T07:38:38.8249116Z with:
+2026-10-07T07:38:38.8249337Z   name: windows-dll-loader-stable-37588103680
+2026-10-07T07:38:38.8249650Z   path: D:\a\_temp/windows-dll-loader.log
+2026-10-07T07:38:38.8249939Z   if-no-files-found: error
+2026-10-07T07:38:38.8250157Z   compression-level: 6
+2026-10-07T07:38:38.8250362Z   overwrite: false
+2026-10-07T07:38:38.8250771Z   include-hidden-files: false
+2026-10-07T07:38:38.8251006Z env:
+2026-10-07T07:38:38.8251181Z   CARGO_TERM_COLOR: always
+2026-10-07T07:38:38.8251404Z   RUSTFLAGS: -D warnings
+2026-10-07T07:38:38.8251641Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-07T07:38:38.8251897Z   CARGO_INCREMENTAL: 0
+2026-10-07T07:38:38.8252097Z   CACHE_ON_FAILURE: false
+2026-10-07T07:38:38.8252527Z   DISKGRAPH_WINDOWS_EXIT_C0000000_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000000.exe
+2026-10-07T07:38:38.8253290Z   DISKGRAPH_WINDOWS_EXIT_C0000005_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000005.exe
+2026-10-07T07:38:38.8253807Z ##[endgroup]
+2026-10-07T07:38:39.0333377Z (node:9856) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-07T07:38:39.0334106Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-07T07:38:39.0380286Z ##[error]No files were found with the provided path: D:\a\_temp/windows-dll-loader.log. No artifacts will be uploaded.
+2026-10-07T07:38:39.0722248Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-10-07T07:38:39.0722727Z with:
+2026-10-07T07:38:39.0722979Z   name: windows-worker-protocol-stable-37588103680
+2026-10-07T07:38:39.0723640Z   path: D:\a\_temp/windows-worker-build.jsonl
+D:\a\_temp/product-worker-receipt.json
+D:\a\_temp/windows-worker-protocol.log
+
+2026-10-07T07:38:39.0724226Z   if-no-files-found: error
+2026-10-07T07:38:39.0724457Z   compression-level: 6
+2026-10-07T07:38:39.0724660Z   overwrite: false
+2026-10-07T07:38:39.0724867Z   include-hidden-files: false
+2026-10-07T07:38:39.0725089Z env:
+2026-10-07T07:38:39.0725256Z   CARGO_TERM_COLOR: always
+2026-10-07T07:38:39.0725478Z   RUSTFLAGS: -D warnings
+2026-10-07T07:38:39.0725707Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-07T07:38:39.0725991Z   CARGO_INCREMENTAL: 0
+2026-10-07T07:38:39.0726191Z   CACHE_ON_FAILURE: false
+2026-10-07T07:38:39.0727052Z   DISKGRAPH_WINDOWS_EXIT_C0000000_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000000.exe
+2026-10-07T07:38:39.0727732Z   DISKGRAPH_WINDOWS_EXIT_C0000005_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000005.exe
+2026-10-07T07:38:39.0728185Z ##[endgroup]
+2026-10-07T07:38:39.2701662Z (node:9776) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-07T07:38:39.2702379Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-07T07:38:39.2750483Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-10-07T07:38:39.2754717Z The least common ancestor is D:\a\_temp. This will be the root directory of the artifact
+2026-10-07T07:38:39.2757866Z ##[error]No files were found with the provided path: D:\a\_temp/windows-worker-build.jsonl
+D:\a\_temp/product-worker-receipt.json
+D:\a\_temp/windows-worker-protocol.log. No artifacts will be uploaded.
+2026-10-07T07:38:39.3048462Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-10-07T07:38:39.3048938Z with:
+2026-10-07T07:38:39.3049169Z   name: windows-bound-runtime-stable-37588103680
+2026-10-07T07:38:39.3049634Z   path: D:\a\_temp/windows-bound-runtime.log
+D:\a\_temp/product-worker-receipt.json
+
+2026-10-07T07:38:39.3050065Z   if-no-files-found: error
+2026-10-07T07:38:39.3050286Z   compression-level: 6
+2026-10-07T07:38:39.3050491Z   overwrite: false
+2026-10-07T07:38:39.3050688Z   include-hidden-files: false
+2026-10-07T07:38:39.3050906Z env:
+2026-10-07T07:38:39.3051146Z   CARGO_TERM_COLOR: always
+2026-10-07T07:38:39.3051530Z   RUSTFLAGS: -D warnings
+2026-10-07T07:38:39.3051834Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-07T07:38:39.3052237Z   CARGO_INCREMENTAL: 0
+2026-10-07T07:38:39.3052460Z   CACHE_ON_FAILURE: false
+2026-10-07T07:38:39.3052922Z   DISKGRAPH_WINDOWS_EXIT_C0000000_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000000.exe
+2026-10-07T07:38:39.3053976Z   DISKGRAPH_WINDOWS_EXIT_C0000005_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000005.exe
+2026-10-07T07:38:39.3054441Z ##[endgroup]
+2026-10-07T07:38:39.5189628Z (node:6488) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-07T07:38:39.5190338Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-07T07:38:39.5238435Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-10-07T07:38:39.5242078Z The least common ancestor is D:\a\_temp. This will be the root directory of the artifact
+2026-10-07T07:38:39.5244852Z ##[error]No files were found with the provided path: D:\a\_temp/windows-bound-runtime.log
+D:\a\_temp/product-worker-receipt.json. No artifacts will be uploaded.
+2026-10-07T07:38:39.5576551Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-10-07T07:38:39.5577027Z with:
+2026-10-07T07:38:39.5577291Z   name: scoped-owner-windows-latest-stable-37588103680
+2026-10-07T07:38:39.5577756Z   path: D:\a\_temp/diskgraph-owner-build.json
+D:\a\_temp/diskgraph-owner-probes
+
+2026-10-07T07:38:39.5578156Z   retention-days: 7
+2026-10-07T07:38:39.5578358Z   if-no-files-found: error
+2026-10-07T07:38:39.5578571Z   compression-level: 6
+2026-10-07T07:38:39.5578775Z   overwrite: false
+2026-10-07T07:38:39.5578978Z   include-hidden-files: false
+2026-10-07T07:38:39.5579194Z env:
+2026-10-07T07:38:39.5579365Z   CARGO_TERM_COLOR: always
+2026-10-07T07:38:39.5579580Z   RUSTFLAGS: -D warnings
+2026-10-07T07:38:39.5579813Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-07T07:38:39.5580066Z   CARGO_INCREMENTAL: 0
+2026-10-07T07:38:39.5580272Z   CACHE_ON_FAILURE: false
+2026-10-07T07:38:39.5580726Z   DISKGRAPH_WINDOWS_EXIT_C0000000_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000000.exe
+2026-10-07T07:38:39.5581391Z   DISKGRAPH_WINDOWS_EXIT_C0000005_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000005.exe
+2026-10-07T07:38:39.5581831Z ##[endgroup]
+2026-10-07T07:38:39.7737597Z (node:9128) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-07T07:38:39.7738363Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-07T07:38:39.7785231Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-10-07T07:38:39.7788564Z The least common ancestor is D:\a\_temp. This will be the root directory of the artifact
+2026-10-07T07:38:39.7791284Z ##[error]No files were found with the provided path: D:\a\_temp/diskgraph-owner-build.json
+D:\a\_temp/diskgraph-owner-probes. No artifacts will be uploaded.
+2026-10-07T07:38:39.8214774Z ##[group]Run cargo test -p diskgraph-mcp --lib --locked http_lifecycle_tests -- --nocapture
+2026-10-07T07:38:39.8215774Z [36;1mcargo test -p diskgraph-mcp --lib --locked http_lifecycle_tests -- --nocapture[0m
+2026-10-07T07:38:39.8287912Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-07T07:38:39.8288262Z env:
+2026-10-07T07:38:39.8288452Z   CARGO_TERM_COLOR: always
+2026-10-07T07:38:39.8288680Z   RUSTFLAGS: -D warnings
+2026-10-07T07:38:39.8288913Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-07T07:38:39.8289185Z   CARGO_INCREMENTAL: 0
+2026-10-07T07:38:39.8289389Z   CACHE_ON_FAILURE: false
+2026-10-07T07:38:39.8289826Z   DISKGRAPH_WINDOWS_EXIT_C0000000_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000000.exe
+2026-10-07T07:38:39.8290495Z   DISKGRAPH_WINDOWS_EXIT_C0000005_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000005.exe
+2026-10-07T07:38:39.8290937Z ##[endgroup]
+2026-10-07T07:38:40.4326256Z [1m[92m   Compiling[0m windows-sys v0.61.2
+2026-10-07T07:38:40.4344665Z [1m[92m   Compiling[0m diskgraph-core v0.3.0 (D:\a\diskgraph\diskgraph\crates\diskgraph-core)
+2026-10-07T07:38:40.4372177Z [1m[92m   Compiling[0m diskgraph-engine v0.3.0 (D:\a\diskgraph\diskgraph\crates\diskgraph-engine)
+2026-10-07T07:38:42.8358800Z [1m[92m   Compiling[0m diskgraph-store v0.3.0 (D:\a\diskgraph\diskgraph\crates\diskgraph-store)
+2026-10-07T07:38:45.2683406Z [1m[92m   Compiling[0m winapi-util v0.1.11
+2026-10-07T07:38:45.2684109Z [1m[92m   Compiling[0m tempfile v3.27.0
+2026-10-07T07:38:45.6081885Z [1m[92m   Compiling[0m diskgraph-disktree-core v0.3.0 (D:\a\diskgraph\diskgraph\crates\diskgraph-disktree-core)
+2026-10-07T07:38:46.0501403Z [1m[92m   Compiling[0m diskgraph-testkit v0.3.0 (D:\a\diskgraph\diskgraph\crates\diskgraph-testkit)
+2026-10-07T07:38:47.2313938Z [1m[92m   Compiling[0m diskgraph-disktree v0.3.0 (D:\a\diskgraph\diskgraph\crates\diskgraph-disktree)
+2026-10-07T07:38:47.8440220Z [1m[92m   Compiling[0m diskgraph-scan-worker v0.3.0 (D:\a\diskgraph\diskgraph\crates\diskgraph-scan-worker)
+2026-10-07T07:38:57.6551524Z [1m[92m   Compiling[0m diskgraph-mcp v0.3.0 (D:\a\diskgraph\diskgraph\crates\diskgraph-mcp)
+2026-10-07T07:39:02.3099975Z [1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 22.14s
+2026-10-07T07:39:02.3199998Z [1m[92m     Running[0m unittests src\lib.rs (target\debug\deps\diskgraph_mcp-cfd2431581f93093.exe)
+2026-10-07T07:39:02.3325039Z 
+2026-10-07T07:39:02.3325635Z running 8 tests
+2026-10-07T07:39:04.7137662Z 
+2026-10-07T07:39:04.7139468Z thread 'http_lifecycle_tests::foreground_panic_raii_joins_original_server_before_directory_cleanup' (9956) panicked at crates\diskgraph-mcp\src\http_lifecycle_tests.rs:119:9:
+2026-10-07T07:39:04.7140272Z original HTTP fixture panic
+2026-10-07T07:39:04.7140647Z note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+2026-10-07T07:39:04.8719718Z test http_lifecycle_tests::malformed_origins_are_refused_before_auth_on_all_real_transport_routes ... ok
+2026-10-07T07:39:05.0773777Z test http_lifecycle_tests::runtime_read_polling_preserves_partial_headers_and_body_without_resetting_request ... ok
+2026-10-07T07:39:06.7645055Z test http_lifecycle_tests::foreground_panic_raii_joins_original_server_before_directory_cleanup ... ok
+2026-10-07T07:39:06.8261251Z test http_lifecycle_tests::runtime_read_polling_keeps_the_original_request_deadline ... ok
+2026-10-07T07:39:08.0186092Z test http_lifecycle_tests::stop_closes_accepted_incomplete_request_before_long_read_timeout ... ok
+2026-10-07T07:39:08.1279605Z test http_lifecycle_tests::stop_joins_idle_accept_and_releases_original_listener ... ok
+2026-10-07T07:39:11.4301252Z test http_lifecycle_tests::stop_joins_legacy_sse_with_client_still_connected ... ok
+2026-10-07T07:39:11.4739445Z test http_lifecycle_tests::stop_joins_modern_sse_with_client_still_connected ... ok
+2026-10-07T07:39:11.4740156Z 
+2026-10-07T07:39:11.4743312Z test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 146 filtered out; finished in 9.14s
+2026-10-07T07:39:11.4743860Z 
+2026-10-07T07:39:11.6150400Z ##[group]Run cargo test -p diskgraph-engine --test content_cloud_windows --locked -- --nocapture --test-threads=1 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP/windows-real-cloud-content.log"
+2026-10-07T07:39:11.6152040Z [36;1mcargo test -p diskgraph-engine --test content_cloud_windows --locked -- --nocapture --test-threads=1 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP/windows-real-cloud-content.log"[0m
+2026-10-07T07:39:11.6153324Z [36;1mif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }[0m
+2026-10-07T07:39:11.6153795Z [36;1m$log = Get-Content "$env:RUNNER_TEMP/windows-real-cloud-content.log" -Raw[0m
+2026-10-07T07:39:11.6154316Z [36;1mif ($log -notmatch 'test result: ok\. 1 passed; 0 failed; 0 ignored;' -or[0m
+2026-10-07T07:39:11.6154874Z [36;1m    $log -notmatch 'DG_REAL_CFAPI_PRODUCT_NO_FETCH_AND_ORDINARY_FETCH_CONTROL=1') {[0m
+2026-10-07T07:39:11.6155580Z [36;1m  throw 'Actual registered provider, no-fetch product and ordinary-fetch positive control must execute'[0m
+2026-10-07T07:39:11.6156070Z [36;1m}[0m
+2026-10-07T07:39:11.6224881Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-07T07:39:11.6225241Z env:
+2026-10-07T07:39:11.6225435Z   CARGO_TERM_COLOR: always
+2026-10-07T07:39:11.6225673Z   RUSTFLAGS: -D warnings
+2026-10-07T07:39:11.6225926Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-07T07:39:11.6226191Z   CARGO_INCREMENTAL: 0
+2026-10-07T07:39:11.6226410Z   CACHE_ON_FAILURE: false
+2026-10-07T07:39:11.6226842Z   DISKGRAPH_WINDOWS_EXIT_C0000000_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000000.exe
+2026-10-07T07:39:11.6227508Z   DISKGRAPH_WINDOWS_EXIT_C0000005_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000005.exe
+2026-10-07T07:39:11.6227975Z ##[endgroup]
+2026-10-07T07:39:12.2891812Z [31;1m[1m[92m   Compiling[0m diskgraph-engine v0.3.0 (D:\a\diskgraph\diskgraph\crates\diskgraph-engine)[0m
+2026-10-07T07:39:20.2276208Z [31;1m[1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 8.21s[0m
+2026-10-07T07:39:20.2366281Z [31;1m[1m[92m     Running[0m tests\content_cloud_windows.rs (target\debug\deps\content_cloud_windows-0a35684dcfde1829.exe)[0m
+2026-10-07T07:39:20.2499730Z 
+2026-10-07T07:39:20.2502539Z running 1 test
+2026-10-07T07:39:20.7424232Z test actual_cloud_placeholder_content_never_fetches_and_unguarded_control_does ... DG_REAL_CFAPI_PRODUCT_NO_FETCH_AND_ORDINARY_FETCH_CONTROL=1
+2026-10-07T07:39:20.7835180Z ok
+2026-10-07T07:39:20.7837570Z 
+2026-10-07T07:39:20.7840772Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.53s
+2026-10-07T07:39:20.7843849Z 
+2026-10-07T07:39:20.9200159Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-10-07T07:39:20.9200624Z with:
+2026-10-07T07:39:20.9200886Z   name: windows-real-cloud-content-stable-37588103680
+2026-10-07T07:39:20.9201261Z   path: D:\a\_temp/windows-real-cloud-content.log
+2026-10-07T07:39:20.9201571Z   if-no-files-found: error
+2026-10-07T07:39:20.9201803Z   retention-days: 7
+2026-10-07T07:39:20.9202021Z   compression-level: 6
+2026-10-07T07:39:20.9202226Z   overwrite: false
+2026-10-07T07:39:20.9202486Z   include-hidden-files: false
+2026-10-07T07:39:20.9202705Z env:
+2026-10-07T07:39:20.9202874Z   CARGO_TERM_COLOR: always
+2026-10-07T07:39:20.9203109Z   RUSTFLAGS: -D warnings
+2026-10-07T07:39:20.9203345Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-07T07:39:20.9203614Z   CARGO_INCREMENTAL: 0
+2026-10-07T07:39:20.9203818Z   CACHE_ON_FAILURE: false
+2026-10-07T07:39:20.9204275Z   DISKGRAPH_WINDOWS_EXIT_C0000000_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000000.exe
+2026-10-07T07:39:20.9204943Z   DISKGRAPH_WINDOWS_EXIT_C0000005_FIXTURE: D:\a\_temp\diskgraph-windows-exit-fixtures\exit_C0000005.exe
+2026-10-07T07:39:20.9205400Z ##[endgroup]
+2026-10-07T07:39:21.1187377Z (node:7996) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-07T07:39:21.1188126Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-07T07:39:21.1241642Z With the provided path, there will be 1 file uploaded
+2026-10-07T07:39:21.1247832Z Artifact name is valid!
+2026-10-07T07:39:21.1249939Z Root directory input is valid!
+2026-10-07T07:39:21.3372425Z Beginning upload of artifact content to blob storage
+2026-10-07T07:39:21.3574067Z (node:7996) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-07T07:39:21.3991245Z Uploaded bytes 522
+2026-10-07T07:39:21.4166840Z Finished uploading artifact content to blob storage!
+2026-10-07T07:39:21.4168402Z SHA256 digest of uploaded artifact zip is e29ecead125779386230aaa26952d46929d615d6f322f2fd42f0eae9c19100d5
+2026-10-07T07:39:21.4170858Z Finalizing artifact upload
+2026-10-07T07:39:21.6200362Z Artifact windows-real-cloud-content-stable-37588103680.zip successfully finalized. Artifact ID 11467711630
+2026-10-07T07:39:21.6201675Z Artifact windows-real-cloud-content-stable-37588103680 has been successfully uploaded! Final size is 522 bytes. Artifact ID is 11467711630
+2026-10-07T07:39:21.6210997Z Artifact download URL: https://github.com/loong10k/diskgraph/actions/runs/37588103680/artifacts/11467711630
+2026-10-07T07:39:21.6662641Z Post job cleanup.
+2026-10-07T07:39:21.8717715Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-07T07:39:21.9012992Z git version 2.55.0.windows.5
+2026-10-07T07:39:21.9091590Z Temporarily overriding HOME='D:\a\_temp\94b85343-178e-4c67-862d-35ab7542875c' before making global git config changes
+2026-10-07T07:39:21.9092848Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-07T07:39:21.9105015Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\diskgraph\diskgraph
+2026-10-07T07:39:21.9484249Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-07T07:39:21.9826752Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-07T07:39:22.5092649Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-07T07:39:22.5369993Z http.https://github.com/.extraheader
+2026-10-07T07:39:22.5426781Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all http.https://github.com/.extraheader
+2026-10-07T07:39:22.5770565Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-07T07:39:23.1131168Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-07T07:39:23.1470835Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-07T07:39:23.6922487Z Cleaning up orphan processes
+2026-10-07T07:39:23.7371473Z Terminate orphan process: pid (4100) (vctip)
+2026-10-07T07:39:23.8012979Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@11d5960a326750d5838078e36cf38b85af677262, actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

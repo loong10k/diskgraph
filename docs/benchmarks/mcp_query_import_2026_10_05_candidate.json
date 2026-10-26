@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "status": "imported query contract passed; real scan integration remains failed",
+  "platform": "Darwin arm64",
+  "baseline_commit": "3924dc4be707ad20db819e27d41f593ecaa576a3",
+  "sources": [
+    {
+      "path": "crates/diskgraph-mcp/src/tests/query_revision_fixture.rs",
+      "sha256": "5284cfb13dee82f4af11b1a2eb4dbb8c087f44a2a6bc5431442699177abbc123"
+    },
+    {
+      "path": "crates/diskgraph-mcp/src/tests/query_tests.rs",
+      "sha256": "c7371878e1d31169cc654226de6d7d004bebf2e363a04c6c3092d9bc49d6d88e"
+    },
+    {
+      "path": "crates/diskgraph-mcp/src/tests/mod.rs",
+      "sha256": "e42698bc6cde999d6e1bbbef4e32b8bec3bcc0c13b81e54570926feb65bdb260"
+    },
+    {
+      "path": "crates/diskgraph-mcp/src/tests/support.rs",
+      "sha256": "5d6457831435214885d6419601b9c04e98471579f702f26b7b826c0c337106bf"
+    }
+  ],
+  "logs": [
+    {
+      "path": "docs/benchmarks/mcp_query_import_red_2026_10_05.log.gz",
+      "exit_code": 101,
+      "raw_sha256": "ab099471a535455f38a724cbd2404fb6f7e3c71cfc2166f0379cd79f2d4fbe41",
+      "gzip_sha256": "e031fb55d71e6dbb121ed61c33759de84b8f321272da9416eedf99dc6e7df247"
+    },
+    {
+      "path": "docs/benchmarks/mcp_query_both_paths_2026_10_05.log.gz",
+      "exit_code": 101,
+      "raw_sha256": "673cdfacb48a4f544158251b07db50b412d256dae0a9da006440d12059741982",
+      "gzip_sha256": "0ddf860f530ce518be6cee859a8f62cbba247465b4089dab1a58f5ff37ae5786"
+    },
+    {
+      "path": "docs/benchmarks/mcp_query_import_v2_green_2026_10_05.log.gz",
+      "exit_code": 0,
+      "raw_sha256": "1c0f95198a49a3abd77cbe5014f68d6b493229cc94e552904d77e4700393edad",
+      "gzip_sha256": "6d3aa45748f5060a15436beba9943f3b4b2374a8432811232f15cdc53d2f9c7e"
+    }
+  ],
+  "red": {
+    "passed": 0,
+    "failed": 3,
+    "ignored": 0,
+    "scope": "Only isolated fixture adapter delegated to the original support::seed; actual scan yielded Business(Unsupported). Production and worktree imported fixture implementation were not replaced."
+  },
+  "dual_path_regression": {
+    "passed": 3,
+    "failed": 3,
+    "ignored": 0,
+    "scope": "Original real-scanner test names/assertions retained; imported equivalents pass; actual scanner setup remains Unsupported. Before the two additional repeated-query assertions."
+  },
+  "latest_imported_green": {
+    "passed": 3,
+    "failed": 0,
+    "ignored": 0,
+    "scope": "Real MCP authorization/query/envelope paths against registered scope and publicly published owned revision; includes actual items/revision repeated-query assertions."
+  },
+  "limits": [
+    "No native scan, job completion, process recovery or collector acceptance.",
+    "No tests skipped or original scanner tests removed.",
+    "Engine has two existing dead-code warnings; this is not strict Clippy acceptance.",
+    "Latest full MCP regression includes these additions: 111 passed/34 failed; no full-suite success."
+  ],
+  "independent_review": "APPROVE limited imported query contract by d24_final_code_review; original scanner tests and all assertions retained; real scanner failures remain open.",
+  "latest_full_mcp_lib_regression": {
+    "exit_code": 101,
+    "passed": 111,
+    "failed": 34,
+    "ignored": 0,
+    "scope": "Latest full MCP library regression after adding independent imported-query cases. Original real scan cases remain failing; no full integration acceptance.",
+    "log": {
+      "path": "docs/benchmarks/scan_worker_mcp-lib-host-regression-v3_2026_10_05.log.gz",
+      "raw_sha256": "4a50d426e5e12ab4c94e79af6cb8b7a4ec8439ea6990bb1374a268e15c6bfa24",
+      "gzip_sha256": "d3ca7c4caeb0a0019a30ec082d117871611de6c880832a2966a2a63f1dfb74fd"
+    }
+  }
+}

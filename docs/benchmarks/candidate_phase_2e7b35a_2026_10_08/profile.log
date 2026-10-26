@@ -1,0 +1,37 @@
+   Compiling objc2 v0.6.4
+   Compiling autocfg v1.5.1
+   Compiling objc2-encode v4.1.0
+   Compiling core-foundation-sys v0.8.7
+   Compiling semver v1.0.28
+   Compiling log v0.4.34
+   Compiling percent-encoding v2.3.2
+   Compiling rustc-hash v2.1.3
+   Compiling subtle v2.6.1
+   Compiling signature v2.2.0
+   Compiling diskgraph-scan-worker v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-scan-worker)
+   Compiling zeroize v1.9.0
+   Compiling iana-time-zone v0.1.65
+   Compiling ed25519 v2.2.3
+   Compiling diskgraph-engine v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine)
+   Compiling rustc_version v0.4.1
+   Compiling diskgraph-store v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-store)
+   Compiling diskgraph-testkit v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-testkit)
+   Compiling sha1 v0.10.7
+   Compiling hex v0.4.3
+   Compiling num-traits v0.2.19
+   Compiling curve25519-dalek v4.1.3
+   Compiling ed25519-dalek v2.2.0
+   Compiling chrono v0.4.45
+   Compiling objc2-foundation v0.3.2
+   Compiling trash v5.2.9
+   Compiling diskgraph-disktree-core v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-disktree-core)
+   Compiling diskgraph-disktree v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-disktree)
+    Finished `release` profile [optimized] target(s) in 19.56s
+     Running unittests src/lib.rs (target/release/deps/diskgraph_engine-50a424231bbd0644)
+
+running 1 test
+{"fixture":"synthetic two-node positive evidence","native_scan_qualification":false,"os":"macos","phases":{"data_read":{"p50_ms":0.155667,"p95_ms":0.25783300000000003,"samples":100},"encode":{"p50_ms":0.001042,"p95_ms":0.0027089999999999996,"samples":100},"initial_authorization":{"p50_ms":0.055583,"p95_ms":0.079875,"samples":100},"instrumented_phases_total":{"p50_ms":0.98025,"p95_ms":1.300875,"samples":100},"policy_load":{"p50_ms":0.016541999999999998,"p95_ms":0.023791,"samples":100},"reader_open":{"p50_ms":0.19249999999999998,"p95_ms":0.271667,"samples":100},"request_wall":{"p50_ms":1.009959,"p95_ms":1.332542,"samples":100},"terminal_after_encode":{"p50_ms":0.273875,"p95_ms":0.393,"samples":100},"terminal_before_encode":{"p50_ms":0.278208,"p95_ms":0.42583299999999996,"samples":100},"terminal_ownership_sql":{"p50_ms":0.009082999999999999,"p95_ms":0.016208,"samples":200},"terminal_reader_open":{"p50_ms":0.19491699999999998,"p95_ms":0.276917,"samples":200}},"profile":"release"}
+test relation_query_diagnostics_tests::isolated_positive_candidate_phase_costs ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 729 filtered out; finished in 0.15s
+

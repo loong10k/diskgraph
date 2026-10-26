@@ -1,0 +1,386 @@
+{
+  "schema_version": 1,
+  "scope": "Actual local parent decoding/assembly/projecting quota regression; no real child or CLI remote classification acceptance",
+  "command": "cargo test --offline --locked -p diskgraph-engine --lib scan_worker_budget_classification_tests -- --nocapture",
+  "passed": 3,
+  "failed": 1,
+  "ignored": 0,
+  "actual_failure": "Real valid2node stream/max_nodes1 produces actual Io InvalidData declared children exceed node limit; expected Business BudgetExceeded.",
+  "tests_candidate": {
+    "schema_version": 1,
+    "scope": "tests-only real v2 frame node quota classification; no OS or remote wire qualification",
+    "snapshot": "/private/tmp/diskgraph-budget-classification-freeze-twfw5w_9",
+    "sources": [
+      {
+        "path": "crates/diskgraph-engine/src/scan_worker_budget_classification_tests.rs",
+        "sha256": "766e081f36bcac7c9220b8daf37ea5ec2099baa0462d797c091d8663a602f694",
+        "lines": 139
+      },
+      {
+        "path": "crates/diskgraph-engine/src/lib.rs",
+        "sha256": "549104f17ea9f88dd99cd25a61c0d6fef1c684fd76f4f522f977662d2ca839e6",
+        "lines": 234
+      }
+    ],
+    "before_lib": {
+      "path": "/private/tmp/diskgraph-budget-classification-before-t13wv7uj/lib.rs",
+      "sha256": "eb8f97226b6565fee6baf84471b1d16c6cc5e0d21573e92c3b7825f29cabe5ac"
+    },
+    "diff": {
+      "path": "/private/tmp/diskgraph-budget-classification-tests.diff",
+      "sha256": "ee490162c2a8f902d2a13f88fb57e09176ac5006ed644e1b5c009629cd4143ef"
+    },
+    "protected": [
+      {
+        "path": "crates/diskgraph-engine/src/scan_worker_output.rs",
+        "before_sha256": "7a82d6ce11d0bf2a10622ec56d622674ce8f25990c51e85dddbdb38e80205442",
+        "current_sha256": "7a82d6ce11d0bf2a10622ec56d622674ce8f25990c51e85dddbdb38e80205442",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-engine/src/scan_worker_error_projection.rs",
+        "before_sha256": "9e194c9159f8a6cf388d6fd3e374919373fc8cb92606a7ceb7036950104d3b7d",
+        "current_sha256": "9e194c9159f8a6cf388d6fd3e374919373fc8cb92606a7ceb7036950104d3b7d",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-engine/src/scan_worker_remote_error.rs",
+        "before_sha256": "1a94ae6ee093e32eddba87b556077052fe0dba542c7a90ca3330fe9cbd99991d",
+        "current_sha256": "1a94ae6ee093e32eddba87b556077052fe0dba542c7a90ca3330fe9cbd99991d",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-engine/src/scan_worker_runtime.rs",
+        "before_sha256": "40c83837e273c2083dd7c792be5efee21734ade0fe72dfe79c59d594761d4b25",
+        "current_sha256": "40c83837e273c2083dd7c792be5efee21734ade0fe72dfe79c59d594761d4b25",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-engine/src/scan_worker_failure.rs",
+        "before_sha256": "1335c287bbce3a3c1dd58fbea3735dea38804f5fe3ff6e402a9f308db95293ec",
+        "current_sha256": "1335c287bbce3a3c1dd58fbea3735dea38804f5fe3ff6e402a9f308db95293ec",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/src/tree_state.rs",
+        "before_sha256": "ea97f7a41e563443431cafff143c041089987b316965fe31ba66796c8839bd6a",
+        "current_sha256": "ea97f7a41e563443431cafff143c041089987b316965fe31ba66796c8839bd6a",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/src/tree_assembler.rs",
+        "before_sha256": "9321e4270b97789aea7b3d21f9137e105745e2246163fd3e2e740a0e6dec2407",
+        "current_sha256": "9321e4270b97789aea7b3d21f9137e105745e2246163fd3e2e740a0e6dec2407",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/src/execution_decoder.rs",
+        "before_sha256": "7f5c539c88454b64cda3c2ea489ce66f68a0ee3416f4511bc0270cffff661b09",
+        "current_sha256": "7f5c539c88454b64cda3c2ea489ce66f68a0ee3416f4511bc0270cffff661b09",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/src/worker_failure.rs",
+        "before_sha256": "058aa525ff16fb1487939dc5e022c8138af23d146a8e1c3761ceea437744d2f5",
+        "current_sha256": "058aa525ff16fb1487939dc5e022c8138af23d146a8e1c3761ceea437744d2f5",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-cli/src/scan_terminal_tests.rs",
+        "before_sha256": "2a025155f1a9111281d24b0202a0f65f457fbf78d6d6c6877257eba16b6617d5",
+        "current_sha256": "2a025155f1a9111281d24b0202a0f65f457fbf78d6d6c6877257eba16b6617d5",
+        "unchanged": true
+      }
+    ],
+    "lib_only_new_module": true,
+    "tests": {
+      "count": 4,
+      "command": "cargo test --offline --locked -p diskgraph-engine --lib scan_worker_budget_classification_tests -- --nocapture",
+      "expected_behavior_red": "node quota exact Business BudgetExceeded assertion currently observes Io InvalidData; other three cases retain positive/protocol controls",
+      "executed": false
+    },
+    "validation": "rustfmt --edition 2024 on the new test file only exited 0; no Cargo/Git/cc"
+  },
+  "log": {
+    "path": "docs/benchmarks/scan_worker_budget_classification_red_2026_10_05.log.gz",
+    "raw_sha256": "c5e81ce30217508dc07f9fe276ac057df8d3f841532168e2e9f8d12653a7565f",
+    "gzip_sha256": "f166de29bcf45ce93a28cd718f14938c1021096eb14673e7aa2eb2044ad196c0"
+  },
+  "remaining": [
+    "Remote worker typed quota serialization and runtime projection: actual regression RED 4/1; implementation pending.",
+    "Real CLI budget strong assertion remains open.",
+    "Engine source layout 3/1: seven unmounted experimental sources; no fake mounting performed.",
+    "Full product/platform regression and coherent production commit remain open."
+  ],
+  "local_implementation_candidate": {
+    "schema_version": 1,
+    "scope": "local typed TreeState quota classification only; remote wire and runtime remote Io projection unchanged",
+    "snapshot": "/private/tmp/diskgraph-local-budget-green-sdtl9frg",
+    "sources": [
+      {
+        "path": "crates/diskgraph-scan-worker/src/protocol_budget_error.rs",
+        "sha256": "6d4bd2244f62e576caa86e71994d5f14a145a5f624e319ab659519834c124952",
+        "lines": 24
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/src/tree_state.rs",
+        "sha256": "eed8a0c1ccfd608cc4bb2f36e03aa2fae8937ee07d860668275a8f4e37830e37",
+        "lines": 138
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/src/lib.rs",
+        "sha256": "52e781b46bb1c22e62f3f7a5cac8d0c0cb73c3d483f7a3cc5fb3c59124423954",
+        "lines": 73
+      },
+      {
+        "path": "crates/diskgraph-engine/src/scan_worker_error_projection.rs",
+        "sha256": "5dca0508d98a14be311dab89d95c2de54bfe131e5c12fa74e1083d84c8519507",
+        "lines": 98
+      }
+    ],
+    "before": [
+      {
+        "path": "/private/tmp/diskgraph-local-budget-before-c1varo17/crates/diskgraph-scan-worker/src/tree_state.rs",
+        "sha256": "ea97f7a41e563443431cafff143c041089987b316965fe31ba66796c8839bd6a"
+      },
+      {
+        "path": "/private/tmp/diskgraph-local-budget-before-c1varo17/crates/diskgraph-scan-worker/src/lib.rs",
+        "sha256": "6d01fd8ab1fc09f64cd3cda6431993679e34932c682178181221c6aa37c3cbcd"
+      },
+      {
+        "path": "/private/tmp/diskgraph-local-budget-before-c1varo17/crates/diskgraph-engine/src/scan_worker_error_projection.rs",
+        "sha256": "9e194c9159f8a6cf388d6fd3e374919373fc8cb92606a7ceb7036950104d3b7d"
+      }
+    ],
+    "diff": {
+      "path": "/private/tmp/diskgraph-local-budget-production.diff",
+      "sha256": "8f999b2b5744479671f86778ef62f9e6670ca610eeb1ba4cfdea53c029159d83"
+    },
+    "protected": [
+      {
+        "path": "crates/diskgraph-engine/src/scan_worker_budget_classification_tests.rs",
+        "sha256": "766e081f36bcac7c9220b8daf37ea5ec2099baa0462d797c091d8663a602f694",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-engine/src/scan_worker_remote_error.rs",
+        "sha256": "1a94ae6ee093e32eddba87b556077052fe0dba542c7a90ca3330fe9cbd99991d",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-engine/src/scan_worker_runtime.rs",
+        "sha256": "40c83837e273c2083dd7c792be5efee21734ade0fe72dfe79c59d594761d4b25",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-cli/src/scan_terminal_tests.rs",
+        "sha256": "2a025155f1a9111281d24b0202a0f65f457fbf78d6d6c6877257eba16b6617d5",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/src/execution_frame.rs",
+        "sha256": "465dcc0c6bd80df57204422b8ad50be6737044b92f71deb558c16e8762e1567d",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/src/worker_failure.rs",
+        "sha256": "058aa525ff16fb1487939dc5e022c8138af23d146a8e1c3761ceea437744d2f5",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/src/flat_nodes.rs",
+        "sha256": "92a70c285866886015a13280c59432bda69fc177e442ec2f5ad7f2b06189f535",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/tests/platform_components.rs",
+        "sha256": "14af6cf68b99a3567786c3580775729b933c7bce12648949f3129febd3f9f22b",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/tests/execution_decoder_allocation.rs",
+        "sha256": "0c8f124c8da37ced248b733ae2da59c429f69320d0115327488baf7a1b489af2",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/tests/execution_decoder.rs",
+        "sha256": "2fd74d67ee76684c57f88f11597602ebec4257fbcde0edf1d3a00214919ca917",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/tests/reader_failure.rs",
+        "sha256": "794ee8f129fe6dc77daa51361dd9ff38ffc8b182d6ee4b859927085983648e00",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/tests/writer_preparation.rs",
+        "sha256": "d7ebcf084ba79a095e44102fcf0c1960fc77977b54d22c26f6de4f8c23d82663",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/tests/pinned_dedup_characterization.rs",
+        "sha256": "28e0af3d247368a96335168e838ff455edad6bfc383583939c15b6252113790d",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/tests/deep_disposal.rs",
+        "sha256": "978c9e355339ec419d28274a14c8107a33b44dcf5f72017c907f167efd325691",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/tests/writer_limits.rs",
+        "sha256": "729e608310498f75ebdcffe1fca5e33d652c07ce09d2e9097d83cede95766938",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/tests/frame_cancel.rs",
+        "sha256": "379a5a9aa25a38094eba725f3736bb52172aeadf8f74a9fcce3cce08911ea5bc",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/tests/execution_input_closed.rs",
+        "sha256": "be4f71446acd82db8401e744e1bb9b6fb895cf4c1707aad9a1186a292c1ca8c2",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/tests/writer_io_failure.rs",
+        "sha256": "cd737f9ef57650b07b6dcf2e24aef83ec055be4367f8d0b2b9c5dfe370fddd09",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/tests/roundtrip.rs",
+        "sha256": "e8c7c54b61ff1807a10787ce5f9c6be2c8747b7c10d6fd49252796286dce55cf",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/tests/worker_process.rs",
+        "sha256": "423879cd1698d3aea519f22b3909c81337ec3b98299cef61ff5d18909e9f1edd",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/tests/structural_limits.rs",
+        "sha256": "bb7ad94a48e58a354b6691851d26e4f9ef6e7370c56377c15aae52e715dc66e1",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/tests/assembly_checkpoint.rs",
+        "sha256": "04446d8696e03f38dd224b4ce166601b86420a3ad177d906c89556523e089f3d",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/tests/execution_worker_stream.rs",
+        "sha256": "c308f100ed33d384219f4b668fd72ea996cb73995632853cbb70a90664ff1b9d",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/tests/framing.rs",
+        "sha256": "8d3c52813bf8333f55c30a0d7ac1cf7c42407919413414f2faaee7a876262f49",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/tests/worker_control_process.rs",
+        "sha256": "3ac93534dd4f7799b44c7ea874245749d8a43064f36ffbf89f1ee32d8ef2b018",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/tests/execution_assembly.rs",
+        "sha256": "a063d8fe3e7969c33c4fbb661a473dce50be64b1d64b3513e16525a1713ab8ca",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/tests/execution_dtos.rs",
+        "sha256": "cd4aa9c3b001414b99306cbe54c153a3c79732b28b686a383f4f9461c1e35501",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/tests/worker_process/worker_output.rs",
+        "sha256": "e27e0b0d289297de38423473e35de46d9943663cf50718bad0ad024e7752feb1",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/tests/worker_process/alias_assertions.rs",
+        "sha256": "d89c47e10f0912d4c975dfa19e054fcf37d1459ca17ee0443cfbbc3c9b7056fd",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/tests/worker_control_process/control_action.rs",
+        "sha256": "87bf5d12eabd7e7bcc16d907dde302239421b0989d92ce19cd089dfad329beea",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/tests/worker_control_process/active_run.rs",
+        "sha256": "4bdbcbeca9701973084a6e8733ebc8660b59f2a694728807c2c4468b271f5cf1",
+        "unchanged": true
+      },
+      {
+        "path": "crates/diskgraph-scan-worker/tests/execution_decoder/support.rs",
+        "sha256": "50858accee921c3189f9f8e1e61a8b21354387467ed676fc5d8e9f0a8ee91c0f",
+        "unchanged": true
+      }
+    ],
+    "actual_red_log": "/private/tmp/diskgraph-budget-classification-red.log",
+    "actual_red_reported_by_root": "3 passed / 1 failed; exact quota projected to Io InvalidData",
+    "commands": [
+      "cargo test --offline --locked -p diskgraph-engine --lib scan_worker_budget_classification_tests -- --nocapture",
+      "cargo test --offline --locked -p diskgraph-scan-worker --all-targets",
+      "cargo test --offline --locked -p diskgraph-engine --test source_layout"
+    ],
+    "author_execution": "rustfmt three owned non-aggregate files exit0; no Cargo/Git/cc; GREEN not executed",
+    "remaining": [
+      "FlatNodes preparation / frame byte quota errors retain old classification; no unrelated producer edited",
+      "Remote WorkerFailure v2 preserves io kind/message but has no typed budget wire marker; remains open",
+      "No child/native scan or CLI budget acceptance claimed"
+    ]
+  },
+  "subsequent_actual_evidence": [
+    {
+      "path": "docs/benchmarks/scan_worker_budget_classification_green_2026_10_05.log.gz",
+      "raw_sha256": "4077d9e93bd3488c5e3ab8dbdabe47dcbaf7e758939da6348aa57e2154140fcb",
+      "gzip_sha256": "58ac2309a55ac46cc2d31a48fd82572f88e287e5349efa2db4c80a0f66ba43d6",
+      "result": {
+        "passed": 4,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    {
+      "path": "docs/benchmarks/scan_worker_budget_classification_worker_regression_2026_10_05.log.gz",
+      "raw_sha256": "e354a2e6b0deebb65998385ff3fb66b42b321031e0a4bc1c7a512f134cc170c0",
+      "gzip_sha256": "14fc85b1a2609600bcf92dba26970c86ecbc568027ebf0249c887d4372c3b7b8",
+      "result": {
+        "passed": 84,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    {
+      "path": "docs/benchmarks/scan_worker_budget_classification_worker_clippy_2026_10_05.log.gz",
+      "raw_sha256": "c5b7dab26affea78e8157f67d234f5494935c5c0563ec999e4aa838a98ef709d",
+      "gzip_sha256": "955f1df93dbaff9d5f52ada3b3b498ba145fd142510ce96ac85aeecaacbbb5a3",
+      "result": {
+        "exit_code": 0
+      }
+    },
+    {
+      "path": "docs/benchmarks/scan_worker_budget_classification_source_layout_2026_10_05.log.gz",
+      "raw_sha256": "8695392e4c990d1189f5161cc315f851721ccd7d42ed8ddd556955bac23ca3e8",
+      "gzip_sha256": "8fd595e358f9b1d1d64a3ad46051966a750adfa0dcf10919347a0848c0c3753d",
+      "result": {
+        "passed": 3,
+        "failed": 1,
+        "ignored": 0
+      }
+    },
+    {
+      "path": "docs/benchmarks/scan_worker_budget_classification_remote_red_2026_10_05.log.gz",
+      "raw_sha256": "f053c63f3c5d2d9331c07fe50ae6d0ce316d1ca44d4fa6c0e0f93255bd4261e7",
+      "gzip_sha256": "c577a49ad02ff2ee22db32a6b7da30c32d09694b882b1a1c93cffe8bd9763f30",
+      "result": {
+        "passed": 4,
+        "failed": 1,
+        "ignored": 0
+      }
+    }
+  ],
+  "review": "Independent reviewer approved local typed quota classification only; remote/runtime/CLI and native qualification excluded."
+}

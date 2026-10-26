@@ -1,0 +1,10 @@
+{
+  "commit": "7fc333018276143aea3b5b2e08b1198354bced84",
+  "command": "cargo test --workspace --all-targets --locked --offline --no-fail-fast -- --nocapture",
+  "terminal_exit_code": 101,
+  "configured_worker_sha256": "6615bab71ddd7cee3dc4d5f194f2f71b278ee10486fb483340841570bb042f3e",
+  "actual_worker_sha256_during_tests": "e0e77d8002a74fe55b9febc0a6a8666c7b1b8d7f2d17f30d11d2a33638ea03a8",
+  "diagnosis": "Global worker pin captured before workspace build rewrote mutable target artifact. Verified from actual running Cargo/test process environment and artifact SHA256. Not all failures classified; replay must inspect independent remaining failures.",
+  "log_raw_sha256": "c949b461258a61f3cb477ec6d13be778c3862ee63bc05d7166ff55f13db205ec",
+  "retry": "After no-run completes, copy actual artifact to exclusive separate executable; record pin after copy, then run same whole workspace."
+}

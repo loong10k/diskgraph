@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "production_acceptance": false,
+  "platform": "macOS arm64 local",
+  "source_sha256": {
+    "macos_filesystem_state.rs": "05bf22c3dfb8091730bfb540aee17594e80bacb2770919493e212816a33af1cb",
+    "macos_filesystem_state_tests.rs": "bbb97f35f7493a86bc15b75ff9f32c76f9c332630064b974a0909168205cda32",
+    "macos_installation_lease.rs": "e74e3a232bf92b8c6828f892a6a4f76c0f58ace5399c814364ff6491f6d95992",
+    "macos_installation_lease_tests.rs": "4dbbcb26f1b45a443815de3d359fd93968e59cd4363fc54a553375111eaef7db"
+  },
+  "logs": {
+    "api_red": {
+      "path": "docs/benchmarks/macos_directory_binding_api_red_2026_10_06.log.gz",
+      "raw_sha256": "aa3f3cddd298e322b68d0516b3c426b3e0638ee7a0d8b11ca4e002b972954c33"
+    },
+    "behavior_red": {
+      "path": "docs/benchmarks/macos_directory_binding_behavior_red_2026_10_06.log.gz",
+      "raw_sha256": "818f0bcdc3eb4af88a19cd0eb021f1af73750f48cd34394640d268ac9a437654"
+    },
+    "green": {
+      "path": "docs/benchmarks/macos_directory_binding_green_2026_10_06.log.gz",
+      "raw_sha256": "b53bf9708b011afe6924caa07c06f10ce007b7b231682b4df1e1be09d11257db"
+    }
+  },
+  "behavior_red": {
+    "exit_code": 101,
+    "passed": 0,
+    "failed": 1,
+    "reason": "directory bookkeeping changes rejected by prior full equality"
+  },
+  "green": {
+    "exit_code": 0,
+    "passed": 23,
+    "failed": 0,
+    "ignored": 0,
+    "command": "cargo test --locked -p diskgraph-engine --lib macos_ -- --nocapture"
+  },
+  "preserved": [
+    "leaf full equality and digest",
+    "single capture full before/after equality",
+    "live ACL checks",
+    "native directory identity and permission binding"
+  ],
+  "limitations": [
+    "field-level directory bookkeeping test uses real captured root state followed by simulated field changes",
+    "actual root-owned mutable installation sibling/rename/ACL race fixtures not yet executed",
+    "Intel and full product host lifecycle not verified"
+  ]
+}

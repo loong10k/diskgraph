@@ -1,0 +1,141 @@
+--- v2/scripts/run-native-pid-namespace.py
++++ v3/scripts/run-native-pid-namespace.py
+@@ -314,7 +314,6 @@
+                             self.save()
+                             print("namespace cleanup pending; original owner retained until actual wait", file=sys.stderr)
+                     self.wait_once()
+-                    self.drain(selector)
+                 except BaseException as error:
+                     self.failure("monitor", error)
+                     self.terminate()
+@@ -322,6 +321,13 @@
+                         time.sleep(0.05)
+                     except BaseException as interrupted:
+                         self.failure("cleanup_interrupt", interrupted)
++                # IO编排损坏不能留在无事件循环；外层finally独立等待原init并关闭余下FD。
++                try:
++                    self.drain(selector)
++                except BaseException as error:
++                    self.failure("monitor_io", error)
++                    self.terminate()
++                    raise
+ 
+     def qualify(self):
+         records = [json.loads(line) for line in self.setup.splitlines()]
+--- v2/scripts/tests/test_native_pid_namespace.py
++++ v3/scripts/tests/test_native_pid_namespace.py
+@@ -6,7 +6,9 @@
+ import os
+ from pathlib import Path
+ import sys
++import subprocess
+ import tempfile
++import time
+ import unittest
+ from unittest.mock import patch
+ 
+@@ -162,6 +164,103 @@
+             self.assertNotIn("namespace_descendants_gone", receipt)
+             self.assertTrue(all(value[0].closed for value in supervisor.logs.values()))
+ 
++    def test_persistent_selector_error_returns_after_actual_child_wait(self):
++        self.run_monitor_probe("select")
++
++    def test_eof_close_error_returns_after_actual_child_wait(self):
++        self.run_monitor_probe("eof-close")
++
++    def run_monitor_probe(self, mode):
++        try:
++            result = subprocess.run([sys.executable, __file__, "--selector-error-probe", mode],
++                                    capture_output=True, text=True, timeout=3)
++        except subprocess.TimeoutExpired as error:
++            self.fail(f"monitor failed to hand off despite actual child wait: {error.stdout!r}")
++        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
++        self.assertIn("ACTUAL_CHILD_WAIT_COMPLETED", result.stdout)
++        self.assertIn("ORIGINAL_SELECTOR_ERROR_PRESERVED", result.stdout)
++
++
++def selector_error_probe(mode):
++    """真实普通子进程先 wait；持续实际 EBADF 对象只测编排，不伪装 namespace 资格。"""
++    with tempfile.TemporaryDirectory() as temporary:
++        case = NativePidNamespaceContracts()
++        supervisor = MODULE.NativeNamespaceSupervisor(case.arguments(Path(temporary) / "output"))
++        child = subprocess.Popen([sys.executable, "-c", "pass"], stdout=subprocess.DEVNULL)
++        read_fd, write_fd = os.pipe()
++        selector = MODULE.selectors.DefaultSelector()
++        original_close = os.close
++        close_error_seen = False
++        try:
++            try:
++                os.read(-1, 1)
++            except OSError as error:
++                original = error
++
++            def install_child(_command):
++                supervisor.pid = child.pid
++                supervisor.streams[read_fd] = "stdout"
++
++            def actual_wait():
++                if not supervisor.reaped:
++                    assert child.wait(timeout=1) == 0
++                    supervisor.reaped = True
++                    print("ACTUAL_CHILD_WAIT_COMPLETED", flush=True)
++
++            def close_then_real_error(fd):
++                nonlocal original, close_error_seen
++                if fd == read_fd:
++                    try:
++                        original_close(fd)
++                        original_close(fd)
++                    except OSError as actual:
++                        assert actual.errno == original.errno
++                        if not close_error_seen:
++                            original = actual
++                            close_error_seen = True
++                        raise
++                else:
++                    original_close(fd)
++
++            if mode == "eof-close":
++                original_close(write_fd)
++                write_fd = None
++            selection = (patch.object(selector, "select", side_effect=original) if mode == "select"
++                         else patch.object(MODULE.os, "close", side_effect=close_then_real_error))
++
++            started = time.monotonic()
++            with patch.object(supervisor, "validate", return_value=supervisor.args.command), \
++                    patch.object(MODULE.os, "chown"), \
++                    patch.object(supervisor, "spawn", side_effect=install_child), \
++                    patch.object(supervisor, "wait_once", side_effect=actual_wait), \
++                    patch.object(MODULE.selectors, "DefaultSelector", return_value=selector), selection:
++                try:
++                    supervisor.run()
++                except OSError as error:
++                    assert error is original
++                else:
++                    raise AssertionError("original selector failure must escape")
++            assert time.monotonic() - started < 2
++            assert supervisor.reaped and child.returncode == 0
++            with case.assertRaises(OSError):
++                os.fstat(read_fd)
++            receipt = json.loads((supervisor.output / "namespace-receipt.json").read_text())
++            assert receipt["status"] == "failed"
++            assert receipt["primary_error"]["errno"] == original.errno
++            assert "namespace_descendants_gone" not in receipt
++            assert all(value[0].closed for value in supervisor.logs.values())
++            print("ORIGINAL_SELECTOR_ERROR_PRESERVED", flush=True)
++        finally:
++            if child.poll() is None:
++                child.kill()
++            child.wait()
++            if write_fd is not None:
++                original_close(write_fd)
++            selector.close()
++
+ 
+ if __name__ == "__main__":
+-    unittest.main()
++    if len(sys.argv) == 3 and sys.argv[1] == "--selector-error-probe":
++        selector_error_probe(sys.argv[2])
++    else:
++        unittest.main()

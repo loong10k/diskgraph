@@ -1,0 +1,28 @@
+{
+  "status": "completed",
+  "conclusion": "failure",
+  "headSha": "43e9435531df659bc2305b1dc0b22ea6884334ed",
+  "jobs": [
+    {
+      "databaseId": 111951354989,
+      "name": "engine (ubuntu-24.04, stable)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "step_count": 0
+    },
+    {
+      "databaseId": 111951356117,
+      "name": "engine (ubuntu-24.04, 1.97.0)",
+      "status": "completed",
+      "conclusion": "success",
+      "step_count": 12
+    },
+    {
+      "databaseId": 111951412645,
+      "name": "engine (ubuntu-24.04-arm, stable)",
+      "status": "completed",
+      "conclusion": "success",
+      "step_count": 12
+    }
+  ]
+}

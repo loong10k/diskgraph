@@ -1,0 +1,40 @@
+{
+  "production_acceptance": false,
+  "review": "read-only source review, COMMENT; not native execution",
+  "source_sha256": {
+    "crates/diskgraph-engine/src/scan_worker_host.rs": "604ddba2a4d315e3cfe33c88e860d7278bc5e5ac7cc31061f75d330ce905b4d6",
+    "crates/diskgraph-engine/src/scan_worker_runtime.rs": "0ae3ab040eb62c79f75ed064b83864a72769b44291a3b6c8cd3ec6345f390581",
+    "crates/diskgraph-engine/src/native_child/windows/windows_child_spawn.rs": "ff65622c0c1a56647beedcc8c2e18b24443e1a3001292972a5adf198f6a94709",
+    "crates/diskgraph-engine/src/native_child/windows/windows_child_poll_cleanup.rs": "561348643b45b6cfd998922c01806e273f819512f01c1027bd718bde2502248d",
+    "crates/diskgraph-engine/src/native_child/windows/overlapped_pipe.rs": "6e6119c10ae528b234315f1f2e0695494a5624410c01e2b76115df0fb815c501",
+    "crates/diskgraph-engine/src/native_child/windows/overlapped_control_pipe.rs": "753dd8a72cdd870ec0ca7009c684772c89035ae01e63ed5aca58342080bbccce",
+    "crates/diskgraph-engine/src/native_child/windows/windows_command_line.rs": "7158796a32a4eb8515ecf5e04634ae9aa1f22e6298fff911772dee3903194dc8"
+  },
+  "verified_source_facts": [
+    "Windows ScanWorkerRuntime launch currently Unsupported",
+    "Windows host only retains image material; no stable installation lease or PE/DLL closure",
+    "existing JOB_LIST/HANDLE_LIST and full-job normal-exit predicates must be retained",
+    "prebirth pending Connect still has local blocking cleanup"
+  ],
+  "implementation_order": [
+    "explicit prepared birth and Connecting/Reading IO ownership",
+    "incremental handle-relative private-directory cleanup and Pool deadline recovery",
+    "Windows trusted installation lease, spawn permit, strict input and PE/DLL policy",
+    "actual Windows worker plus CLI/MCP publication gates",
+    "same-source full platform and performance acceptance"
+  ],
+  "required_prepared_records": [
+    "Prepared/Creating/ProcessOwned/CreateFailed birth phase",
+    "Connecting/Ready/Reading operation kind",
+    "original Job/process/handle/event/OVERLAPPED/buffer retained",
+    "CancelIoEx ERROR_NOT_FOUND is not actual completion",
+    "CreateProcess failure must not discard prepared pending IO owner",
+    "Connect completion must not set stdout EOF or normal exit"
+  ],
+  "native_not_run": [
+    "actual Windows trusted scan",
+    "DLL normal/delay/import redirection positive controls",
+    "pending Connect failure/panic/deadline recovery"
+  ],
+  "scope": "macOS/Linux/Windows read-only CLI/MCP; write and mobile remain disabled"
+}

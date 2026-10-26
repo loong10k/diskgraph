@@ -1,0 +1,10 @@
+   Compiling diskgraph-cli v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.72s
+     Running unittests src/main.rs (target/debug/deps/diskgraph-af05c3b2dd9dd6eb)
+
+running 2 tests
+test cli_engine_host::tests::expired_original_startup_deadline_refuses_database_birth ... ok
+test cli_engine_host::tests::command_panic_preserves_original_payload_with_external_empty_recovery ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 73 filtered out; finished in 0.04s
+

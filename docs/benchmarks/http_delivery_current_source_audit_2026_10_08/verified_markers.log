@@ -1,0 +1,11 @@
+2026-10-08T00:20:09.8953395Z test http_delivery_writer_tests::a_nonreading_peer_cannot_extend_the_absolute_deadline ... ok
+2026-10-08T00:20:10.1857688Z test http_delivery_writer_tests::authorization_time_consumes_the_same_delivery_deadline ... ok
+2026-10-08T00:20:11.3919356Z test http_delivery_writer_tests::exhausted_deadline_never_sends_the_first_byte ... ok
+2026-10-08T00:20:12.5570833Z test http_delivery_writer_tests::authorization_change_between_chunks_stops_remaining_bytes ... ok
+2026-10-08T00:20:12.5885052Z test http_delivery_writer_tests::successful_delivery_restores_blocking_reads_for_the_next_request ... ok
+2026-10-08T00:20:13.9020969Z test http_delivery_writer_tests::changed_authorization_prevents_the_first_byte ... ok
+2026-10-08T00:20:14.6122160Z test http_delivery_writer_tests::expired_request_context_prevents_the_first_byte ... ok
+2026-10-08T00:20:15.7286762Z test http_delivery_writer_tests::long_request_id_cannot_expand_the_http_session_header ... ok
+2026-10-08T00:20:15.7443077Z test http_delivery_writer_tests::unicode_request_id_keeps_the_session_header_printable_ascii ... ok
+2026-10-08T00:20:25.8474691Z test http_request_audit_tests::actual_remote_nonreading_peer_cannot_renew_delivery_deadline ... ok
+2026-10-08T00:20:27.0723526Z test http_request_audit_tests::actual_remote_slow_progress_cannot_renew_delivery_deadline ... ok

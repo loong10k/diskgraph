@@ -1,0 +1,11 @@
+   Compiling diskgraph-store v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-store)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.94s
+     Running tests/source_layout.rs (target/debug/deps/source_layout-df7564821a99ba9f)
+
+running 3 tests
+test explicit_module_path_is_visited_instead_of_an_invented_default_path ... ok
+test non_root_file_explicit_path_is_relative_to_its_declaring_file ... ok
+test production_storage_entry_types_and_imports_follow_the_rust_contract ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.23s
+

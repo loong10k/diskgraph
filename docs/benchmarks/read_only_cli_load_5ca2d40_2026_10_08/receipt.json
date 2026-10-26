@@ -1,0 +1,40 @@
+{
+  "commit": "5ca2d40f23c210f890d7714620e2c115f5229807",
+  "platform": "Linux ARM64 Docker",
+  "rust": "1.97.1",
+  "docker_image": "rust@sha256:0e2bcaef56d041a486784e54104a81aebe0da44bd03019bd70bc0401e42e4a97",
+  "production_acceptance": false,
+  "baseline_comparison": false,
+  "files": {
+    "current-load-build.log.gz": "d22ae60dbdc65c980e67d9d88cb168b6aa689d35ff8346b9aec2d2600717e7ab",
+    "current-readonly-load.log.gz": "cb99a4cd09e151b61d366f0bbc9ab0bacd49dedb4b0a138b5a4a01637d1ee7bd",
+    "current-readonly-load.json": "cb99a4cd09e151b61d366f0bbc9ab0bacd49dedb4b0a138b5a4a01637d1ee7bd",
+    "current-load-source-binding.json": "db7603c7a011f70b109800bc294c1e14e0cdb0a9484b490536f1ffe8e048ce72",
+    "current-readonly-200k.log.gz": "2c6ad40c986d41eeb7f565619f1cb0c8ccb8e7abc0a185bd54d220e0a9ab29d8",
+    "current-readonly-200k.json": "2c6ad40c986d41eeb7f565619f1cb0c8ccb8e7abc0a185bd54d220e0a9ab29d8",
+    "rss_sampler.py": "aa012284987dddf703d0ff25a57b0817f61dd8096df331dcbe14ce5e7a928f60",
+    "rss-20000.log.gz": "5b952e9e00b62641685142a2a86727345a8c0c1867ae295d5ddcd57eb7c23141",
+    "rss-20000-load.json": "5b952e9e00b62641685142a2a86727345a8c0c1867ae295d5ddcd57eb7c23141",
+    "rss-20000-receipt.json": "447cb6a0cef54a82f641da0def7ce1bd443adce47692c3e4713df24681f08d32",
+    "rss-200000.log.gz": "8dac3d82a657edac78ce52b0ae3082754e8b9acd13471d21200196a1fc8e66ef",
+    "rss-200000-load.json": "8dac3d82a657edac78ce52b0ae3082754e8b9acd13471d21200196a1fc8e66ef",
+    "rss-200000-receipt.json": "2a99b9555e263cbaef90fd288a1d3e10a8a78dac72078e686f4ec2db18c61272",
+    "deep_cli_measure.py": "5b0a833a23f35b00bc30de1e4027025036abe408f2d88b17b7f0283f22ed4456",
+    "deep-cli.log.gz": "045a0ec7cbfc461cd62056c7ff8e27a6e864a81b4c22a1622971b4efd86988ac",
+    "deep-cli-result.json": "c912fd976582973bf6463463f003e9fe07855c9e9376c2725364114680fd8c92"
+  },
+  "diskgraph": {
+    "bytes": 8568680,
+    "sha256": "a8c8c469bb33916e2fbb8f9c5869def1adc8ba1a0a641aec4f57cca6b25493d1"
+  },
+  "diskgraph-scan-worker": {
+    "bytes": 1288576,
+    "sha256": "a643e32a0dbf9e4eadf33f71236a47644eb3f9913f065fd8db0db61662187702"
+  },
+  "missing_acceptance": [
+    "exact peak RSS or documented sampling acceptance",
+    "same environment baseline",
+    "native macOS/Windows performance"
+  ],
+  "rss_sampling_limits": "20ms interval; sum of descendant RSS; shared pages may double count; transient peaks or reparented workers may be missed"
+}

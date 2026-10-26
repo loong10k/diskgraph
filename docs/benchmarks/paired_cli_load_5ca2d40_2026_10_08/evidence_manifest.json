@@ -1,0 +1,26 @@
+{
+  "uncompressed_sha256": {
+    "paired-cli-receipt.json": "7ff31cf206dcfd8a2acfcb1a43cf9232688fd45eb3242f35d02068a50d09309c",
+    "paired-cli-invalid-receipt.json": "2d693d172f6f40333e9e59b1bdaa1fc4b48905b17dce573b58467b894796619f",
+    "paired_cli_load.py": "5c1f52440c1f22278dc76bb1437ff33c60ae54ff4a9e308ca6678c59e53b28c7",
+    "baseline_source_binding.json": "fa7d84fff1f33598363778bba99278e3cb2f22e2d91d1ee158c82c889b3ded22",
+    "baseline-isolated-build-v2.log.gz": "90227f1d386458829e9112cf863f47d2852779b7bfa53d1ed9162f7e1cc1d7bd",
+    "paired-20000-round1-baseline.json": "966d431af835820d42872a55dca8f29f06063083dbae467d90be32d11e2f4378",
+    "paired-20000-round1-baseline.log.gz": "966d431af835820d42872a55dca8f29f06063083dbae467d90be32d11e2f4378",
+    "paired-20000-round1-candidate.json": "ece90c43aedc15d255e620f349e18cd75265160713e38cbcf74cfdf3a35fa827",
+    "paired-20000-round1-candidate.log.gz": "ece90c43aedc15d255e620f349e18cd75265160713e38cbcf74cfdf3a35fa827",
+    "paired-20000-round2-candidate.json": "92410873d4ebeb799a5e8c8955283f0fb9766cd4becdc14d10bb4a9d7f91a166",
+    "paired-20000-round2-candidate.log.gz": "92410873d4ebeb799a5e8c8955283f0fb9766cd4becdc14d10bb4a9d7f91a166",
+    "paired-20000-round2-baseline.json": "8e5060570c5fdeacbe635428a013d7608e67db78d6161e3e32b2dcdc2ed19243",
+    "paired-20000-round2-baseline.log.gz": "8e5060570c5fdeacbe635428a013d7608e67db78d6161e3e32b2dcdc2ed19243",
+    "paired-200000-round1-baseline.json": "43c21ed4829990ffd3a06cebb1a5cfb0ec6bfc3b8f7ead452ce7801c6d05dac5",
+    "paired-200000-round1-baseline.log.gz": "43c21ed4829990ffd3a06cebb1a5cfb0ec6bfc3b8f7ead452ce7801c6d05dac5",
+    "paired-200000-round1-candidate.json": "bfdaefa11c9dd756578d974cbdfe7df43e9c960f72bb024d53ededef605c525a",
+    "paired-200000-round1-candidate.log.gz": "bfdaefa11c9dd756578d974cbdfe7df43e9c960f72bb024d53ededef605c525a",
+    "paired-200000-round2-candidate.json": "09de08a3abb9be73713a1f949591f7d3f85b45a46e68c14e78ea8275c6077787",
+    "paired-200000-round2-candidate.log.gz": "09de08a3abb9be73713a1f949591f7d3f85b45a46e68c14e78ea8275c6077787",
+    "paired-200000-round2-baseline.json": "e308d88d3c04416e47b63e3875dee7a307cdf47d04e98d0d2967f21cc8c06f19",
+    "paired-200000-round2-baseline.log.gz": "e308d88d3c04416e47b63e3875dee7a307cdf47d04e98d0d2967f21cc8c06f19"
+  },
+  "production_acceptance": false
+}

@@ -1,0 +1,84 @@
+{
+  "current_head": "9758b53310365e626ddb485bffc1dde4d16dbb1b",
+  "actions": [
+    {
+      "run": 37703163775,
+      "action": "preserved_active",
+      "active_jobs": [
+        113071181466
+      ]
+    },
+    {
+      "run": 37702662951,
+      "head": "e3ccbf4d6c2b281f473b834238a8baeab8ceb8af",
+      "action": "cancel_superseded_without_running_jobs",
+      "returncode": 0,
+      "output": "\u2713 Request to cancel workflow 37702662951 submitted.",
+      "stderr": ""
+    },
+    {
+      "run": 37701786437,
+      "head": "0c78553fe67e300856c5e79adff45b60eadd773f",
+      "action": "cancel_superseded_without_running_jobs",
+      "returncode": 0,
+      "output": "\u2713 Request to cancel workflow 37701786437 submitted.",
+      "stderr": ""
+    },
+    {
+      "run": 37700562743,
+      "action": "preserved_active",
+      "active_jobs": [
+        113062738811,
+        113062738846,
+        113062738943,
+        113062738996,
+        113071416821
+      ]
+    },
+    {
+      "run": 37700215196,
+      "action": "preserved_active",
+      "active_jobs": [
+        113061595819,
+        113061595943,
+        113061595973,
+        113061596040,
+        113066338070
+      ]
+    },
+    {
+      "run": 37700048722,
+      "action": "preserved_active",
+      "active_jobs": [
+        113061066895,
+        113061067019,
+        113065278418
+      ]
+    },
+    {
+      "run": 37699315022,
+      "action": "preserved_active",
+      "active_jobs": [
+        113058673937
+      ]
+    },
+    {
+      "run": 37699184226,
+      "action": "preserved_active",
+      "active_jobs": [
+        113058243826,
+        113058243884,
+        113058244023,
+        113058244131
+      ]
+    },
+    {
+      "run": 37697115067,
+      "action": "preserved_active",
+      "active_jobs": [
+        113051449162
+      ]
+    }
+  ],
+  "qualification": "cancellation is not acceptance; active jobs preserved"
+}

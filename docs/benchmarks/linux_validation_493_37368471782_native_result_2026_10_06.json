@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "run": 37368471782,
+  "job": 111967736657,
+  "status": "diagnostic completed",
+  "measurement_exit_code": 0,
+  "source": "493257fda48242b2fb326be948e20c3636d228f2",
+  "production_acceptance": false,
+  "receipt_sha256": "c548ac693ab78e85e3a1ec95856eb17abbdecd017d4f4904f6bc8af78159304f",
+  "limitation": "This single instrumented successful scan does not explain the previous BusinessConflict; no retry or policy relaxation was made."
+}

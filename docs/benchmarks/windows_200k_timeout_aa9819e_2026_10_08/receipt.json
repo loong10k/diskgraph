@@ -1,0 +1,18 @@
+{
+  "commit": "aa9819e2b907a284ac32d4c9a01bf4742ac507c5",
+  "run_id": 37708407574,
+  "job_id": 113089493625,
+  "raw_log_sha256": "42961400fe1fd31d8b36b6f70d53695a23ea31b02866682731bc70c3363feaa8",
+  "observed": [
+    "actual load coverage suite 5/5 passed",
+    "200000-file load wrapper timed out after 300 seconds",
+    "package cleanup failed WinError 5 on diskgraph.exe"
+  ],
+  "not_proven": [
+    "timeout phase",
+    "identity of executable owner",
+    "descendant retirement",
+    "production readiness"
+  ],
+  "diagnostic_followup_commit": "8ccdb4155671aa100760ddb5003691cc11a5bf59"
+}

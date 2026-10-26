@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "baseline_commit": "3924dc4be707ad20db819e27d41f593ecaa576a3",
+  "platform": "macOS arm64",
+  "status": "candidate CLI deployment refusal, empty recovery and remote serve routing verified; full integration failed",
+  "targeted_results": {
+    "deployment_red": {
+      "passed": 0,
+      "failed": 3
+    },
+    "remote_serve_red": {
+      "passed": 0,
+      "failed": 1,
+      "observed": "actual MCP auth refusal exit6, but CLI had created local stores before dispatch"
+    },
+    "post_exit_adapter_binary": {
+      "passed": 5,
+      "failed": 0,
+      "ignored": 0
+    },
+    "empty_recovery_panic": {
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0
+    }
+  },
+  "broad_regression_before_exit_adapter": {
+    "passed": 56,
+    "failed": 11,
+    "ignored": 0,
+    "failures": [
+      "scan_terminal_tests::waiting_for_another_owners_failed_job_is_not_success",
+      "query_terminal_tests::comparison_summary_is_partial_when_encoded_terminal_authorization_expires",
+      "query_terminal_tests::tree_and_history_do_not_complete_after_the_dispatch_deadline",
+      "query_terminal_tests::encoded_growth_refuses_terminal_grant_revocation",
+      "query_terminal_tests::plan_cannot_escape_as_usable_steps_when_encoding_terminal_authorization_expires",
+      "query_terminal_tests::encoded_comparison_refuses_terminal_grant_revocation",
+      "query_terminal_tests::html_export_does_not_write_after_terminal_scope_revocation",
+      "query_terminal_tests::encoded_tree_refuses_terminal_scope_revocation",
+      "query_terminal_tests::encoded_changes_refuses_terminal_scope_revocation",
+      "scan_terminal_tests::synchronous_wait_reclaims_only_its_expired_job",
+      "tui::tests::nested_frame_limits_queries_and_keeps_navigation_visible"
+    ],
+    "scope": "10 failure blocks explicitly report Unsupported; one BudgetExceeded assertion mismatch does not print actual returned error. No full integration acceptance."
+  },
+  "sources": [
+    {
+      "path": "crates/diskgraph-cli/src/cli_engine_host.rs",
+      "sha256": "46741e7e7d64be21c35d12c61aab28b882f4dd63afe17a74a2f4c13705f0f6a6"
+    },
+    {
+      "path": "crates/diskgraph-cli/src/cli_engine_host/tests.rs",
+      "sha256": "1c5567893206671da252bb31405f1b3d14a15760ef97722e7d44ea3b9ddaa808"
+    },
+    {
+      "path": "crates/diskgraph-cli/src/entry.rs",
+      "sha256": "ab70daa8863b7919e1c0a40e2c2798e417d7c9464962f2c8893d9de7027e2729"
+    },
+    {
+      "path": "crates/diskgraph-cli/src/init_commands.rs",
+      "sha256": "7cb0455b259a97a1c568234655012d0026b789cb5cea2e1ead141b41c3a6da95"
+    },
+    {
+      "path": "crates/diskgraph-cli/src/serve_command.rs",
+      "sha256": "e8abc2f8bd25b8ee4011e7a58bea13d451dc2b6127c17fd9d22c0d2e2a7c9905"
+    },
+    {
+      "path": "crates/diskgraph-cli/src/cli_exit.rs",
+      "sha256": "430f19fa25febe14a8866517e59424baa11474e7486bbccfac27beb0d320864d"
+    },
+    {
+      "path": "crates/diskgraph-cli/src/main.rs",
+      "sha256": "d8579f25238fa570d3e7017f74a9aca88830731067def2d54e4aa1a4f3b43ddb"
+    },
+    {
+      "path": "crates/diskgraph-cli/src/dispatch.rs",
+      "sha256": "edaa43be58da58f49e90fbe96ca52f0f94e1997def67adcc034226eae2c9c09c"
+    },
+    {
+      "path": "crates/diskgraph-cli/src/service_commands.rs",
+      "sha256": "feb7038cbd83aa3c0797094fa69cb097a22ddfd70fee5832d054c7c4347d1587"
+    },
+    {
+      "path": "crates/diskgraph-cli/tests/scan_worker_binary_config.rs",
+      "sha256": "d99115a8505ab825d7bf3fb72e827be948387b0634018afd8c7721aa430ab2ed"
+    },
+    {
+      "path": "crates/diskgraph-cli/tests/scan_worker_host_lifecycle.rs",
+      "sha256": "63d1b1646db878e7ef55fefd13e53a5cd094b1f61476ce88e781d2eec76de38e"
+    },
+    {
+      "path": "crates/diskgraph-cli/tests/serve_remote_startup.rs",
+      "sha256": "c124dbf25153048824f104aca3ac0998d3e795a23c319bbdba7c8455f9aa2d4d"
+    },
+    {
+      "path": "crates/diskgraph-cli/Cargo.toml",
+      "sha256": "35afc9fabf9b7fafd673eb6dec4c44519a7f987a688061ac6faf5c49ba1d5b71"
+    },
+    {
+      "path": "Cargo.lock",
+      "sha256": "05866034a2a577d5d5db5317408abf8d0af9302f6f5ec8a6b78fa06e0e083dae"
+    },
+    {
+      "path": "openspec/changes/implement-diskgraph-platform/physical-scan-process.md",
+      "sha256": "93a6c74e3450f048aa69f53b7d43ffc54ab5778e081e55fead228174ffeea2e1"
+    }
+  ],
+  "logs": [
+    {
+      "path": "docs/benchmarks/scan_worker_cli-config-red_2026_10_05.log.gz",
+      "exit_code": 101,
+      "raw_sha256": "531f42287b344efc98a7cda3d033067d891b2e32ef09cac5684eaf40ca891b23",
+      "gzip_sha256": "61d76d63ab9afb157d8227f22572a010d48fd913e3d36cde7a9a9d72eda56502"
+    },
+    {
+      "path": "docs/benchmarks/scan_worker_cli-config-green_2026_10_05.log.gz",
+      "exit_code": 0,
+      "raw_sha256": "b310833209079c5788a9f0c38160eb2410cf90eaae81ef4fa100555887edfbbe",
+      "gzip_sha256": "5fb4e0089adbd8fa4fbd0d3e62b2c83b1095a11657fdecfb0979ae3c2dc87624"
+    },
+    {
+      "path": "docs/benchmarks/scan_worker_cli-empty-lifecycle_2026_10_05.log.gz",
+      "exit_code": 0,
+      "raw_sha256": "cd9b5a12fce3f51232e67d30dfe9d9ca25b2280a38335c545571650219b5216e",
+      "gzip_sha256": "45ca49010ac32148a8f1a443bbe72f2681bce2dd4ebc0bff5a2ad01841e248c1"
+    },
+    {
+      "path": "docs/benchmarks/scan_worker_cli-empty-panic_2026_10_05.log.gz",
+      "exit_code": 0,
+      "raw_sha256": "1428dd23450e6454edf23033c0dd9fd8dad28d989ca1d876062d84ed348973ca",
+      "gzip_sha256": "8f9461c4f821ceeb66a03ff2d92c42e8bb631ea0c0aa1c19d34228248b2401f4"
+    },
+    {
+      "path": "docs/benchmarks/scan_worker_cli-remote-serve-red_2026_10_05.log.gz",
+      "exit_code": 101,
+      "raw_sha256": "b70be7ef9b51fc0e8529922fc8188de9508fbfe18ca01995db4d1a404cd0930c",
+      "gzip_sha256": "a249ca1a5798847be912a029e14ed2dbc5bf7ab8eff855647f13e47313f379d0"
+    },
+    {
+      "path": "docs/benchmarks/scan_worker_cli-host-and-serve-green_2026_10_05.log.gz",
+      "exit_code": 0,
+      "raw_sha256": "fcd950227147e40d7373700e31a3fe5d034eec58f4041202293b06559cb01096",
+      "gzip_sha256": "d80e7988946dd540a3a25b39d7296feacabe47ce0075f1c648372bdc06a501b9"
+    },
+    {
+      "path": "docs/benchmarks/scan_worker_cli-bin-regression_2026_10_05.log.gz",
+      "exit_code": 101,
+      "raw_sha256": "a9b791142731510b4e3bd649f1d6d03f6b74bd20f816b1f8f454d945a3e47115",
+      "gzip_sha256": "40f2eeaf9b554ab2d90150f08ca496bcf28352652139c8157e83a564f54e6267"
+    }
+  ],
+  "independent_review": "APPROVE startup/owner boundaries and serve routing; Windows ExitStatus width preserved in source after REQUEST CHANGES",
+  "limits": [
+    "No active child recovery or native scanning acceptance.",
+    "Windows 32-bit companion exit status requires native execution; macOS exit6 does not prove it.",
+    "Existing Engine dead_code warnings remain; no strict Clippy acceptance.",
+    "Full CLI regression failed; no tests skipped or expectations weakened.",
+    "Actual target binaries were built in isolated HEAD archive with frozen current Engine/MCP host candidates.",
+    "Permanent OS recovery error can block normal shutdown while responsibility is retained."
+  ],
+  "budget_failure_diagnostic": {
+    "exit_code": 101,
+    "passed": 0,
+    "failed": 1,
+    "ignored": 0,
+    "actual_error": "Business(Unsupported)",
+    "expected_error": "Business(BudgetExceeded)",
+    "scope": "Preserved original budget assertion; later Partial/no-latest assertions not reached; no budget acceptance.",
+    "source": {
+      "path": "crates/diskgraph-cli/src/scan_terminal_tests.rs",
+      "sha256": "2a025155f1a9111281d24b0202a0f65f457fbf78d6d6c6877257eba16b6617d5"
+    },
+    "log": {
+      "path": "docs/benchmarks/scan_worker_cli-budget-failure-diagnostic_2026_10_05.log.gz",
+      "raw_sha256": "55bd9310ee6b0adce2dc4e21a50af80ec6559f2266e46b6c42dc79f2b3f076e5",
+      "gzip_sha256": "07067e53748f356fb71866077eca00ebccadac28cc71069798eb5fde3ed9be59"
+    }
+  }
+}

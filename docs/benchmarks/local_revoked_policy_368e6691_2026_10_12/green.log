@@ -1,0 +1,19 @@
+   Compiling diskgraph-cli v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.34s
+     Running unittests src/main.rs (target/debug/deps/diskgraph-2b297645c71baf0b)
+
+running 11 tests
+test narrow_query_authorization_tests::non_revoked_local_policy_keeps_the_original_read_deadline ... ok
+test narrow_query_authorization_tests::revoked_local_policy_refuses_before_expired_revision_resolution ... ok
+test narrow_query_authorization_tests::explore_one_node_budget_counts_the_parent ... ok
+test narrow_query_authorization_tests::scope_bound_reader_refuses_foreign_scope_before_consumer ... ok
+test narrow_query_authorization_tests::search_cursor_uses_dispatch_identity_instead_of_cli_label ... ok
+test narrow_query_authorization_tests::actual_narrow_commands_deny_ungranted_principal ... ok
+test narrow_query_authorization_tests::actual_narrow_commands_preserve_allowed_wire_fields_and_unicode ... ok
+test narrow_query_authorization_tests::filtered_children_and_search_admit_legacy_payload_before_decode ... ok
+test narrow_query_authorization_tests::actual_narrow_commands_refuse_expired_original_dispatch_deadline ... ok
+test narrow_query_authorization_tests::actual_narrow_commands_observe_terminal_revocation_before_output ... ok
+test narrow_query_authorization_tests::actual_narrow_commands_refuse_late_terminal_capability ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 114 filtered out; finished in 0.88s
+

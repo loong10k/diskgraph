@@ -1,0 +1,14 @@
+   Compiling diskgraph-core v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-core)
+   Compiling diskgraph-store v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-store)
+   Compiling diskgraph-disktree v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-disktree)
+   Compiling diskgraph-testkit v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-testkit)
+   Compiling diskgraph-engine v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.51s
+     Running tests/supervisor_admission_error.rs (target/debug/deps/supervisor_admission_error-b1f3f5b66b1061ff)
+
+running 2 tests
+test slot_io_retains_original_error_instead_of_parsing_its_message ... ok
+test slot_failures_keep_distinct_admission_codes ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

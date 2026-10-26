@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "production_acceptance": false,
+  "platform": "local macOS",
+  "source_state": "8878912 plus uncommitted integration work; not a committed release candidate",
+  "tests": {
+    "cli": {
+      "result": [
+        "56",
+        "11",
+        "0"
+      ],
+      "failed_cases": [
+        "query_terminal_tests::encoded_tree_refuses_terminal_scope_revocation",
+        "query_terminal_tests::plan_cannot_escape_as_usable_steps_when_encoding_terminal_authorization_expires",
+        "query_terminal_tests::tree_and_history_do_not_complete_after_the_dispatch_deadline",
+        "query_terminal_tests::encoded_comparison_refuses_terminal_grant_revocation",
+        "query_terminal_tests::encoded_changes_refuses_terminal_scope_revocation",
+        "query_terminal_tests::comparison_summary_is_partial_when_encoded_terminal_authorization_expires",
+        "scan_terminal_tests::synchronous_wait_reclaims_only_its_expired_job",
+        "query_terminal_tests::html_export_does_not_write_after_terminal_scope_revocation",
+        "scan_terminal_tests::waiting_for_another_owners_failed_job_is_not_success",
+        "query_terminal_tests::encoded_growth_refuses_terminal_grant_revocation",
+        "tui::tests::nested_frame_limits_queries_and_keeps_navigation_visible"
+      ],
+      "command_exit_code": 101
+    },
+    "mcp": {
+      "result": [
+        "119",
+        "34",
+        "0"
+      ],
+      "failed_cases": [
+        "history_budget_tests::encoded_socket_history_rechecks_both_scope_sides",
+        "history_budget_tests::encoded_socket_history_rechecks_both_grant_sides",
+        "history_budget_tests::encoded_socket_growth_rechecks_both_scope_sides",
+        "children_cursor_tests::directory_cursor_resumes_in_stable_order_with_offset_compatibility",
+        "children_cursor_tests::directory_cursor_rejects_changed_parent_filter_and_policy",
+        "history_budget_tests::history_and_growth_use_real_authentication_origin_and_revision_ownership",
+        "children_cursor_tests::directory_cursor_resumes_after_response_byte_truncation",
+        "history_budget_tests::encoded_socket_growth_rechecks_both_grant_sides",
+        "history_budget_tests::history_decode_failure_keeps_a_bounded_business_diagnostic_on_the_socket",
+        "history_budget_tests::socket_history_initial_authorization_cannot_reset_deadline",
+        "history_budget_tests::socket_growth_initial_authorization_cannot_reset_deadline",
+        "http::tests::a_client_side_path_is_never_resolved_against_the_server",
+        "http::tests::a_real_socket_round_trip_answers_the_same_as_the_direct_call",
+        "http::tests::a_disconnected_client_job_completes_and_stays_queryable",
+        "http::tests::mcp_search_cursors_expire_with_policy_updates",
+        "http::tests::scope_ids_from_another_server_are_not_found",
+        "relation_budget_tests::escaped_impact_fits_the_real_mcp_structured_envelope",
+        "relation_budget_tests::initial_mcp_authorization_wait_cannot_reset_the_candidate_deadline",
+        "tests::authorization_tests::impact_requires_the_revision_owners_grant_even_when_a_different_scope_is_supplied",
+        "relation_budget_tests::final_mcp_envelope_cannot_escape_after_scope_revocation",
+        "tests::candidate_tests::incomplete_candidates_do_not_decode_the_full_revision",
+        "tests::candidate_tests::zero_target_candidates_do_not_decode_the_full_revision",
+        "tests::candidate_tests::positive_target_candidates_use_a_narrow_read_and_report_the_target_gap",
+        "tests::protocol_tests::tool_calls_reject_unknown_and_mistyped_arguments",
+        "tests::query_tests::explicit_revision_and_node_id_select_historical_data",
+        "tests::relation_tests::explain_mixed_direction_byte_pages_never_skip_edges",
+        "tests::query_tests::queries_answer_with_envelopes_and_unknown_scopes_refuse_honestly",
+        "tests::query_tests::two_scopes_stay_isolated_and_reuse_their_own_revisions",
+        "tests::relation_tests::explain_checks_entity_bytes_before_decoding",
+        "tests::relation_tests::explain_returns_typed_evidence_for_a_cargo_project",
+        "tests::relation_tests::impact_uses_entity_edges_without_decoding_unrelated_relations",
+        "tests::relation_tests::relation_queries_bound_decoding_and_report_continuation",
+        "http::tests::dropping_every_connection_is_not_a_cancellation",
+        "http::tests::legacy_disconnect_leaves_the_job_queryable"
+      ],
+      "command_exit_code": 101
+    }
+  },
+  "observation": "scan preparation rejected Unsupported; actual socket job completion assertions also fail with failed state. Tests retained; no weakening or skips.",
+  "new_windows_blocker": "WindowsChild cleanup marks cleaned before wait/job-empty; errors discard handles and second cleanup falsely succeeds. Read-only diagnosis, fix and Windows native regression pending."
+}

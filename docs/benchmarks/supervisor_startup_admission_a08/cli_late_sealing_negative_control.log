@@ -1,0 +1,22 @@
+   Compiling diskgraph-cli v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.14s
+     Running unittests src/main.rs (target/debug/deps/diskgraph-af05c3b2dd9dd6eb)
+
+running 1 test
+test cli_engine_host::tests::late_startup_rejection_seals_original_registry ... FAILED
+
+failures:
+
+---- cli_engine_host::tests::late_startup_rejection_seals_original_registry stdout ----
+
+thread 'cli_engine_host::tests::late_startup_rejection_seals_original_registry' (5591359) panicked at crates/diskgraph-cli/src/cli_engine_host/tests.rs:121:5:
+retired original registry must reject new births before image execution: Err(Business(Unsupported))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    cli_engine_host::tests::late_startup_rejection_seals_original_registry
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 75 filtered out; finished in 0.04s
+
+error: test failed, to rerun pass `-p diskgraph-cli --bin diskgraph`

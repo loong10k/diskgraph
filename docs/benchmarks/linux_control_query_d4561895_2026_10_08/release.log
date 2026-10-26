@@ -1,0 +1,63 @@
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.26
+   Compiling libc v0.2.189
+   Compiling quote v1.0.47
+   Compiling version_check v0.9.5
+   Compiling generic-array v0.14.7
+   Compiling typenum v1.20.1
+   Compiling crossbeam-utils v0.8.23
+   Compiling syn v3.0.6
+   Compiling serde_core v1.0.229
+   Compiling cfg-if v1.0.5
+   Compiling crossbeam-epoch v0.9.21
+   Compiling find-msvc-tools v0.1.14
+   Compiling shlex v2.0.1
+   Compiling cc v1.5.1
+   Compiling vcpkg v0.2.15
+   Compiling pkg-config v0.3.34
+   Compiling crossbeam-deque v0.8.8
+   Compiling zmij v1.0.23
+   Compiling getrandom v0.4.3
+   Compiling libsqlite3-sys v0.38.2
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling rustix v1.1.5
+   Compiling serde_json v1.0.151
+   Compiling rayon-core v1.13.0
+   Compiling foldhash v0.2.0
+   Compiling bitflags v2.13.2
+   Compiling serde v1.0.229
+   Compiling hashbrown v0.17.1
+   Compiling digest v0.10.7
+   Compiling serde_derive v1.0.229
+   Compiling cpufeatures v0.2.17
+   Compiling linux-raw-sys v0.12.1
+   Compiling thiserror v2.0.21
+   Compiling memchr v2.8.3
+   Compiling itoa v1.0.18
+   Compiling sha2 v0.10.9
+   Compiling hashlink v0.12.2
+   Compiling thiserror-impl v2.0.21
+   Compiling fallible-iterator v0.3.0
+   Compiling fastrand v2.5.0
+   Compiling fallible-streaming-iterator v0.1.9
+   Compiling smallvec v1.16.2
+   Compiling once_cell v1.21.4
+   Compiling either v1.18.0
+   Compiling base64 v0.22.1
+   Compiling diskgraph-core v0.3.0 (/tmp/diskgraph-source/crates/diskgraph-core)
+   Compiling rayon v1.12.0
+   Compiling tempfile v3.27.0
+   Compiling syn v2.0.119
+   Compiling uuid v1.26.1
+   Compiling rusqlite v0.40.2
+   Compiling diskgraph-store v0.3.0 (/tmp/diskgraph-source/crates/diskgraph-store)
+    Finished `release` profile [optimized] target(s) in 55.19s
+     Running unittests src/lib.rs (target/release/deps/diskgraph_store-399bcb07060dd6c5)
+
+running 1 test
+{"os":"linux","release":true,"rounds":[{"capacity":0,"p50_ns":19542,"p95_ns":30083,"samples":2000,"total_ns":43672283},{"capacity":16,"p50_ns":3333,"p95_ns":3458,"samples":2000,"total_ns":7125849},{"capacity":16,"p50_ns":3375,"p95_ns":3458,"samples":2000,"total_ns":7373391},{"capacity":0,"p50_ns":19417,"p95_ns":22667,"samples":2000,"total_ns":41404468}],"scope":"in-memory control SQL compilation only"}
+test policy_store::control_query_cache_tests::measure_control_query_compilation_cost ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 351 filtered out; finished in 0.10s
+

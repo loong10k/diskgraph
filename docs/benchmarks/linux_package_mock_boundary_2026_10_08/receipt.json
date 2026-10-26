@@ -1,0 +1,19 @@
+{
+  "failed_commit": "04d28b10d8eb2baa3550f7371ddf685d37ee887d",
+  "fix_commit": "249f6e5bfd858c60638641838eee2b31d6b3cc81",
+  "evidence": [
+    {
+      "architecture": "arm",
+      "job": 113098472491,
+      "log_sha256": "bd18d18f78671e9d046e5c14d110f8ce4e392826cc9133b75fe47f72a1479943"
+    },
+    {
+      "architecture": "x86",
+      "job": 113098472534,
+      "log_sha256": "ea3a3e8c12667ccdfc280f7d9f5e3a0917a4584230e18b4e9495d0c66671df35"
+    }
+  ],
+  "cause": "test patched subprocess.run after production dispatcher was bound to run_acceptance",
+  "local_regression": "7 tests: old 1 error; fixed 7 passed",
+  "boundary": "native package acceptance did not run after this test failure; new CI pending"
+}

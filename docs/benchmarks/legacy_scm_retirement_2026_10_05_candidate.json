@@ -1,0 +1,325 @@
+{
+  "schema_version": 1,
+  "phase": "READY for independent static review and root-only compiler/QA; legacy SCM route retired, not accepted",
+  "repository": "/Users/wandl/workspaces/workspace-loong10k/diskgraph",
+  "snapshot": "/private/tmp/diskgraph-scm-retirement-x51ve74d",
+  "ownership": [
+    "seven byte-preserving legacy source moves",
+    "unix_child.rs SCM-only deletion",
+    "unix_normal_exit.rs SCM-only deletion"
+  ],
+  "sources": [
+    {
+      "path": "crates/diskgraph-engine/src/native_child/unix_child.rs",
+      "sha256": "d53fd2aec1130a1d49488e4c162d9f256a5d6fb7b831160ea10732bc68e7963b",
+      "bytes": 17655,
+      "lines": 454,
+      "frozen_copy": "/private/tmp/diskgraph-scm-retirement-x51ve74d/final/crates/diskgraph-engine/src/native_child/unix_child.rs"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/unix_normal_exit.rs",
+      "sha256": "44ba25517076a0b0d621659611210654e5921f9153d8ce31cc67955a39887ba6",
+      "bytes": 2411,
+      "lines": 60,
+      "frozen_copy": "/private/tmp/diskgraph-scm-retirement-x51ve74d/final/crates/diskgraph-engine/src/native_child/unix_normal_exit.rs"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/legacy/scm_scanner/linux_scanner_command.rs",
+      "sha256": "fbc07e701ac4884a12886cbea619a7111ba51b48ac081a2d91f2d7f122558599",
+      "bytes": 2284,
+      "lines": 55,
+      "frozen_copy": "/private/tmp/diskgraph-scm-retirement-x51ve74d/final/crates/diskgraph-engine/integration_candidates/legacy/scm_scanner/linux_scanner_command.rs",
+      "role": "legacy unmounted candidate"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/legacy/scm_scanner/linux_scanner_exit.rs",
+      "sha256": "9838309f11a2eb615239fd80ca44720cd4cc31f1900226271169f389621c2aeb",
+      "bytes": 4140,
+      "lines": 109,
+      "frozen_copy": "/private/tmp/diskgraph-scm-retirement-x51ve74d/final/crates/diskgraph-engine/integration_candidates/legacy/scm_scanner/linux_scanner_exit.rs",
+      "role": "legacy unmounted candidate"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/legacy/scm_scanner/linux_scanner_launch.rs",
+      "sha256": "5224bb40faeadc69ff2c3b61072de1092902ad3b256f4f8db51f10f9e099e38c",
+      "bytes": 7838,
+      "lines": 203,
+      "frozen_copy": "/private/tmp/diskgraph-scm-retirement-x51ve74d/final/crates/diskgraph-engine/integration_candidates/legacy/scm_scanner/linux_scanner_launch.rs",
+      "role": "legacy unmounted candidate"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/legacy/scm_scanner/linux_scanner_receipt.rs",
+      "sha256": "dc06694223a4ff042983a7464c11128e0a07f9090276db9e77077fe2b48ad648",
+      "bytes": 11779,
+      "lines": 296,
+      "frozen_copy": "/private/tmp/diskgraph-scm-retirement-x51ve74d/final/crates/diskgraph-engine/integration_candidates/legacy/scm_scanner/linux_scanner_receipt.rs",
+      "role": "legacy unmounted candidate"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/legacy/scm_scanner/linux_scanner_sandbox_fixture.rs",
+      "sha256": "7d3df3b80882caaec6c47d95d246bea61fe16960ade677efab387920883dacec",
+      "bytes": 1842,
+      "lines": 50,
+      "frozen_copy": "/private/tmp/diskgraph-scm-retirement-x51ve74d/final/crates/diskgraph-engine/integration_candidates/legacy/scm_scanner/linux_scanner_sandbox_fixture.rs",
+      "role": "legacy unmounted candidate"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/legacy/scm_scanner/linux_scanner_sandbox_test_support.rs",
+      "sha256": "531e15c991c1c1e4fc3f843dff2364fd3ef78735e850cd8ce9c9de23b1d9db71",
+      "bytes": 7948,
+      "lines": 218,
+      "frozen_copy": "/private/tmp/diskgraph-scm-retirement-x51ve74d/final/crates/diskgraph-engine/integration_candidates/legacy/scm_scanner/linux_scanner_sandbox_test_support.rs",
+      "role": "legacy unmounted candidate"
+    },
+    {
+      "path": "crates/diskgraph-engine/integration_candidates/legacy/scm_scanner/linux_scanner_sandbox_tests.rs",
+      "sha256": "a16995676d8cdadd1e00be586340259eaa65f42a14b78ca5354afaf7f83f27d6",
+      "bytes": 7712,
+      "lines": 217,
+      "frozen_copy": "/private/tmp/diskgraph-scm-retirement-x51ve74d/final/crates/diskgraph-engine/integration_candidates/legacy/scm_scanner/linux_scanner_sandbox_tests.rs",
+      "role": "legacy unmounted candidate"
+    }
+  ],
+  "before": [
+    {
+      "path": "crates/diskgraph-engine/src/native_child/linux_scanner_command.rs",
+      "sha256": "fbc07e701ac4884a12886cbea619a7111ba51b48ac081a2d91f2d7f122558599",
+      "bytes": 2284,
+      "lines": 55,
+      "snapshot": "/private/tmp/diskgraph-scm-retirement-x51ve74d/before/crates/diskgraph-engine/src/native_child/linux_scanner_command.rs"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/linux_scanner_exit.rs",
+      "sha256": "9838309f11a2eb615239fd80ca44720cd4cc31f1900226271169f389621c2aeb",
+      "bytes": 4140,
+      "lines": 109,
+      "snapshot": "/private/tmp/diskgraph-scm-retirement-x51ve74d/before/crates/diskgraph-engine/src/native_child/linux_scanner_exit.rs"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/linux_scanner_launch.rs",
+      "sha256": "5224bb40faeadc69ff2c3b61072de1092902ad3b256f4f8db51f10f9e099e38c",
+      "bytes": 7838,
+      "lines": 203,
+      "snapshot": "/private/tmp/diskgraph-scm-retirement-x51ve74d/before/crates/diskgraph-engine/src/native_child/linux_scanner_launch.rs"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/linux_scanner_receipt.rs",
+      "sha256": "dc06694223a4ff042983a7464c11128e0a07f9090276db9e77077fe2b48ad648",
+      "bytes": 11779,
+      "lines": 296,
+      "snapshot": "/private/tmp/diskgraph-scm-retirement-x51ve74d/before/crates/diskgraph-engine/src/native_child/linux_scanner_receipt.rs"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/linux_scanner_sandbox_fixture.rs",
+      "sha256": "7d3df3b80882caaec6c47d95d246bea61fe16960ade677efab387920883dacec",
+      "bytes": 1842,
+      "lines": 50,
+      "snapshot": "/private/tmp/diskgraph-scm-retirement-x51ve74d/before/crates/diskgraph-engine/src/native_child/linux_scanner_sandbox_fixture.rs"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/linux_scanner_sandbox_test_support.rs",
+      "sha256": "531e15c991c1c1e4fc3f843dff2364fd3ef78735e850cd8ce9c9de23b1d9db71",
+      "bytes": 7948,
+      "lines": 218,
+      "snapshot": "/private/tmp/diskgraph-scm-retirement-x51ve74d/before/crates/diskgraph-engine/src/native_child/linux_scanner_sandbox_test_support.rs"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/linux_scanner_sandbox_tests.rs",
+      "sha256": "a16995676d8cdadd1e00be586340259eaa65f42a14b78ca5354afaf7f83f27d6",
+      "bytes": 7712,
+      "lines": 217,
+      "snapshot": "/private/tmp/diskgraph-scm-retirement-x51ve74d/before/crates/diskgraph-engine/src/native_child/linux_scanner_sandbox_tests.rs"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/unix_child.rs",
+      "sha256": "0319d8a818c3484c9a1f78722838a1a5b01acda17755e6b5e581592fda36d37c",
+      "bytes": 19029,
+      "lines": 490,
+      "snapshot": "/private/tmp/diskgraph-scm-retirement-x51ve74d/before/crates/diskgraph-engine/src/native_child/unix_child.rs"
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/unix_normal_exit.rs",
+      "sha256": "be9386655943c4896be6fb44bc8486503ddecf7c7451edb9eff52fe5245af050",
+      "bytes": 3066,
+      "lines": 79,
+      "snapshot": "/private/tmp/diskgraph-scm-retirement-x51ve74d/before/crates/diskgraph-engine/src/native_child/unix_normal_exit.rs"
+    }
+  ],
+  "moves": [
+    {
+      "from": "crates/diskgraph-engine/src/native_child/linux_scanner_command.rs",
+      "to": "crates/diskgraph-engine/integration_candidates/legacy/scm_scanner/linux_scanner_command.rs",
+      "before_sha256": "fbc07e701ac4884a12886cbea619a7111ba51b48ac081a2d91f2d7f122558599",
+      "after_sha256": "fbc07e701ac4884a12886cbea619a7111ba51b48ac081a2d91f2d7f122558599",
+      "bytes": 2284,
+      "lines": 55,
+      "frozen_copy": "/private/tmp/diskgraph-scm-retirement-x51ve74d/final/crates/diskgraph-engine/integration_candidates/legacy/scm_scanner/linux_scanner_command.rs"
+    },
+    {
+      "from": "crates/diskgraph-engine/src/native_child/linux_scanner_exit.rs",
+      "to": "crates/diskgraph-engine/integration_candidates/legacy/scm_scanner/linux_scanner_exit.rs",
+      "before_sha256": "9838309f11a2eb615239fd80ca44720cd4cc31f1900226271169f389621c2aeb",
+      "after_sha256": "9838309f11a2eb615239fd80ca44720cd4cc31f1900226271169f389621c2aeb",
+      "bytes": 4140,
+      "lines": 109,
+      "frozen_copy": "/private/tmp/diskgraph-scm-retirement-x51ve74d/final/crates/diskgraph-engine/integration_candidates/legacy/scm_scanner/linux_scanner_exit.rs"
+    },
+    {
+      "from": "crates/diskgraph-engine/src/native_child/linux_scanner_launch.rs",
+      "to": "crates/diskgraph-engine/integration_candidates/legacy/scm_scanner/linux_scanner_launch.rs",
+      "before_sha256": "5224bb40faeadc69ff2c3b61072de1092902ad3b256f4f8db51f10f9e099e38c",
+      "after_sha256": "5224bb40faeadc69ff2c3b61072de1092902ad3b256f4f8db51f10f9e099e38c",
+      "bytes": 7838,
+      "lines": 203,
+      "frozen_copy": "/private/tmp/diskgraph-scm-retirement-x51ve74d/final/crates/diskgraph-engine/integration_candidates/legacy/scm_scanner/linux_scanner_launch.rs"
+    },
+    {
+      "from": "crates/diskgraph-engine/src/native_child/linux_scanner_receipt.rs",
+      "to": "crates/diskgraph-engine/integration_candidates/legacy/scm_scanner/linux_scanner_receipt.rs",
+      "before_sha256": "dc06694223a4ff042983a7464c11128e0a07f9090276db9e77077fe2b48ad648",
+      "after_sha256": "dc06694223a4ff042983a7464c11128e0a07f9090276db9e77077fe2b48ad648",
+      "bytes": 11779,
+      "lines": 296,
+      "frozen_copy": "/private/tmp/diskgraph-scm-retirement-x51ve74d/final/crates/diskgraph-engine/integration_candidates/legacy/scm_scanner/linux_scanner_receipt.rs"
+    },
+    {
+      "from": "crates/diskgraph-engine/src/native_child/linux_scanner_sandbox_fixture.rs",
+      "to": "crates/diskgraph-engine/integration_candidates/legacy/scm_scanner/linux_scanner_sandbox_fixture.rs",
+      "before_sha256": "7d3df3b80882caaec6c47d95d246bea61fe16960ade677efab387920883dacec",
+      "after_sha256": "7d3df3b80882caaec6c47d95d246bea61fe16960ade677efab387920883dacec",
+      "bytes": 1842,
+      "lines": 50,
+      "frozen_copy": "/private/tmp/diskgraph-scm-retirement-x51ve74d/final/crates/diskgraph-engine/integration_candidates/legacy/scm_scanner/linux_scanner_sandbox_fixture.rs"
+    },
+    {
+      "from": "crates/diskgraph-engine/src/native_child/linux_scanner_sandbox_test_support.rs",
+      "to": "crates/diskgraph-engine/integration_candidates/legacy/scm_scanner/linux_scanner_sandbox_test_support.rs",
+      "before_sha256": "531e15c991c1c1e4fc3f843dff2364fd3ef78735e850cd8ce9c9de23b1d9db71",
+      "after_sha256": "531e15c991c1c1e4fc3f843dff2364fd3ef78735e850cd8ce9c9de23b1d9db71",
+      "bytes": 7948,
+      "lines": 218,
+      "frozen_copy": "/private/tmp/diskgraph-scm-retirement-x51ve74d/final/crates/diskgraph-engine/integration_candidates/legacy/scm_scanner/linux_scanner_sandbox_test_support.rs"
+    },
+    {
+      "from": "crates/diskgraph-engine/src/native_child/linux_scanner_sandbox_tests.rs",
+      "to": "crates/diskgraph-engine/integration_candidates/legacy/scm_scanner/linux_scanner_sandbox_tests.rs",
+      "before_sha256": "a16995676d8cdadd1e00be586340259eaa65f42a14b78ca5354afaf7f83f27d6",
+      "after_sha256": "a16995676d8cdadd1e00be586340259eaa65f42a14b78ca5354afaf7f83f27d6",
+      "bytes": 7712,
+      "lines": 217,
+      "frozen_copy": "/private/tmp/diskgraph-scm-retirement-x51ve74d/final/crates/diskgraph-engine/integration_candidates/legacy/scm_scanner/linux_scanner_sandbox_tests.rs"
+    }
+  ],
+  "protected": [
+    {
+      "path": "crates/diskgraph-engine/src/native_child/mod.rs",
+      "sha256": "bcfdd70be48f52fb6239bda1ceb70aa909b064efbcf88c979434baa537fd7ff6",
+      "bytes": 3044
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/linux_scanner_filter.rs",
+      "sha256": "c907f104e998da1b09e6020ca555b2aa230f0240ab9b334e553b54c814528a78",
+      "bytes": 5947
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/unix_child_setup.rs",
+      "sha256": "685265091f48b30967310a796d059d6cc63eed48c2236a1b0667d85962691578",
+      "bytes": 2636
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/unix_control_channel.rs",
+      "sha256": "5ff40dce6e67f8b938f7e6910dccd1f70c57a476b93ed3d8afa1c42db14a439a",
+      "bytes": 7720
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/macos_child_group.rs",
+      "sha256": "cef6ea38e520b0d212c2d42f19cf0ccb05ba405e1d4303425c34b1ed3ee04288",
+      "bytes": 5705
+    },
+    {
+      "path": "crates/diskgraph-engine/src/native_child/macos_group_view.rs",
+      "sha256": "cded81c5d07a8915dc2ece724b274caafa529ec6645120936ff8d7f56baf9c3f",
+      "bytes": 297
+    },
+    {
+      "path": "crates/diskgraph-engine/tests/fixtures/linux_scanner_sandbox_probe.c",
+      "sha256": "51036991fe5855533b6e9dab5df25b42a01aa5737eb2e2ab6afd9aecd2753aee",
+      "bytes": 9501
+    }
+  ],
+  "shared_diff": {
+    "path": "/private/tmp/diskgraph-scm-retirement-x51ve74d/shared.diff",
+    "sha256": "afa694eb3f83ba4bdd152749e2803a2cda5435c02c938a757f54fbce21882e13"
+  },
+  "preservation_report": {
+    "path": "/private/tmp/diskgraph-scm-retirement-x51ve74d/preservation.json",
+    "sha256": "262234a38de8b212b47fdf78f385e88be51a1909a3803a49bd883acdc3a83393"
+  },
+  "atomic_manifest_comparison": {
+    "path": "/private/tmp/diskgraph-linux-atomic-errno-production-candidate.json",
+    "sha256": "b83842eaa8d209266d917347946dcf18d21f549be9dca69a322f158e24d8e803",
+    "matched": 21,
+    "total": 22,
+    "note": "Read-only comparison only; not a fresh native acceptance or source provenance requalification."
+  },
+  "preserved_behavior": [
+    "Existing Null spawn/checkpoints retained byte for byte.",
+    "Existing macOS Qualified/control/retained leader/cleanup code retained byte for byte.",
+    "Real LinuxScannerFilter remains in src and declared for LinuxAtomicLauncher.",
+    "Linux legacy UnixChild normal permission remains Unsupported; no SCM or numeric-child fallback added."
+  ],
+  "historical_tests": {
+    "status": "pending; retired source retained verbatim, not mounted and not newly executed",
+    "sandbox_test_functions": 8,
+    "additional_filter_denied_host_inner_case": 1,
+    "atomic_17_substitutes_these_nine": false,
+    "coverage_not_claimed": [
+      "old x32/int80 negative controls",
+      "old filter-install denial and old SCM-specific birth window",
+      "old ninth SCM compatibility case"
+    ]
+  },
+  "limitations": [
+    "No Cargo, compiler, Git, formatting, native execution, or source-gate run by this author.",
+    "Moved legacy files preserve original super-relative references and are archival candidates; not a standalone buildable module.",
+    "Historical receipts and source paths were not rewritten.",
+    "New shared source hashes require root to update any current qualification provenance binding; old native evidence remains historical.",
+    "No new PF06 or desktop/runtime capability completion claimed."
+  ],
+  "root_suggested_verification": [
+    "cargo test --offline --locked -p diskgraph-engine --test source_layout",
+    "cargo clippy --offline --locked -p diskgraph-engine --all-targets -- -D warnings",
+    "Existing Null/control/macOS normal-exit regressions and actual Linux compilation/native qualifications as scheduled by root."
+  ],
+  "root_actual_source_layout": {
+    "passed": 4,
+    "failed": 0,
+    "ignored": 0,
+    "path": "docs/benchmarks/legacy_scm_retirement_layout_2026_10_05.log.gz",
+    "raw_sha256": "46ccc0298cc6065be04b61a7acdc730876ae4dc7278d8b549f7188e5ce538eb8",
+    "gzip_sha256": "a3a2d3a0ccb3f018995f70e1446e69cc15fc0c3bda924028e0f461f470d64fd2",
+    "limit": "Mac host; not Linux compilation/native qualification; existing non-test dead code warnings retained"
+  },
+  "root_actual_native_child_mac_regression": {
+    "passed": 23,
+    "failed": 0,
+    "ignored": 0,
+    "path": "docs/benchmarks/legacy_scm_retirement_native_child_2026_10_05.log.gz",
+    "raw_sha256": "e6eb0f9f8d9c6af417ccabd7b1b0aaf6e39c18aa863145a979c8a35c6b6a0893",
+    "gzip_sha256": "9a8520399f3b47fcf36407e71e406321b72fb13b0134c538208476d77b209801",
+    "scope": "Mac actual affected existing child controls; not full worker image/Engine qualification"
+  },
+  "root_shared_rustfmt_check": {
+    "exit_code": 0,
+    "files": [
+      "unix_child.rs",
+      "unix_normal_exit.rs"
+    ]
+  },
+  "independent_static_review": {
+    "reviewer": "/root/code_review",
+    "status": "APPROVE retirement only",
+    "verified": "9 sources and 9 before; seven byte-identical moves; seven protected; actual shared diff",
+    "limitations": "Not Linux compile; nine legacy cases pending, not replaced by atomic17 coverage"
+  }
+}

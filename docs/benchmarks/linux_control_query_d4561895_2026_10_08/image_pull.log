@@ -1,0 +1,12 @@
+1.97.0-slim-trixie: Pulling from library/rust
+f31a9bc5a90f: Pulling fs layer
+59f54fbcd984: Pulling fs layer
+59b2278c2f83: Download complete
+0d8936b8921d: Download complete
+59f54fbcd984: Download complete
+59f54fbcd984: Pull complete
+f31a9bc5a90f: Download complete
+f31a9bc5a90f: Pull complete
+Digest: sha256:686a437ead83701e8f871e66e838c3ec55f46b5fc235b025756396ac823bdc51
+Status: Downloaded newer image for rust:1.97.0-slim-trixie
+docker.io/library/rust:1.97.0-slim-trixie

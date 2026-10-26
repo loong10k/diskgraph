@@ -1,0 +1,36 @@
+{
+  "scope": "macOS compiled Mach-O descriptor-path probe; isolated fixture only",
+  "production_ready": false,
+  "setup_note": "fresh local C fixtures; copied Apple platform binaries are not used as positive controls",
+  "held_sha256": "7e1622a28109598c6a2b1ed60e1f8caa02ce4a0293d7841713fb89183bae4c29",
+  "original_inode": 589846104,
+  "replacement_inode": 589846107,
+  "positive_original_path_exit": 0,
+  "negative_replacement_path_exit": 1,
+  "error_kind": "PermissionError",
+  "errno": 13,
+  "error": "[Errno 13] Permission denied: '/dev/fd/3'",
+  "original_identity_unchanged": true,
+  "platform": {
+    "machine": "arm64",
+    "macos": "27.0"
+  },
+  "candidate_route_usable_on_test_host": false,
+  "fixture_sources": {
+    "original": "int main(void) { return 0; }\n",
+    "replacement": "int main(void) { return 1; }\n"
+  },
+  "fixture_source_sha256": {
+    "original": "2ad75d95660563887d8d3f1d0ae1dcf18c2379cbd83a5c72f5ab276351ee6949",
+    "replacement": "7b4bb8e34d20c4ec426e4770c2c8e808fea9f4c78893f9190b02c55e9f75e88b"
+  },
+  "limitations": [
+    "No product scan was enabled by this probe",
+    "Initial copy2 attempt failed to preserve SIP file flags; copied Apple platform binaries also failed positive-control qualification, so fresh locally compiled fixtures were used",
+    "This is macOS ARM64 native evidence; macOS Intel was not run"
+  ],
+  "primary_sources": [
+    "https://github.com/apple-oss-distributions/xnu/blob/main/bsd/miscfs/devfs/devfs_fdesc_support.c",
+    "https://github.com/apple-oss-distributions/xnu/blob/main/bsd/kern/kern_exec.c"
+  ]
+}

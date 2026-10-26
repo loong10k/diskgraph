@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "scope": "Python orchestration and material validation only; no native Linux acceptance",
+  "passed": 15,
+  "failed": 0,
+  "exit_code": 0,
+  "sources": [
+    {
+      "path": "scripts/qualify-linux-atomic-launcher.py",
+      "sha256": "8e32d1f4ce575e86ad8c528774a6c2358cfcd56b055a8886e1ccda9105fe275d"
+    },
+    {
+      "path": "scripts/tests/test_qualify_linux_atomic_launcher.py",
+      "sha256": "0fa9575608f23bdd2e9b497ac298f7c220e2c10ff96c9875be79c28e30c5aa7b"
+    },
+    {
+      "path": ".github/workflows/native_scan_qualification.yml",
+      "sha256": "5b383d5340abf27de75dc4891c84e3ac6a37cc6e833a562fe285431b17dc3136"
+    }
+  ],
+  "log": {
+    "path": "docs/benchmarks/linux_atomic_qualification_python_2026_10_05.log.gz",
+    "raw_sha256": "06d80b36105e50c2510dd34da7dea85445ecc8eccd841bc78380c9e96dfd41ef",
+    "gzip_sha256": "63d76b8783a26b5f3cf04a710a1fed9a8fa581bfb9a4968ec67f08a2d4943ed1"
+  },
+  "limits": [
+    "Outer namespace wrapper still awaiting independent validation.",
+    "17 native Linux cases not executed in this result.",
+    "No Engine/CLI/MCP scan or full-platform acceptance.",
+    "Qualifier harness is being updated to verify its source hash against the exact archived commit; the recorded 15-test result binds the prior frozen source only."
+  ],
+  "independent_review": "APPROVE for the recorded qualifier/test hashes only; full native dispatch blocked by outer supervisor v2 persistent selector error and pending exact archive harness binding.",
+  "reviewed_workflow_sha256": "5b383d5340abf27de75dc4891c84e3ac6a37cc6e833a562fe285431b17dc3136"
+}

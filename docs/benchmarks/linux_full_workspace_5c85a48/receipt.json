@@ -1,0 +1,40 @@
+[
+  {
+    "name": "arm64_stable",
+    "job_id": 112726538833,
+    "source_commit": "5c85a48703ce23f7271d43d1f5273fa338428a32",
+    "run_id": 37601447468,
+    "log": "arm64_stable.log.gz",
+    "raw_sha256": "d272ac0b425e3db79d8b6b7d7fee7364358f9479c66410c0dfb4b3474077d0e4",
+    "stored_sha256": "af265db49b14f39f3ea75fdf2d65949f284a8bdffbed65ad813c47252cce2a78",
+    "workspace_invocation_suites": 174,
+    "workspace_invocation_totals": {
+      "passed": 2083,
+      "failed": 0,
+      "ignored": 21
+    },
+    "limits": [
+      "counts only the named workspace all-targets invocation, not repeated qualification tests",
+      "job success does not establish trusted supervisor production deployment or all-platform acceptance"
+    ]
+  },
+  {
+    "name": "x86_64_msrv",
+    "job_id": 112726538314,
+    "source_commit": "5c85a48703ce23f7271d43d1f5273fa338428a32",
+    "run_id": 37601447468,
+    "log": "x86_64_msrv.log.gz",
+    "raw_sha256": "083466055ade7dfd05d1dd09d666fead6ca477a1243eca2ffb3b811dd5b9397e",
+    "stored_sha256": "75b47a3f3f2ab687ecf913fbf08d477a94f07de7d6dad2e02e81ea6f286153d5",
+    "workspace_invocation_suites": 174,
+    "workspace_invocation_totals": {
+      "passed": 2083,
+      "failed": 0,
+      "ignored": 21
+    },
+    "limits": [
+      "counts only the named workspace all-targets invocation, not repeated qualification tests",
+      "job success does not establish trusted supervisor production deployment or all-platform acceptance"
+    ]
+  }
+]

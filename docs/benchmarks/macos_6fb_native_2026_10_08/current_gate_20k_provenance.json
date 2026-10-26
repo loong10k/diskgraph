@@ -1,0 +1,13 @@
+{
+  "artifact": 11517893464,
+  "binary_commit": "6fbf3ee7d5ab73d5b0f24935d18eed4003bddf2f",
+  "archive_sha256": "ba98af25804959a5d7c7909d828c72604be3a806f3e5a9f0e8da74cdb3a17e13",
+  "validator_commit": "9758b53310365e626ddb485bffc1dde4d16dbb1b",
+  "validator_sha256": "130a96cfc1848590a5a71f06cae0cee6179b25bf416dd86c2f92a94717dc3f6b",
+  "returncode": 1,
+  "scope": "actual macOS ARM64 20k files with current validator on historical release binary; not current product SHA acceptance",
+  "failure_classification": "test setup used legacy environment deployment on macOS; current ScanWorkerSettings rejects complete legacy deployment as Unsupported before opening ordinary worker path",
+  "evidence_source": "crates/diskgraph-engine/src/scan_worker_settings.rs host_from_lookup macOS branch",
+  "next_requirement": "native macOS root-protected installed-worker deployment fixture; no host installation authorized or performed",
+  "qualification": "not a scan failure or coverage result; no actual benchmark report produced"
+}

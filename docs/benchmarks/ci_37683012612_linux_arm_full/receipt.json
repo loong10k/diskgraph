@@ -1,0 +1,18 @@
+{
+  "run": 37683012612,
+  "job": 113003606632,
+  "commit": "b03de97b32e767c23b04e8308b876cd9eaee4a88",
+  "platform": "ubuntu-24.04-arm / Rust stable",
+  "status": "success",
+  "workspace_test_step": "success",
+  "clippy_step": "success",
+  "serial_store_migration_gate": {
+    "passed": 314,
+    "failed": 0,
+    "ignored": 5
+  },
+  "raw_sha256": "37a7cac5fb002a1510c40d9ebe26925a1abfbe1c4ee531f3e50834aedf9e31c9",
+  "inventory_list_counted_as_pass": false,
+  "three_platform_accepted": false,
+  "supervisor_lifecycle_accepted": false
+}

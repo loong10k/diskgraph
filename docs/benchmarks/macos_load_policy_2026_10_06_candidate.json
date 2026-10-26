@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "scope": "macOS original-image load-command policy component",
+  "production_ready": false,
+  "sources": {
+    "crates/diskgraph-engine/src/macos_load_policy.rs": "2f1b853069c65413374fa08d56ae4719e71003dc1954ebf06aa181d03778b8d1",
+    "crates/diskgraph-engine/src/macos_load_policy_tests.rs": "52767d1c2e5e26561229f02652161fdbebcd25e8aa541681b41ca4233f23ff71",
+    "crates/diskgraph-engine/src/macos_installation_lease.rs": "36b7e66bc16b58049fd1fbddee016b49c8a93d77631167e79ac82971b84a48f4",
+    "crates/diskgraph-engine/src/lib.rs": "025d67682caf259bdc54a3b90a12bbd55a025e05be4711bfb800546cc20735af"
+  },
+  "sdk_header": {
+    "path": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/mach-o/loader.h",
+    "sha256": "5862aeb7fbf183453080bc887c0d502fe25a86ff5bd81291bbcc408bd7fe6e74"
+  },
+  "actual_helper": {
+    "path": "/Users/wandl/workspaces/workspace-loong10k/diskgraph/target/debug/diskgraph-scan-worker",
+    "bytes": 3912520,
+    "sha256": "48d767ed60691f73d95371b2b5bc992b7640877d8c679346bfa2dec86cb8a085"
+  },
+  "tests": [
+    {
+      "log": "macos_load_policy_api_red_2026_10_06.log.gz",
+      "uncompressed_sha256": "70338f23924a43b542100fef9944d34b51eed877844c4781196ab379beb0055d"
+    },
+    {
+      "log": "macos_load_policy_environment_negative_control_2026_10_06.log.gz",
+      "uncompressed_sha256": "79b162d083b12bd71c2b56a0ef92b66efaaaee4461ffa156956fbf1e0fd1d5df"
+    },
+    {
+      "log": "macos_load_policy_alternate_red_2026_10_06.log.gz",
+      "uncompressed_sha256": "d2c94025b80f1806ea6407fc378a00169b78f3de767000181ab5200516caae52"
+    },
+    {
+      "log": "macos_load_policy_macos_final_2026_10_06.log.gz",
+      "uncompressed_sha256": "bbd2c17fbde132b15fa12688cb508a5869634e230b79fed182111b28072c941b",
+      "actual_passed": 36,
+      "failed": 0,
+      "ignored": 0
+    }
+  ],
+  "review": "CLEAR after rejecting SDK DYLIB_USE_MARKER alternate encoding",
+  "limitations": [
+    "Current source tested locally on macOS arm64 only.",
+    "validate_loader is attached to original installation lease but is not yet invoked by Runtime.",
+    "This checks fixed image load commands; trusted OS dependency closure, code signing, initialization and fresh protected installation still require qualification.",
+    "Fat/universal, relative dependencies and alternate loading modes are explicitly unsupported by this initial policy."
+  ]
+}

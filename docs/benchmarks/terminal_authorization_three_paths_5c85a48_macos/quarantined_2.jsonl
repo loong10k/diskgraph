@@ -1,0 +1,4 @@
+{"mode":"quarantined","p50_ns":6209,"p95_ns":8875,"phase":"control_existing_server_with_deadline","samples":1000}
+{"mode":"quarantined","p50_ns":183667,"p95_ns":232375,"phase":"fresh_reader_open_configure","samples":1000}
+{"mode":"quarantined","p50_ns":8625,"p95_ns":13250,"phase":"ownership_filtered_query","samples":1000}
+{"mode":"quarantined","p50_ns":22125,"p95_ns":27459,"phase":"reader_drop","samples":1000}

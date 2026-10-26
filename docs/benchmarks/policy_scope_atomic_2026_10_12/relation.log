@@ -1,0 +1,79 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.44s
+     Running unittests src/lib.rs (target/debug/deps/diskgraph_engine-1d042a518dc74750)
+
+running 17 tests
+test relation_request_tests::all_relation_answers_refuse_one_grant_revoked_while_another_scope_remains ... FAILED
+test relation_request_tests::encoded_budget_failure_still_checks_the_real_terminal_revocation ... FAILED
+test relation_request_tests::an_independent_control_connection_can_revoke_the_scope_during_finish ... FAILED
+test relation_request_tests::a_post_authorization_budget_failure_still_requires_live_terminal_authorization ... FAILED
+test relation_request_tests::all_relation_answers_refuse_actual_scope_revoked_after_data_read ... FAILED
+test relation_request_tests::actual_terminal_control_guard_wait_cannot_be_a_complete_empty_result ... FAILED
+test relation_request_tests::final_envelope_authorization_refuses_revocation_during_its_authorizer_call ... FAILED
+test relation_request_tests::the_minimum_diagnostic_must_fit_its_own_actual_json_budget ... FAILED
+test relation_request_tests::shared_terminal_reader_checks_the_second_distinct_revision_ownership ... ok
+test relation_request_tests::history_terminal_ownership_opens_one_fresh_reader_per_observation_round ... ok
+test relation_request_tests::original_terminal_control_lock_is_refused_before_holder_release ... ok
+test relation_request_tests::timely_terminal_callback_does_not_pay_for_post_callback_observation ... ok
+test relation_request_tests::terminal_relation_and_history_revocation_still_precedes_result_delivery ... ok
+test relation_request_tests::expired_envelope_still_observes_live_authorization_without_renewing_data_deadline ... ok
+test relation_request_tests::history_data_expiry_after_read_keeps_real_rows_with_timely_capability ... ok
+test relation_request_tests::candidate_and_impact_data_expiry_after_read_keep_timely_authorized_prefixes ... ok
+test relation_request_tests::growth_data_expiry_with_timely_capability_is_timeout_for_unknown_and_cross_scope ... ok
+
+failures:
+
+---- relation_request_tests::all_relation_answers_refuse_one_grant_revoked_while_another_scope_remains stdout ----
+
+thread 'relation_request_tests::all_relation_answers_refuse_one_grant_revoked_while_another_scope_remains' (10795312) panicked at crates/diskgraph-engine/src/relation_request_tests.rs:110:10:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- relation_request_tests::encoded_budget_failure_still_checks_the_real_terminal_revocation stdout ----
+
+thread 'relation_request_tests::encoded_budget_failure_still_checks_the_real_terminal_revocation' (10795315) panicked at crates/diskgraph-engine/src/relation_request_tests.rs:110:10:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- relation_request_tests::an_independent_control_connection_can_revoke_the_scope_during_finish stdout ----
+
+thread 'relation_request_tests::an_independent_control_connection_can_revoke_the_scope_during_finish' (10795313) panicked at crates/diskgraph-engine/src/relation_request_tests.rs:110:10:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- relation_request_tests::a_post_authorization_budget_failure_still_requires_live_terminal_authorization stdout ----
+
+thread 'relation_request_tests::a_post_authorization_budget_failure_still_requires_live_terminal_authorization' (10795309) panicked at crates/diskgraph-engine/src/relation_request_tests.rs:110:10:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- relation_request_tests::all_relation_answers_refuse_actual_scope_revoked_after_data_read stdout ----
+
+thread 'relation_request_tests::all_relation_answers_refuse_actual_scope_revoked_after_data_read' (10795311) panicked at crates/diskgraph-engine/src/relation_request_tests.rs:110:10:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- relation_request_tests::actual_terminal_control_guard_wait_cannot_be_a_complete_empty_result stdout ----
+
+thread 'relation_request_tests::actual_terminal_control_guard_wait_cannot_be_a_complete_empty_result' (10795310) panicked at crates/diskgraph-engine/src/relation_request_tests.rs:110:10:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- relation_request_tests::final_envelope_authorization_refuses_revocation_during_its_authorizer_call stdout ----
+
+thread 'relation_request_tests::final_envelope_authorization_refuses_revocation_during_its_authorizer_call' (10795317) panicked at crates/diskgraph-engine/src/relation_request_tests.rs:110:10:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+---- relation_request_tests::the_minimum_diagnostic_must_fit_its_own_actual_json_budget stdout ----
+
+thread 'relation_request_tests::the_minimum_diagnostic_must_fit_its_own_actual_json_budget' (10795351) panicked at crates/diskgraph-engine/src/relation_request_tests.rs:110:10:
+called `Result::unwrap()` on an `Err` value: Business(Unsupported)
+
+
+failures:
+    relation_request_tests::a_post_authorization_budget_failure_still_requires_live_terminal_authorization
+    relation_request_tests::actual_terminal_control_guard_wait_cannot_be_a_complete_empty_result
+    relation_request_tests::all_relation_answers_refuse_actual_scope_revoked_after_data_read
+    relation_request_tests::all_relation_answers_refuse_one_grant_revoked_while_another_scope_remains
+    relation_request_tests::an_independent_control_connection_can_revoke_the_scope_during_finish
+    relation_request_tests::encoded_budget_failure_still_checks_the_real_terminal_revocation
+    relation_request_tests::final_envelope_authorization_refuses_revocation_during_its_authorizer_call
+    relation_request_tests::the_minimum_diagnostic_must_fit_its_own_actual_json_budget
+
+test result: FAILED. 9 passed; 8 failed; 0 ignored; 0 measured; 854 filtered out; finished in 2.53s
+
+error: test failed, to rerun pass `-p diskgraph-engine --lib`

@@ -1,0 +1,63 @@
+{
+  "fixture": "synthetic two-node positive evidence",
+  "native_scan_qualification": false,
+  "os": "linux",
+  "phases": {
+    "data_read": {
+      "p50_ms": 0.154417,
+      "p95_ms": 0.227333,
+      "samples": 100
+    },
+    "encode": {
+      "p50_ms": 0.0012920000000000002,
+      "p95_ms": 0.0030410000000000003,
+      "samples": 100
+    },
+    "initial_authorization": {
+      "p50_ms": 0.041208999999999996,
+      "p95_ms": 0.053458000000000006,
+      "samples": 100
+    },
+    "instrumented_phases_total": {
+      "p50_ms": 0.8602090000000001,
+      "p95_ms": 1.090334,
+      "samples": 100
+    },
+    "policy_load": {
+      "p50_ms": 0.013292,
+      "p95_ms": 0.020291,
+      "samples": 100
+    },
+    "reader_open": {
+      "p50_ms": 0.174,
+      "p95_ms": 0.21333300000000002,
+      "samples": 100
+    },
+    "request_wall": {
+      "p50_ms": 0.882,
+      "p95_ms": 1.122417,
+      "samples": 100
+    },
+    "terminal_after_encode": {
+      "p50_ms": 0.23766600000000002,
+      "p95_ms": 0.310625,
+      "samples": 100
+    },
+    "terminal_before_encode": {
+      "p50_ms": 0.236209,
+      "p95_ms": 0.292458,
+      "samples": 100
+    },
+    "terminal_ownership_sql": {
+      "p50_ms": 0.008,
+      "p95_ms": 0.012374999999999999,
+      "samples": 200
+    },
+    "terminal_reader_open": {
+      "p50_ms": 0.162208,
+      "p95_ms": 0.20266699999999999,
+      "samples": 200
+    }
+  },
+  "profile": "release"
+}

@@ -1,0 +1,9 @@
+{
+  "source_commit": "5fd11d6c0b190f88f0f81c212281ae7693e3efa3",
+  "diagnostic_only": true,
+  "executions": 19,
+  "spawn_us": 448617,
+  "collect_us": 11619669,
+  "cleanup_us": 3035,
+  "scope": "one successful isolated baseline test; not an after-optimization benchmark"
+}

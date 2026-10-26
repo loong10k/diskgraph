@@ -1,0 +1,72 @@
+{
+  "fixture": "synthetic two-node positive evidence",
+  "native_scan_qualification": false,
+  "os": "macos",
+  "phases": {
+    "data_read": {
+      "p50_ms": 0.155667,
+      "p95_ms": 0.25783300000000003,
+      "samples": 100
+    },
+    "encode": {
+      "p50_ms": 0.001042,
+      "p95_ms": 0.0027089999999999996,
+      "samples": 100
+    },
+    "initial_authorization": {
+      "p50_ms": 0.055583,
+      "p95_ms": 0.079875,
+      "samples": 100
+    },
+    "instrumented_phases_total": {
+      "p50_ms": 0.98025,
+      "p95_ms": 1.300875,
+      "samples": 100
+    },
+    "policy_load": {
+      "p50_ms": 0.016541999999999998,
+      "p95_ms": 0.023791,
+      "samples": 100
+    },
+    "reader_open": {
+      "p50_ms": 0.19249999999999998,
+      "p95_ms": 0.271667,
+      "samples": 100
+    },
+    "request_wall": {
+      "p50_ms": 1.009959,
+      "p95_ms": 1.332542,
+      "samples": 100
+    },
+    "terminal_after_encode": {
+      "p50_ms": 0.273875,
+      "p95_ms": 0.393,
+      "samples": 100
+    },
+    "terminal_before_encode": {
+      "p50_ms": 0.278208,
+      "p95_ms": 0.42583299999999996,
+      "samples": 100
+    },
+    "terminal_ownership_sql": {
+      "p50_ms": 0.009082999999999999,
+      "p95_ms": 0.016208,
+      "samples": 200
+    },
+    "terminal_reader_open": {
+      "p50_ms": 0.19491699999999998,
+      "p95_ms": 0.276917,
+      "samples": 200
+    }
+  },
+  "profile": "release",
+  "source_sha": "2e7b35a9f619340c184593c6226f557999132c38",
+  "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)",
+  "log_sha256": "8b37dabb295f439e6cc8d42ab366704ba6cbefeb7e06ab28d9423bad272032d6",
+  "production_ready": false,
+  "limitations": [
+    "Synthetic two-node isolated store fixture; no native scan or product host qualification",
+    "One macOS run with 100 sequential requests; no paired baseline, concurrency or RSS claim",
+    "Fresh ownership observation before and after encoding remains required; no check removed"
+  ]
+}

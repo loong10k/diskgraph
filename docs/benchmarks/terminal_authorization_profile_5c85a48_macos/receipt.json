@@ -1,0 +1,107 @@
+{
+  "source_commit": "5c85a48703ce23f7271d43d1f5273fa338428a32",
+  "kind": "isolated_diagnostic_not_production_acceptance",
+  "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "architecture": "arm64",
+  "diagnostic_source_sha256": "7323def02f53831676f4afd74832e357c6e209c773c1091ce888efa8e74331f9",
+  "binary_sha256": "a3481e06aa8d8637cf558595c2997bf71dd7ecddd16098ae56ef61e872a8cde2",
+  "rounds": [
+    {
+      "file": "round_1.jsonl",
+      "sha256": "cd7add726b0fb52d08935184a609d784c379a00038503e22fa365675c81c18b7",
+      "phases": [
+        {
+          "p50_ns": 6292,
+          "p95_ns": 9459,
+          "phase": "control_existing_server_with_deadline",
+          "samples": 1000
+        },
+        {
+          "p50_ns": 183459,
+          "p95_ns": 246334,
+          "phase": "fresh_reader_open_configure",
+          "samples": 1000
+        },
+        {
+          "p50_ns": 7333,
+          "p95_ns": 12417,
+          "phase": "ownership_negative_query",
+          "samples": 1000
+        },
+        {
+          "p50_ns": 21875,
+          "p95_ns": 28125,
+          "phase": "reader_drop",
+          "samples": 1000
+        }
+      ]
+    },
+    {
+      "file": "round_2.jsonl",
+      "sha256": "9b58aa998782b980cfac97642dec461f98bb62d5d1f5c43e1585c02642d0eb4d",
+      "phases": [
+        {
+          "p50_ns": 6084,
+          "p95_ns": 20792,
+          "phase": "control_existing_server_with_deadline",
+          "samples": 1000
+        },
+        {
+          "p50_ns": 182000,
+          "p95_ns": 535541,
+          "phase": "fresh_reader_open_configure",
+          "samples": 1000
+        },
+        {
+          "p50_ns": 7417,
+          "p95_ns": 31875,
+          "phase": "ownership_negative_query",
+          "samples": 1000
+        },
+        {
+          "p50_ns": 21959,
+          "p95_ns": 65375,
+          "phase": "reader_drop",
+          "samples": 1000
+        }
+      ]
+    },
+    {
+      "file": "round_3.jsonl",
+      "sha256": "01f87331ecd34534dd43d80cb6a28a3746bef103d53e6918d2be6ae5b673a148",
+      "phases": [
+        {
+          "p50_ns": 6125,
+          "p95_ns": 8416,
+          "phase": "control_existing_server_with_deadline",
+          "samples": 1000
+        },
+        {
+          "p50_ns": 180708,
+          "p95_ns": 216750,
+          "phase": "fresh_reader_open_configure",
+          "samples": 1000
+        },
+        {
+          "p50_ns": 7208,
+          "p95_ns": 9875,
+          "phase": "ownership_negative_query",
+          "samples": 1000
+        },
+        {
+          "p50_ns": 21667,
+          "p95_ns": 25500,
+          "phase": "reader_drop",
+          "samples": 1000
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "macOS host; not Linux regression attribution",
+    "new migrated SQLite fixtures with initialized control server; negative ownership lookup only",
+    "no whole Engine query, lock contention, encoding, positive ownership, or 20k/200k fixture",
+    "100 warmup and 1000 measured operations per round; fixed 50ms deadline per observation",
+    "no product source changes; fresh ownership reader retained"
+  ]
+}

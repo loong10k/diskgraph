@@ -1,0 +1,90 @@
+{
+  "schema": 1,
+  "scope": "trusted deployment settings material only; actual product startup integration and platform execution pending",
+  "sources": [
+    {
+      "path": "crates/diskgraph-mcp/src/lib.rs",
+      "sha256": "cfabcac29c15435a7dc76559f29cb4432d5b2afcbd9bf9bebaa0a9960fdd916d",
+      "lines": 64
+    },
+    {
+      "path": "crates/diskgraph-mcp/src/scan_worker_settings.rs",
+      "sha256": "9f521e76fce76468c571729114f1c4f652e0182bcc67e987052da377e2b6f5e0",
+      "lines": 77
+    },
+    {
+      "path": "crates/diskgraph-mcp/src/scan_worker_settings_tests.rs",
+      "sha256": "92ea88180ee5bd097c410b8c5741cad6bfc34b0e85de1e107a9b043ea2c3ec17",
+      "lines": 289
+    },
+    {
+      "path": "openspec/changes/implement-diskgraph-platform/physical-scan-process.md",
+      "sha256": "73e15e08894db4b1d170952485c6f5bbc5329a6a02b3f956718fad606f954bef",
+      "lines": 139
+    }
+  ],
+  "macos_tests": "actual 7 passed / 0 failed / 0 ignored",
+  "linux_windows_tests": "pending native CI",
+  "initial_fixture_failure": "actual macOS filesystem EILSEQ92 creation of nonUTF8 source; prior 6/1 log preserved; split Linux actual creation from Unix native open error propagation",
+  "revision": "v2 Clippy constant-sized chunk API",
+  "previous_manifest_sha256": "ba72fc9b5a6041c8f723db1f4a9dda424d30d18eb96454bfe2089b6eb9360866",
+  "clippy": "actual isolated cargo clippy -p diskgraph-mcp --all-targets -- -D warnings exit 0; initial chunks_exact lint preserved",
+  "independent_review": "APPROVE exact source and Clippy expression delta",
+  "actual_validation": {
+    "macos_targeted": "7/0/0",
+    "macos_mcp_lib": "142/0/0",
+    "clippy_all_targets_exit": 0,
+    "package_fmt_exit": 0,
+    "workspace_fmt": "exit 1 includes immutable vendored scanner differences; vendor unchanged, not passed",
+    "nonexistent_layout_target": "exit101: diskgraph-mcp has no source_layout target; not counted as a gate",
+    "initial_runtime_fixture": "6/1/0: illegal byte sequence EILSEQ92 creating nonUTF8 filename on macOS. Original log retained; Linux positive creation case remains mandatory."
+  },
+  "native_linux_windows": "not yet run for this source",
+  "logs": [
+    {
+      "path": "docs/benchmarks/scan_worker_settings-api-absence_2026_10_05.log.gz",
+      "raw_sha256": "cf3d11d2adc14958ee7a599501432db13ab80f9df8f37b0bc4061da6391fd1e4",
+      "gzip_sha256": "e36e4f521cb1fd343a8ed4f241f94bdf679167b664114b67bd06d1a4fc0b0ff5"
+    },
+    {
+      "path": "docs/benchmarks/scan_worker_settings-material-tests_2026_10_05.log.gz",
+      "raw_sha256": "4b12992d051a52c36c27d94082731b7d43f040cf29b4e4d7899a3a28235cce1e",
+      "gzip_sha256": "4662c7c1de6b06c8272f3508f27bc4836186ea43acf1110e49dcef85e8ca22f6"
+    },
+    {
+      "path": "docs/benchmarks/scan_worker_settings-material-v3-tests_2026_10_05.log.gz",
+      "raw_sha256": "4ecf7c4b6f1ac0749e05b2c45074369f76f0f4a3f38e8478fb2008a40e07fd97",
+      "gzip_sha256": "21f362bb79b84b979d29cce749f4771fc2b8d64a1a640e3b21e0c19c635c3261"
+    },
+    {
+      "path": "docs/benchmarks/scan_worker_settings-clippy_2026_10_05.log.gz",
+      "raw_sha256": "8544ac08a1286c69c6c2f1bf436feac024a5123c058b97ffe173a1d240436877",
+      "gzip_sha256": "5ac17b42cd8829434b5f98c4c0b6831327ec099952acbe6d31e69d522e43ac5a"
+    },
+    {
+      "path": "docs/benchmarks/scan_worker_settings-clippy-v2_2026_10_05.log.gz",
+      "raw_sha256": "f6a46f05b85601b08321cb54f1275fedd7b16b8317fb9a1d6904af43f3120426",
+      "gzip_sha256": "6c90201d4c22e441f578f9a929318d6cb5fa5f59017395fe2ec6678c7fd14978"
+    },
+    {
+      "path": "docs/benchmarks/scan_worker_settings-mcp-lib-regression_2026_10_05.log.gz",
+      "raw_sha256": "aea4f4866deff81bf3d5fedcac57e88375ac379cd0fa6322343a6c058d785ae9",
+      "gzip_sha256": "c10eed55347c85b294e8fa7386aa7e83e3b338d718edd832d2062f814a990425"
+    },
+    {
+      "path": "docs/benchmarks/scan_worker_settings-fmt_2026_10_05.log.gz",
+      "raw_sha256": "141d059bf8b1fc70e6171369149d4dd5318c782d8258e0a431dcb749fafe19c7",
+      "gzip_sha256": "7af17551797cccf96e458f930c22cf53673154f88ef2890c2aca6fe481011a2d"
+    },
+    {
+      "path": "docs/benchmarks/scan_worker_settings-package-fmt_2026_10_05.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "docs/benchmarks/scan_worker_settings-layout_2026_10_05.log.gz",
+      "raw_sha256": "0bdc18c1617d8ad8d938da60fc95100a027fbe2209ae7b6a1a8a32a535df24dc",
+      "gzip_sha256": "29bb25c18e77e97b64da33b7c7e3abb3ae65cf683b639529b6f5c761e4a5d173"
+    }
+  ]
+}

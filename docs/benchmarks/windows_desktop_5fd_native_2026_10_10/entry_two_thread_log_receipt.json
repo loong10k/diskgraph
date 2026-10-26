@@ -1,0 +1,20 @@
+{
+  "receipt": {
+    "source_commit": "5fd11d6c0b190f88f0f81c212281ae7693e3efa3",
+    "binary_sha256": "fda0545b1e1dd512e281a166329cf1e968baae1b823949779bea1ea48242c4ac",
+    "diagnostic_only": true,
+    "production_qualification": false,
+    "threads": 2,
+    "scope": "original_entry_all_targets",
+    "exit_code": 101,
+    "timed_out": false,
+    "job_retirement_confirmed": true,
+    "elapsed_seconds": 1566.2190000000119
+  },
+  "raw_bytes": 213725,
+  "raw_sha256": "6f2c4e10cee50d5626f524d142b8f6abbb908e8e144a78d17a53f637fb41af07",
+  "gzip_bytes": 45513,
+  "gzip_sha256": "72f6d4f95c90c4866230782f9733a5c65142ab45a0d6fa7132438aadc03b814d",
+  "parts": 10,
+  "locally_decompressed_and_verified": true
+}

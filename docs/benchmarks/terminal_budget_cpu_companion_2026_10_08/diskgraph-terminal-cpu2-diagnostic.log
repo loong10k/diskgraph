@@ -1,0 +1,24 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.30s
+     Running unittests src/lib.rs (/target/debug/deps/diskgraph_engine-a427c7dad161c4cb)
+
+running 17 tests
+test relation_request_tests::expired_envelope_still_observes_live_authorization_without_renewing_data_deadline ... ok
+test relation_request_tests::history_data_expiry_after_read_keeps_real_rows_with_timely_capability ... ok
+test relation_request_tests::history_terminal_ownership_opens_one_fresh_reader_per_observation_round ... ok
+test relation_request_tests::candidate_and_impact_data_expiry_after_read_keep_timely_authorized_prefixes ... ok
+test relation_request_tests::growth_data_expiry_with_timely_capability_is_timeout_for_unknown_and_cross_scope ... ok
+test relation_request_tests::original_terminal_control_lock_is_refused_before_holder_release ... ok
+test relation_request_tests::shared_terminal_reader_checks_the_second_distinct_revision_ownership ... ok
+test relation_request_tests::encoded_budget_failure_still_checks_the_real_terminal_revocation ... ok
+test relation_request_tests::timely_terminal_callback_does_not_pay_for_post_callback_observation ... ok
+test relation_request_tests::terminal_relation_and_history_revocation_still_precedes_result_delivery ... ok
+test relation_request_tests::final_envelope_authorization_refuses_revocation_during_its_authorizer_call ... ok
+test relation_request_tests::an_independent_control_connection_can_revoke_the_scope_during_finish ... ok
+test relation_request_tests::actual_terminal_control_guard_wait_cannot_be_a_complete_empty_result ... ok
+test relation_request_tests::the_minimum_diagnostic_must_fit_its_own_actual_json_budget ... ok
+test relation_request_tests::all_relation_answers_refuse_one_grant_revoked_while_another_scope_remains ... ok
+test relation_request_tests::all_relation_answers_refuse_actual_scope_revoked_after_data_read ... ok
+test relation_request_tests::a_post_authorization_budget_failure_still_requires_live_terminal_authorization ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 645 filtered out; finished in 9.99s
+

@@ -1,0 +1,77 @@
+{
+  "commit": "fa400fa5e6119a85b9fad74ccfa8e18bdd56accb",
+  "immutable_git_archive": true,
+  "binary_sha256": {
+    "diskgraph": "91a59c163c3ac7fcc4e089010b48aacc1739d22ef901fa37856602cf86649d84",
+    "diskgraph-scan-worker": "a643e32a0dbf9e4eadf33f71236a47644eb3f9913f065fd8db0db61662187702"
+  },
+  "production_acceptance": false,
+  "post_measurement_binary_hashes_match": true,
+  "records": [
+    {
+      "load": {
+        "version": "diskgraph 0.3.0",
+        "platform": "linux",
+        "files": 20000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 1.829,
+        "query_p50_ms": 15.907,
+        "query_p95_ms": 19.634,
+        "database_and_wal_bytes": 41414656,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      },
+      "rss": {
+        "files": 20000,
+        "exit_code": 0,
+        "sampled_process_tree_peak_rss_kib": 28872,
+        "samples": 274,
+        "max_descendant_processes": 4,
+        "proc_entries_unreadable": 2,
+        "interval_ms": 20,
+        "elapsed_seconds": 5.602262378000887,
+        "limits": "benchmark Python parent excluded; shared pages may be double counted; short peaks or reparented children may be missed; sampled RSS is not a hard memory bound"
+      }
+    },
+    {
+      "load": {
+        "version": "diskgraph 0.3.0",
+        "platform": "linux",
+        "files": 200000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 18.103,
+        "query_p50_ms": 14.419,
+        "query_p95_ms": 27.293,
+        "database_and_wal_bytes": 415858688,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      },
+      "rss": {
+        "files": 200000,
+        "exit_code": 0,
+        "sampled_process_tree_peak_rss_kib": 194928,
+        "samples": 2067,
+        "max_descendant_processes": 4,
+        "proc_entries_unreadable": 0,
+        "interval_ms": 20,
+        "elapsed_seconds": 42.76204155999585,
+        "limits": "benchmark Python parent excluded; shared pages may be double counted; short peaks or reparented children may be missed; sampled RSS is not a hard memory bound"
+      }
+    }
+  ],
+  "limitations": "Linux ARM64 Docker, one run per size; RSS sampling perturbs workload; excludes Python parent, may double-count shared pages or miss short/reparented peaks; no accepted SLO or cross-platform comparison"
+}

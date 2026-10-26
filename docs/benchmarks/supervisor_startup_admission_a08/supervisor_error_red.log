@@ -1,0 +1,52 @@
+   Compiling diskgraph-engine v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine)
+error[E0599]: no variant, associated function, or constant named `RecoveryUnconfirmed` found for enum `BusinessError` in the current scope
+ --> crates/diskgraph-engine/tests/supervisor_admission_error.rs:9:49
+  |
+9 |         (SlotError::Unconfirmed, BusinessError::RecoveryUnconfirmed, "recovery_unconfirmed", 8),
+  |                                                 ^^^^^^^^^^^^^^^^^^^ variant, associated function, or constant not found in `BusinessError`
+
+error[E0277]: the trait bound `EngineError: From<SlotError>` is not satisfied
+   --> crates/diskgraph-engine/tests/supervisor_admission_error.rs:14:21
+    |
+ 14 |         let error = EngineError::from(slot);
+    |                     ^^^^^^^^^^^ the trait `From<SlotError>` is not implemented for `EngineError`
+    |
+help: `EngineError` implements trait `From<T>`
+   --> crates/diskgraph-engine/src/engine_error.rs:79:1
+    |
+ 79 | impl From<StoreError> for EngineError {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `From<diskgraph_store::store_error::StoreError>`
+...
+ 86 | impl From<io::Error> for EngineError {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `From<std::io::Error>`
+...
+ 93 | impl From<BusinessError> for EngineError {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `From<BusinessError>`
+...
+100 | impl From<ContextualEngineError> for EngineError {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `From<ContextualEngineError>`
+
+error[E0277]: the trait bound `EngineError: From<SlotError>` is not satisfied
+   --> crates/diskgraph-engine/tests/supervisor_admission_error.rs:26:17
+    |
+ 26 |     let error = EngineError::from(SlotError::Io(std::io::Error::new(
+    |                 ^^^^^^^^^^^ the trait `From<SlotError>` is not implemented for `EngineError`
+    |
+help: `EngineError` implements trait `From<T>`
+   --> crates/diskgraph-engine/src/engine_error.rs:79:1
+    |
+ 79 | impl From<StoreError> for EngineError {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `From<diskgraph_store::store_error::StoreError>`
+...
+ 86 | impl From<io::Error> for EngineError {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `From<std::io::Error>`
+...
+ 93 | impl From<BusinessError> for EngineError {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `From<BusinessError>`
+...
+100 | impl From<ContextualEngineError> for EngineError {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `From<ContextualEngineError>`
+
+Some errors have detailed explanations: E0277, E0599.
+For more information about an error, try `rustc --explain E0277`.
+error: could not compile `diskgraph-engine` (test "supervisor_admission_error") due to 3 previous errors

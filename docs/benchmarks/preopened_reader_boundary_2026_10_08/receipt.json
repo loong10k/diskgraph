@@ -1,0 +1,25 @@
+{
+  "base_commit": "5ca2d40f23c210f890d7714620e2c115f5229807",
+  "test_source_sha256": "57a4970c6970ffbe9766839382affe66415ad399c304a8f5bf3c6d5a1df7f08a",
+  "log_sha256": "75367cd1353d880c74c1aa083b364134005140273912407a47f6325bf760671e",
+  "passed": 2,
+  "failed": 0,
+  "os": "macOS",
+  "limits": [
+    "WAL independent commit tested",
+    "path replacement counterexample uses DELETE journal",
+    "initial fixture errors not behavior RED",
+    "production unchanged",
+    "Windows not executed"
+  ],
+  "production_acceptance": false,
+  "test_source_path": "crates/diskgraph-store/src/reader_observation_tests.rs",
+  "linux_store_full": {
+    "passed": 311,
+    "failed": 0,
+    "ignored": 5,
+    "platform": "Linux ARM64 Docker Rust1.97.1",
+    "log_sha256": "83bb99b57c361a74eff0ae86b2337ccdb50ba9bdee15ee813c830dcd08bdb63d",
+    "native_windows_qualification": false
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "scope": "compile root installation fixture without running privileged path",
+  "production_ready": false,
+  "fixture_source_sha256": "4cf74a5dbd994de61ccdfc8f190364a1d09ba9ec94775d06bb56d4afc22cac8c",
+  "log": "macos_root_fixture_compile_2026_10_06.log.gz",
+  "log_sha256": "af7dc89a31367a3b8f18a0120fe88e0f9bc65894deb8bd27301bc69a79cf9471",
+  "actual_results": {
+    "passed": 69,
+    "failed": 0,
+    "ignored_root_fixture": 1
+  },
+  "limitation": "Root fixture has only compiled; actual privileged ephemeral CI execution and ordinary UID cross-process consumer remain unverified."
+}

@@ -1,0 +1,26 @@
+{
+  "status": "candidate_component_only_not_production",
+  "platform": "Linux ARM64 isolated container",
+  "test_process_uid": 1000,
+  "root_actions": "fixture provisioning inside disposable container only",
+  "passed": 3,
+  "failed": 0,
+  "ignored": 0,
+  "trusted_fd_delivery_implemented": false,
+  "actual_namespace_switch_attack_verified": false,
+  "cli_supervision_implemented": false,
+  "global_bootstrap_implemented": false,
+  "linux_clippy": "not executed: component absent in container toolchain",
+  "review": [
+    "code APPROVE component only",
+    "architecture CLEAR component only; product BLOCK"
+  ],
+  "sha256": {
+    "crates/diskgraph-engine/src/recovery_slot/linux_supervisor_namespace.rs": "256e99912fa0bc3370b450e97d9344b2a234c4309ba8194e7c8956ea4e9e6f21",
+    "crates/diskgraph-engine/src/recovery_slot/linux_supervisor_trust.rs": "9ca215b636eb1c66976152f799339868439ed13b56cb2f28d5799399dafdc144",
+    "crates/diskgraph-engine/src/recovery_slot/linux_supervisor_namespace_tests.rs": "5773d551ddbe3f62688b72d2e0c484099222e629d074a6ba45b028121d5f2500",
+    "crates/diskgraph-engine/src/recovery_slot/mod.rs": "cff5e9dd937510d57f9dd58a3c36de9141c8552c898827d934c6adc36b43f7d3",
+    "docs/benchmarks/supervisor_startup_admission_a08/run_linux_namespace_qualification.sh": "51b3c9775ba5b265df9ddc03d3e0bf1bf88b82d2d4f6afefcc5e254e77a4ef4e",
+    "docs/benchmarks/supervisor_startup_admission_a08/linux_bound_namespace_qualification.log": "068b6ac5817a1e02f59718a3c6c8964dbf83a5f3921e84b73dba4245879a179d"
+  }
+}

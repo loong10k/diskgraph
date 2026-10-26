@@ -1,0 +1,19 @@
+{
+  "peak_contributors": [
+    {
+      "pid": 80,
+      "name": "diskgraph",
+      "rss_kib": 184916
+    }
+  ],
+  "peak_at_seconds": 6.861795878998237,
+  "files": 200000,
+  "exit_code": 0,
+  "sampled_process_tree_peak_rss_kib": 184916,
+  "samples": 961,
+  "max_descendant_processes": 4,
+  "proc_entries_unreadable": 0,
+  "interval_ms": 20,
+  "elapsed_seconds": 20.554662843002006,
+  "limits": "benchmark Python parent excluded; shared pages may be double counted; short peaks or reparented children may be missed; sampled RSS is not a hard memory bound"
+}

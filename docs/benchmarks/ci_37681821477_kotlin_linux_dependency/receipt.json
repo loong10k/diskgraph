@@ -1,0 +1,12 @@
+{
+  "run": 37681821477,
+  "job": 112999511717,
+  "source_commit": "c9e537b76476fde38f6722ea5ec31c99f34b895d",
+  "result": "failed",
+  "phase": "Maven dependency descriptor resolution",
+  "artifact": "com.github.cliftonlabs:json-simple:jar:3.0.2",
+  "cause_confirmed": false,
+  "native_acceptance_completed": false,
+  "read_only_cli_mcp_failure_proven": false,
+  "raw_sha256": "ee6b1b1db9861d9480d256f405ef8514a95a7e16672fc58de4a6dd3cb7db4d8e"
+}

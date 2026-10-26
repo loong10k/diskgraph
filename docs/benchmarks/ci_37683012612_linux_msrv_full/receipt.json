@@ -1,0 +1,23 @@
+{
+  "run": 37683012612,
+  "job": 113003606932,
+  "commit": "b03de97b32e767c23b04e8308b876cd9eaee4a88",
+  "platform": "ubuntu-latest / Rust1.97.0",
+  "status": "success",
+  "workspace_test_step": "success",
+  "clippy": "not run for MSRV by matrix design",
+  "serial_store_migration_gate": {
+    "passed": 314,
+    "failed": 0,
+    "ignored": 5
+  },
+  "engine_history_compatibility": {
+    "passed": 10,
+    "failed": 0
+  },
+  "raw_sha256": "1b9f8721a1e7271faf185d0c90f6ccb8cb9e1cf6083f2e98fce0a310729ab80d",
+  "inventory_list_counted_as_pass": false,
+  "three_platform_accepted": false,
+  "cpu_limited_history_problem_closed": false,
+  "supervisor_lifecycle_accepted": false
+}

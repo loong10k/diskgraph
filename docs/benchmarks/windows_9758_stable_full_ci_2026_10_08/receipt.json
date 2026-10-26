@@ -1,0 +1,7 @@
+{
+  "commit": "9758b53310365e626ddb485bffc1dde4d16dbb1b",
+  "job_id": 113071996404,
+  "entire_job": "success",
+  "log_sha256": "250098f160c1d963ad5ff722c1a38560d2771d3b8f9032133bfa05e217d69bc5",
+  "limitation": "Historical stable job only; not latest or root-cause closure"
+}

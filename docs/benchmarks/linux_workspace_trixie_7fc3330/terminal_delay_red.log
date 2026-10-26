@@ -1,0 +1,81 @@
+   Compiling unicode-ident v1.0.26
+   Compiling proc-macro2 v1.0.107
+   Compiling version_check v0.9.5
+   Compiling quote v1.0.47
+   Compiling libc v0.2.189
+   Compiling crossbeam-utils v0.8.23
+   Compiling generic-array v0.14.7
+   Compiling typenum v1.20.1
+   Compiling cfg-if v1.0.5
+   Compiling crossbeam-epoch v0.9.21
+   Compiling serde_core v1.0.229
+   Compiling syn v3.0.6
+   Compiling zmij v1.0.23
+   Compiling bitflags v2.13.2
+   Compiling crossbeam-deque v0.8.8
+   Compiling find-msvc-tools v0.1.14
+   Compiling shlex v2.0.1
+   Compiling cc v1.5.1
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling autocfg v1.5.1
+   Compiling serde_json v1.0.151
+   Compiling serde v1.0.229
+   Compiling rustix v1.1.5
+   Compiling rayon-core v1.13.0
+   Compiling getrandom v0.4.3
+   Compiling num-traits v0.2.19
+   Compiling digest v0.10.7
+   Compiling serde_derive v1.0.229
+   Compiling cpufeatures v0.2.17
+   Compiling linux-raw-sys v0.12.1
+   Compiling itoa v1.0.18
+   Compiling memchr v2.8.3
+   Compiling either v1.18.0
+   Compiling vcpkg v0.2.15
+   Compiling pkg-config v0.3.34
+   Compiling rayon v1.12.0
+   Compiling libsqlite3-sys v0.38.2
+   Compiling sha2 v0.10.9
+   Compiling iana-time-zone v0.1.65
+   Compiling base64 v0.22.1
+   Compiling chrono v0.4.45
+   Compiling diskgraph-core v0.3.0 (/build/terminal-red-7fc3330/crates/diskgraph-core)
+   Compiling thiserror v2.0.21
+   Compiling rustc-hash v2.1.3
+   Compiling diskgraph-disktree-core v0.3.0 (/build/terminal-red-7fc3330/crates/diskgraph-disktree-core)
+   Compiling uuid v1.26.1
+   Compiling thiserror-impl v2.0.21
+   Compiling fallible-streaming-iterator v0.1.9
+   Compiling fallible-iterator v0.3.0
+   Compiling smallvec v1.16.2
+   Compiling diskgraph-scan-worker v0.3.0 (/build/terminal-red-7fc3330/crates/diskgraph-scan-worker)
+   Compiling diskgraph-engine v0.3.0 (/build/terminal-red-7fc3330/crates/diskgraph-engine)
+   Compiling once_cell v1.21.4
+   Compiling fastrand v2.5.0
+   Compiling tempfile v3.27.0
+   Compiling diskgraph-disktree v0.3.0 (/build/terminal-red-7fc3330/crates/diskgraph-disktree)
+   Compiling sha1 v0.10.7
+   Compiling hex v0.4.3
+   Compiling syn v2.0.119
+   Compiling diskgraph-testkit v0.3.0 (/build/terminal-red-7fc3330/crates/diskgraph-testkit)
+   Compiling rusqlite v0.40.2
+   Compiling diskgraph-store v0.3.0 (/build/terminal-red-7fc3330/crates/diskgraph-store)
+    Finished `test` profile [unoptimized] target(s) in 20.08s
+     Running tests/runtime_revision_authorization.rs (/build/terminal-red-target/debug/deps/runtime_revision_authorization-66af503f119c3d69)
+
+running 1 test
+
+thread 'in_flight_complete_and_truncated_reads_refuse_runtime_revision_quarantine' (11330) panicked at crates/diskgraph-engine/tests/runtime_revision_authorization.rs:350:5:
+quarantined requests returned: [(3, "Err(Business(BudgetExceeded))"), (5, "Err(Business(BudgetExceeded))"), (6, "Err(Business(BudgetExceeded))"), (8, "Err(Business(BudgetExceeded))")]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test in_flight_complete_and_truncated_reads_refuse_runtime_revision_quarantine ... FAILED
+
+failures:
+
+failures:
+    in_flight_complete_and_truncated_reads_refuse_runtime_revision_quarantine
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.02s
+
+error: test failed, to rerun pass `-p diskgraph-engine --test runtime_revision_authorization`

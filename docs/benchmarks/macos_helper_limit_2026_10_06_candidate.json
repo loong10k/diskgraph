@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "kind": "macOS helper entry component",
+  "production_ready": false,
+  "sources": {
+    "crates/diskgraph-scan-worker/src/macos_process_limit.rs": "eb045907403d61f1784c7afca04234b2dc39c224f79dfb61b7a27c1e60964238",
+    "crates/diskgraph-scan-worker/src/macos_process_limit_tests.rs": "32165ac307fd0775ee268612611367f370ddb750ce2c3755f6695181408d81b3",
+    "crates/diskgraph-scan-worker/src/worker_runtime.rs": "3ce6f0a12fcf1043dd14cbdbd4cdf71900cb56733148e132c24972a7ffa7dabc",
+    "crates/diskgraph-scan-worker/src/lib.rs": "465a187657f66b38e1122ecc90dfa8ec13401ac129bcb8d78ee0d85e26c04005",
+    "crates/diskgraph-scan-worker/Cargo.toml": "963253e7e28ae95bfad947127202c6f8f099ff05c94d06c777d404bf56e22892",
+    "Cargo.lock": "162476039875dedac4462568b82e776fb4e0c9e8dcc6a4d3c7b21c2ab635a4e1"
+  },
+  "evidence": [
+    {
+      "log": "macos_helper_limit_api_red_2026_10_06.log.gz",
+      "uncompressed_sha256": "e32a76d6f4f6bdf31b2b3453efa4fda8446ce03bf5234e18c401baffabbebc2c"
+    },
+    {
+      "log": "macos_helper_limit_behavior_red_2026_10_06.log.gz",
+      "uncompressed_sha256": "afd4b645c7fa945fd101d3ada046ead76a75c2936ccd9107ccb8d61808252d8f"
+    },
+    {
+      "log": "macos_helper_limit_worker_green_2026_10_06.log.gz",
+      "uncompressed_sha256": "f7ee318c7779866e27eeacaf66df44adb1c7c838c43331b1e251309e44812ee0",
+      "actual_results": {
+        "passed": 119,
+        "failed": 0,
+        "ignored": 0,
+        "suites": 28
+      }
+    },
+    {
+      "log": "macos_helper_limit_target_final_2026_10_06.log.gz",
+      "uncompressed_sha256": "8be07a4add023ddaa89ed53324a0f580f79e7ac990da00f6d3d1ef7afd69f015"
+    },
+    {
+      "log": "macos_helper_limit_clippy_2026_10_06.log.gz",
+      "uncompressed_sha256": "38549bcc9a3cf36b31e7927b585207a825be3d5aa239b51653fc0770675c2222"
+    }
+  ],
+  "limits": [
+    "Local macOS arm64 only; current-source Intel CI not run.",
+    "No birth-time restriction claim; Mach-O initialization and setid boundary remain separate.",
+    "Runtime remains unsupported until trusted installation and loader qualification.",
+    "Existing C platform qualification covers vfork/posix_spawn/exec matrix separately; these new Rust tests do not replace it."
+  ]
+}

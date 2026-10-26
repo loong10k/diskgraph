@@ -1,0 +1,53 @@
+{
+  "scope": "worker serialization sink first failure; not full platform production acceptance",
+  "source_sha256": {
+    "crates/diskgraph-scan-worker/src/payload_buffer.rs": "87eda507a61023cf309e82f24aa5adb1558b75ef15d571db9d5628e8511a9d26",
+    "crates/diskgraph-scan-worker/src/frame_writer.rs": "a7a7f136b7f38754cd6aa7db8105b3dc112488dfdddff841fa7d6920e87e7153",
+    "crates/diskgraph-scan-worker/tests/writer_allocation_failure.rs": "8f260e0e721b7529e89ce93d92c4aa8808183fe2feddfd8253f324d2291353d4",
+    "crates/diskgraph-scan-worker/tests/writer_budget_classification.rs": "bb4e43757b34860c3091eeb7c0a52467b1be3298d726cf5f44262433d1113a8a"
+  },
+  "red": {
+    "passed": 1,
+    "failed": 1,
+    "actual_allocation_hits": 1,
+    "requested_bytes": 65538,
+    "result": "Ok(7), partial JSON frame and subsequent Cancel published"
+  },
+  "green": {
+    "top_level_suites": 25,
+    "passed": 100,
+    "failed": 0,
+    "ignored": 0,
+    "allocator_result": "Other/frame allocation failed, bytes=0; next frame refused"
+  },
+  "clippy_exit": 0,
+  "review": "independent source review limited APPROVE; no P1/P2 in four files",
+  "compatibility": "allocation returns original sink Other instead of previous serde-wrapped InvalidData; typed quota remains InvalidData",
+  "logs": {
+    "red": {
+      "path": "docs/benchmarks/writer_allocation_red_2026_10_05.log.gz",
+      "raw_sha256": "8b709bb98fd6e46c18366bf6b9cd2ce3e99143302e07fcbc6abb7eb8a0a85f97"
+    },
+    "green": {
+      "path": "docs/benchmarks/writer_allocation_green_2026_10_05.log.gz",
+      "raw_sha256": "ced6a70777bc27a4b19c424f0cf6c46a6dbd82888d2769214162ad798dae158e"
+    },
+    "clippy": {
+      "path": "docs/benchmarks/writer_allocation_clippy_2026_10_05.log.gz",
+      "raw_sha256": "b94a71823800a118abd422c2515a4d6670500f9640ef395c1ecea9feb84cabc9"
+    }
+  },
+  "remaining": [
+    "same-ledger terminal error at exhausted byte budget",
+    "native launch and product CLI/MCP acceptance on all platforms"
+  ],
+  "engine_regression": {
+    "command": "cargo test --offline --locked -p diskgraph-engine --lib scan_worker_budget_classification_tests",
+    "exit": 0,
+    "summary": [
+      "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 461 filtered out; finished in 0.00s"
+    ],
+    "log": "docs/benchmarks/writer_allocation_engine_2026_10_05.log.gz",
+    "raw_sha256": "373ee5fd80d35fd9a39c85b23cfc4fa2b2d28ec91954ca54194abc1a216c6835"
+  }
+}

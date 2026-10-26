@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "source_commit": "43e9435531df659bc2305b1dc0b22ea6884334ed",
+  "run_id": 37364191373,
+  "lane": "ubuntu-24.04 Rust1.97.0",
+  "production_acceptance": false,
+  "component_acceptance": "actual Engine scan publication and external Recovery in owned namespace",
+  "executed_cases": 5,
+  "passed": 5,
+  "failed": 0,
+  "ignored": 0,
+  "snapshot_manifest_matches_commit": true,
+  "actual_worker_sha256": "eefa4fa4ba2d043162a968977c04283eab7d9052f9fc5755aad5f6deb5b0234a",
+  "worker_bytes": 20373128,
+  "outer_init_reaped": true,
+  "namespace_descendants_gone": true,
+  "logs": {
+    "engine-flow": {
+      "path": "linux_engine_37364191373_x86-1.97_engine-flow.log.gz",
+      "raw_sha256": "b336b2842c5fcb75ee9f8d53811330d70bb67afc96f1fba736c3e1b39cf039db"
+    },
+    "recovery": {
+      "path": "linux_engine_37364191373_x86-1.97_recovery.log.gz",
+      "raw_sha256": "c82b05aaccaf712792294d95b31b1715de7e3f6cf8ca45b692b7398c6a4ad3ae"
+    },
+    "receipt": {
+      "path": "linux_engine_37364191373_x86-1.97_receipt.log.gz",
+      "raw_sha256": "7b1e93160b3c3ccf9772ce509ecf94dc9037dd67cf1d0fd6c642ee2b3f2ffad7"
+    },
+    "namespace": {
+      "path": "linux_engine_37364191373_x86-1.97_namespace.log.gz",
+      "raw_sha256": "3bf1a5cc28fa2ade926269ec5729f4e2583ae164522781b7730f65bbd09b1de9"
+    }
+  },
+  "remaining": [
+    "x86 stable lane",
+    "whole host/CLI/MCP integration",
+    "macOS/Windows startup identity/lease/lifecycle",
+    "strict Clippy and release performance acceptance"
+  ]
+}

@@ -1,0 +1,6 @@
+
+thread 'measure_isolated_release_fixtures' (27515) panicked at crates/diskgraph-engine/tests/benchmark_support/namespace_cost.rs:59:5:
+assertion `left == right` failed: Unsupported/gap must not be measured as successful native capture
+  left: (200000, 199999, 1)
+ right: (200000, 200000, 0)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

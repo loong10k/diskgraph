@@ -1,0 +1,21 @@
+{
+  "zig": "0.16.0",
+  "used_existing_compiler": true,
+  "rust_sdk_installed": false,
+  "native_linux_execution": false,
+  "rust_package_qualified": false,
+  "results": [
+    {
+      "target": "x86_64-unknown-linux-gnu",
+      "compiler_exit": 0,
+      "elapsed_seconds": 1.844,
+      "binary_sha256": "ad4a3a4300325eeb5150f0c36538a405d1736f54fb3f47e4e2b08b89f7fd87eb"
+    },
+    {
+      "target": "aarch64-unknown-linux-gnu",
+      "compiler_exit": 0,
+      "elapsed_seconds": 1.363,
+      "binary_sha256": "9a09442d3681c8a3dd4dc4bf90e38d74202c40475a9bd221eddda161b6cd26bb"
+    }
+  ]
+}

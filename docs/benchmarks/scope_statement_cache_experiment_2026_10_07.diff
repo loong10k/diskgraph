@@ -1,0 +1,186 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index ea762a3..735705f 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -926,6 +926,15 @@ dependencies = [
+  "foldhash",
+ ]
+ 
++[[package]]
++name = "hashlink"
++version = "0.12.2"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "a596f1b20ed2cc5ecac41a164aaebc7258057060f06c0cf7a2ba3991ee7990fb"
++dependencies = [
++ "hashbrown 0.17.1",
++]
++
+ [[package]]
+ name = "heck"
+ version = "0.5.0"
+@@ -1464,6 +1473,7 @@ dependencies = [
+  "bitflags",
+  "fallible-iterator",
+  "fallible-streaming-iterator",
++ "hashlink",
+  "libsqlite3-sys",
+  "smallvec",
+ ]
+diff --git a/crates/diskgraph-store/Cargo.toml b/crates/diskgraph-store/Cargo.toml
+index ec5c4e9..385b953 100644
+--- a/crates/diskgraph-store/Cargo.toml
++++ b/crates/diskgraph-store/Cargo.toml
+@@ -12,7 +12,7 @@ repository.workspace = true
+ base64.workspace = true
+ rayon.workspace = true
+ diskgraph-core.workspace = true
+-rusqlite = { version = "0.40.2", default-features = false, features = ["bundled", "backup", "hooks"] }
++rusqlite = { version = "0.40.2", default-features = false, features = ["bundled", "backup", "hooks", "cache"] }
+ serde.workspace = true
+ serde_json.workspace = true
+ thiserror = "2"
+diff --git a/crates/diskgraph-store/src/control_read_budget_tests.rs b/crates/diskgraph-store/src/control_read_budget_tests.rs
+index 6b7a0f5..e08db06 100644
+--- a/crates/diskgraph-store/src/control_read_budget_tests.rs
++++ b/crates/diskgraph-store/src/control_read_budget_tests.rs
+@@ -3,6 +3,102 @@
+ use crate::{ControlStore, StoreError};
+ use std::time::{Duration, Instant};
+ 
++#[test]
++fn hot_scope_statement_is_retained_but_cross_connection_revocation_is_live() {
++    let dir = tempfile::tempdir().unwrap();
++    let path = dir.path().join("control.sqlite");
++    let mut reader = ControlStore::open(&path).unwrap();
++    let scope = reader
++        .register_scope(
++            &diskgraph_core::Locator {
++                kind: diskgraph_core::LocatorKind::NativePath,
++                raw_b64: "L2ZpeHR1cmU=".into(),
++                display: "/fixture".into(),
++            },
++            None,
++        )
++        .unwrap();
++    let mut writer = ControlStore::open(&path).unwrap();
++    reader.connection.flush_prepared_statement_cache();
++    let statement_count = || {
++        let mut count = 0;
++        // 只观察当前测试连接的编译语句，不移动或释放原 statement。
++        unsafe {
++            let db = reader.connection.handle();
++            let mut statement = rusqlite::ffi::sqlite3_next_stmt(db, std::ptr::null_mut());
++            while !statement.is_null() {
++                count += 1;
++                statement = rusqlite::ffi::sqlite3_next_stmt(db, statement);
++            }
++        }
++        count
++    };
++    assert_eq!(statement_count(), 0);
++    assert!(!reader.scope_revoked(&scope).unwrap());
++    assert_eq!(
++        statement_count(),
++        1,
++        "hot scope SQL should remain compiled, without retaining rows"
++    );
++    writer.revoke_scope(&scope).unwrap();
++    assert!(
++        reader.scope_revoked(&scope).unwrap(),
++        "compiled statements must observe independent commits"
++    );
++    assert_eq!(statement_count(), 1);
++}
++
++#[test]
++#[ignore = "release microbenchmark only; not native platform acceptance"]
++fn cached_scope_query_costs() {
++    let mut store = ControlStore::open_in_memory().unwrap();
++    let scope = store
++        .register_scope(
++            &diskgraph_core::Locator {
++                kind: diskgraph_core::LocatorKind::NativePath,
++                raw_b64: "L2ZpeHR1cmU=".into(),
++                display: "/fixture".into(),
++            },
++            None,
++        )
++        .unwrap();
++    let mut cached = Vec::new();
++    let mut compiled = Vec::new();
++    for round in 0..1000 {
++        for offset in 0..2 {
++            let reuse = (round + offset) % 2 == 0;
++            let started = Instant::now();
++            let revoked = if reuse {
++                store.scope_revoked(&scope).unwrap()
++            } else {
++                store
++                    .connection
++                    .query_row(
++                        "SELECT revoked FROM scopes WHERE scope_id=?1",
++                        [scope.as_str()],
++                        |row| Ok(row.get::<_, i64>(0)? != 0),
++                    )
++                    .unwrap()
++            };
++            let elapsed = started.elapsed().as_secs_f64() * 1000.0;
++            assert!(!revoked);
++            if reuse {
++                cached.push(elapsed);
++            } else {
++                compiled.push(elapsed);
++            }
++        }
++    }
++    cached.sort_by(f64::total_cmp);
++    compiled.sort_by(f64::total_cmp);
++    println!(
++        "{}",
++        serde_json::json!({"fixture":"in-memory scope SQL alternating order", "production_qualification":false,
++        "samples_per_variant":1000,"cached":{"p50_ms":cached[499],"p95_ms":cached[949]},
++        "compiled_each_time":{"p50_ms":compiled[499],"p95_ms":compiled[949]}})
++    );
++}
++
+ fn configured_store() -> ControlStore {
+     let store = ControlStore::open_in_memory().unwrap();
+     store
+diff --git a/crates/diskgraph-store/src/scope_preparation_store.rs b/crates/diskgraph-store/src/scope_preparation_store.rs
+index 9fd1dcb..b2ae018 100644
+--- a/crates/diskgraph-store/src/scope_preparation_store.rs
++++ b/crates/diskgraph-store/src/scope_preparation_store.rs
+@@ -13,12 +13,10 @@ impl ControlStore {
+     /// 只查询范围的实时撤销标量，不读取显示文本或卷描述。来源：Rust SC-04/D42。
+     /// 参数：实际范围身份；返回：撤销状态，缺失范围仍返回 ScopeNotFound。
+     pub fn scope_revoked(&self, scope: &ScopeId) -> Result<bool> {
++        // 只复用有界连接缓存中的编译语句；每次执行并释放行，独立提交仍实时可见。
+         self.connection
+-            .query_row(
+-                "SELECT revoked FROM scopes WHERE scope_id=?1",
+-                [scope.as_str()],
+-                |row| Ok(row.get::<_, i64>(0)? != 0),
+-            )
++            .prepare_cached("SELECT revoked FROM scopes WHERE scope_id=?1")?
++            .query_row([scope.as_str()], |row| Ok(row.get::<_, i64>(0)? != 0))
+             .optional()?
+             .ok_or_else(|| StoreError::ScopeNotFound(scope.as_str().into()))
+     }
+diff --git a/openspec/changes/implement-diskgraph-platform/specs/bounded-queries/spec.md b/openspec/changes/implement-diskgraph-platform/specs/bounded-queries/spec.md
+index 885a980..1b4711d 100644
+--- a/openspec/changes/implement-diskgraph-platform/specs/bounded-queries/spec.md
++++ b/openspec/changes/implement-diskgraph-platform/specs/bounded-queries/spec.md
+@@ -4,6 +4,13 @@
+ 
+ ## ADDED Requirements
+ 
++### Requirement: Compiled authorization queries retain live observations
++重复范围撤权查询 MAY 复用连接内有界的已编译 SQL 语句，SHALL 每次重新执行并释放行与读取事务，不缓存撤权结果，不改变原 SQL 期限或跨连接授权边界。
++
++#### Scenario: Revocation after compiled scope query
++- **WHEN** 同一控制连接已执行并缓存范围撤权 SQL，另一个真实数据库连接提交范围撤权
++- **THEN** 下一次查询读取新的撤权状态；连接内保留编译语句但没有活跃行或冻结的读取事务。
++
+ ### Requirement: Q-01 Shared query semantics
+ 系统 SHALL 提供 status、explore、search、node、children、top、related、explain、impact、snapshots、changes、growth、candidates 的一致查询语义，不为 MCP 与 FFI 维护不同事实版本。
+ 

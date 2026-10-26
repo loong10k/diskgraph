@@ -1,0 +1,131 @@
+{
+  "tasks_source_sha256": "73d20409208f0ddc6dfe3131c479a1993d926d972610a851f311c748a4e0a2ec",
+  "unchecked_numbered_tasks": 27,
+  "tasks": [
+    {
+      "id": "8.2",
+      "text": "为 read/hash 加占位文件保护、读取前后身份核验及取消，测试读取中变化与云占位不会触发下载。（CT-02）实现与 macOS 线程禁止物化策略夹具已通过；真实云 provider 不下载及其他系统原生保护尚未验收。"
+    },
+    {
+      "id": "8.6",
+      "text": "实现应用归属和进程占用 collector，记录可见覆盖与采样时间；低权限/不可观测不能返回“无人使用”。（EV-06、EC-02）复核重新打开：可信库进程采样已实现时间、partial/unobservable、解析及共享资源预算；仍缺应用安装实例归属采集、实际授权产品调用、PID启动/资源身份绑定、证据来源持久化与原子revision发布的端到端验收。15.13a/b及已验收库层子能力保持完成。"
+    },
+    {
+      "id": "8.9",
+      "text": "在 Windows 实现并测试原生路径、卷/file ID、大小和 reparse point 语义；身份不足时阻止可信历史比较。（FS-02、PF-03）"
+    },
+    {
+      "id": "8.10",
+      "text": "在 Linux/macOS/Windows 分别测试回收、权限、占用和复制保真；写适配未通过前保持禁用，记录平台差异。（PF-03、RE-04）"
+    },
+    {
+      "id": "9.2",
+      "text": "实现异步作业句柄、分页、进度与取消的 FFI 语义，实际验证 UI 线程不阻塞和句柄释放。（PF-01）持久服务、真实计数、轮询、释放和撤权回归已通过；GUI 调度与慢 provider 不阻塞仍待真实宿主验收。"
+    },
+    {
+      "id": "9.3",
+      "text": "建立 Swift/GRDB 与 Kotlin/Room 共存集成夹具，验证 SQLite 符号、链接策略、连接生命周期和并发，不仅检查文件名不同。（PF-02）"
+    },
+    {
+      "id": "9.4",
+      "text": "对接 PruneX 的目录图、历史和解释界面，以同一查询夹具比对 CLI/MCP/FFI 的结果语义。（Q-01、PF-01）"
+    },
+    {
+      "id": "9.5",
+      "text": "对接 PruneX 可信审阅/批准界面与操作记录，确保模型上下文中的确认文本不能签发批准。（OP-03、PF-01）"
+    },
+    {
+      "id": "9.6",
+      "text": "定义 AgentScope-Swift/Kotlin 宿主调用和 Lite/Pro 导出边界，验证云端模式默认不导出未授权正文，本地模式不要求云服务。（SC-05、CT-04）"
+    },
+    {
+      "id": "9.8",
+      "text": "实测 macOS 原生宿主的扫描、取消、升级和回收/恢复闭环，记录 FFI、引擎和 UI 各自验收状态。（RE-04）"
+    },
+    {
+      "id": "9.9",
+      "text": "打包可被宿主实际链接的 Swift XCFramework 与 Kotlin/JNI 库，验证架构切片、资源定位和版本匹配；Android AAR 和 iOS 真机切片在 P9 完成，不以生成源码代替包验收。（PF-01、RE-04）"
+    },
+    {
+      "id": "10.1",
+      "text": "建立 Android NDK 目标构建、AAR 打包和 Kotlin 绑定测试，验证 ABI/原生库加载；区分构建证据与 SAF/媒体 provider 功能证据。（PF-04、RE-04）"
+    },
+    {
+      "id": "10.2",
+      "text": "实现 SAF DocumentUri provider，保留 provider/document 身份、未知大小、分页及授权生命周期，不猜测真实路径。（PF-04、FS-02）"
+    },
+    {
+      "id": "10.3",
+      "text": "实现 Android 宿主授予/撤销访问与后台任务协调，覆盖重启后授权失效、扫描中撤权和 partial 结果。（PF-04、SC-04）"
+    },
+    {
+      "id": "10.4",
+      "text": "按 provider 能力实现或明确拒绝移动/回收/恢复，测试不支持动作不能退化为永久删除。（PF-04、OP-06）"
+    },
+    {
+      "id": "10.5",
+      "text": "在 Android 真机验证授权目录索引、查询、取消、重复检查与能力报告，明确不可访问其他应用私有数据。（PF-04、RE-04）"
+    },
+    {
+      "id": "10.6",
+      "text": "建立 iOS 设备/模拟器切片、XCFramework 与 Swift 宿主样例，限定 App 自有和用户选中文档范围，不提供全盘扫描入口。（PF-05）"
+    },
+    {
+      "id": "10.7",
+      "text": "实现安全作用域访问/书签解析/释放和文档协调，覆盖失效授权、provider 离线及云占位不下载约束。（PF-05、CT-02）"
+    },
+    {
+      "id": "10.8",
+      "text": "按 iOS/document provider 能力暴露只读与受控动作，测试未知大小、动作不支持和恢复冲突。（PF-05、OP-06）"
+    },
+    {
+      "id": "10.9",
+      "text": "在 iOS 真机完成文档选择、后台切换、取消和权限失效验证，保存授权边界证据，不把模拟器编译当真机验收。（PF-05、RE-04）"
+    },
+    {
+      "id": "12.8",
+      "text": "Linux/Windows 原生文件操作、设备/provider 云占位不下载、真实宿主端到端验收；本机夹具不替代这些证据。（PF-03/04/05、CT-02、RE-04）"
+    },
+    {
+      "id": "15.2",
+      "text": "完成 13.6 的有界关系、历史和宽目录查询；内容核验失败/取消仍计入实际文件与字节成本，并验证平台占位文件不下载。（Q-02/08、CT-02/05）"
+    },
+    {
+      "id": "15.3",
+      "text": "完成 8.9/8.10/12.8 的三桌面系统原生句柄、内容、文件操作、恢复与保真门禁；未通过动作保持关闭。（PF-03、OP-04/05/06、RE-02/04）"
+    },
+    {
+      "id": "15.4",
+      "text": "完成 9.3–9.6/9.8/9.9 的持久原生服务、真实进度/释放/撤权、GRDB/Room 共存、正式库包和宿主对接。（PF-01/02）"
+    },
+    {
+      "id": "15.5",
+      "text": "完成 10.1–10.9 的 provider 批量观测、授权生命周期、Android/iOS 包与真机门禁。（PF-04/05）"
+    },
+    {
+      "id": "15.6",
+      "text": "把同 SHA 的所有已启用平台行为门禁接入发布前置，补 Linux arm64 原生运行及签名/设备/生产环境证据，更新完整支持矩阵。（RE-04/07）"
+    },
+    {
+      "id": "15.13",
+      "text": "完成 EC-02/04、EV-06 的实时证据探针边界：stdout/stderr 共享输出/期限/取消、原生后代/句柄清理、Git 受限配置与错误传播、unborn 修改语义及三平台真实回归。解析子项通过不能代替本项完成。 有限前端退出的实施设计见 `frontend_recovery_supervisor.md`；监督生命周期、IPC、容量及平台门禁均未实现，不据设计文档勾选。"
+    }
+  ],
+  "scope": "user selected macOS/Linux/Windows read-only CLI and MCP; mobile/UI/write capabilities remain open in wider OpenSpec and are not silently marked complete",
+  "interpretation": "formal open tasks are not bug count; class-level status does not replace task-level verification",
+  "new_evidence": [
+    "Linux c71 complete native Rust jobs successful: ARM64 stable, x86_64 stable and Rust 1.97.0",
+    "Windows 6fb complete native Rust jobs successful: stable and Rust 1.97.0; terminal job receipts override earlier in-progress receipt",
+    "Latest e3ccbf4 CI run 37702662951: 18 currently queued jobs, no terminal conclusion",
+    "Load coverage regression 2/2 passed; packaged 20k and 200k execution awaits native CI"
+  ],
+  "not_closed": [
+    "generic Linux no-recall capability",
+    "real macOS cloud provider acceptance",
+    "supervisor product identity and retirement chain",
+    "same current SHA platform completion",
+    "remaining performance/runtime and final delivery audit"
+  ],
+  "current_head": "e3ccbf4d6c2b281f473b834238a8baeab8ceb8af",
+  "current_ci_run": 37702662951
+}

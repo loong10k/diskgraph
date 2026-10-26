@@ -1,0 +1,12 @@
+{
+  "head": "fa400fa5e6119a85b9fad74ccfa8e18bdd56accb",
+  "current_lib_lines": 339,
+  "entry": "mod declarations and pub use reexports; no type or business definitions",
+  "gate": "production_storage_entry_types_and_imports_follow_the_rust_contract passed 1/1 on native ARM macOS",
+  "source_sha256": {
+    "crates/diskgraph-store/src/lib.rs": "93039cbfa2affba8fa41a6f697d87c001ab823f496a4efabbfd6b2ed8de034f6",
+    "crates/diskgraph-store/tests/source_layout.rs": "b08deae6b90a3c3cd32e8573f55c4229410433676fcaacc448cb7dd29da64b85"
+  },
+  "dirty_boundary": "existing two-line cfg(test) reader_observation_tests registration retained, not committed in this work",
+  "limits": "structure and doc/import AST checks do not prove runtime, concurrency, performance or full platform readiness"
+}

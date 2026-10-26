@@ -1,0 +1,9 @@
+{
+  "run": 37700562743,
+  "job": 113062738846,
+  "commit": "d7506d76deaf8444b37ddf7d24e3b4d65ace401f",
+  "conclusion": "success",
+  "log_sha256": "2609ef7b726d97aba9e7d3d64dda6adc0e1dffb664fa8507a785ef4896d64c90",
+  "log_bytes": 971345,
+  "qualification": "complete Windows Rust1.97.0 CI at historical d750, including workspace and native gates; not latest HEAD or root-cause closure"
+}

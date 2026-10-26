@@ -1,0 +1,159 @@
+{
+  "current_head": "d7506d76deaf8444b37ddf7d24e3b4d65ace401f",
+  "policy": "cancel only superseded runs with no live job at refreshed observation; preserve active jobs and prior artifacts; cancelled is not pass",
+  "actions": [
+    {
+      "run": 37700215196,
+      "action": "skipped_newly_running"
+    },
+    {
+      "run": 37695471590,
+      "sha": "fa400fa5e6119a85b9fad74ccfa8e18bdd56accb",
+      "exit": 0,
+      "output": "\u2713 Request to cancel workflow 37695471590 submitted.\n"
+    },
+    {
+      "run": 37695294773,
+      "sha": "12bcf7005778266cea7f2e84fac5a793bacdb308",
+      "exit": 0,
+      "output": "\u2713 Request to cancel workflow 37695294773 submitted.\n"
+    },
+    {
+      "run": 37690643575,
+      "sha": "e8333b316019ec7219a9cbf23a0b83e2c6e969b6",
+      "exit": 0,
+      "output": "\u2713 Request to cancel workflow 37690643575 submitted.\n"
+    },
+    {
+      "run": 37688590139,
+      "sha": "a6767274a1619581dfe016f677915c4f3358936c",
+      "exit": 0,
+      "output": "\u2713 Request to cancel workflow 37688590139 submitted.\n"
+    },
+    {
+      "run": 37683012612,
+      "sha": "b03de97b32e767c23b04e8308b876cd9eaee4a88",
+      "exit": 0,
+      "output": "\u2713 Request to cancel workflow 37683012612 submitted.\n"
+    },
+    {
+      "run": 37682655145,
+      "sha": "e0ab919b94c61fb730559a699345b72472866b00",
+      "exit": 0,
+      "output": "\u2713 Request to cancel workflow 37682655145 submitted.\n"
+    },
+    {
+      "run": 37681821477,
+      "sha": "c9e537b76476fde38f6722ea5ec31c99f34b895d",
+      "exit": 0,
+      "output": "\u2713 Request to cancel workflow 37681821477 submitted.\n"
+    },
+    {
+      "run": 37677719804,
+      "sha": "5ca2d40f23c210f890d7714620e2c115f5229807",
+      "exit": 1,
+      "output": "HTTP 500 (https://api.github.com/repos/loong10k/diskgraph/actions/runs/37677719804/cancel)\n"
+    },
+    {
+      "run": 37672712701,
+      "sha": "1cc15c244e3dbb7f04cda25d392cc07dd4fce03e",
+      "exit": 0,
+      "output": "\u2713 Request to cancel workflow 37672712701 submitted.\n"
+    },
+    {
+      "run": 37669668800,
+      "sha": "314441cbe4708fb6d2555998319e3bb2f00dec60",
+      "exit": 0,
+      "output": "\u2713 Request to cancel workflow 37669668800 submitted.\n"
+    },
+    {
+      "run": 37661237999,
+      "sha": "e6066ba3a28693fe66da3b5358c45d2e5b182a51",
+      "exit": 0,
+      "output": "\u2713 Request to cancel workflow 37661237999 submitted.\n"
+    },
+    {
+      "run": 37653879518,
+      "sha": "a7f8c0bd2589928b56c7f173b27757d115c37c18",
+      "exit": 0,
+      "output": "\u2713 Request to cancel workflow 37653879518 submitted.\n"
+    },
+    {
+      "run": 37651872811,
+      "sha": "b71684e074bf03cffb297a1d0776a313e51c58f5",
+      "exit": 0,
+      "output": "\u2713 Request to cancel workflow 37651872811 submitted.\n"
+    },
+    {
+      "run": 37648763800,
+      "sha": "38a07715a2c26c7092ccccd0f44c7a9ca6061f35",
+      "exit": 0,
+      "output": "\u2713 Request to cancel workflow 37648763800 submitted.\n"
+    },
+    {
+      "run": 37648650630,
+      "sha": "32fe16ba0e6c19b6b28df13e6507a8a4b86c2566",
+      "exit": 0,
+      "output": "\u2713 Request to cancel workflow 37648650630 submitted.\n"
+    },
+    {
+      "run": 37648551038,
+      "sha": "12c8856d30e48a3ede8ea9001fcd5d910dca9873",
+      "exit": 0,
+      "output": "\u2713 Request to cancel workflow 37648551038 submitted.\n"
+    },
+    {
+      "run": 37648088950,
+      "sha": "994187b8eba898b1d41e10aa5dc25e2fee7fa1fc",
+      "exit": 0,
+      "output": "\u2713 Request to cancel workflow 37648088950 submitted.\n"
+    }
+  ],
+  "retry": {
+    "run": 37677719804,
+    "refreshed_running_jobs": [],
+    "cancel_request": "accepted after earlier HTTP500"
+  },
+  "remaining_open": [
+    {
+      "conclusion": "",
+      "databaseId": 37700562743,
+      "status": "queued"
+    },
+    {
+      "conclusion": "",
+      "databaseId": 37700215196,
+      "status": "queued"
+    },
+    {
+      "conclusion": "",
+      "databaseId": 37700048722,
+      "status": "queued"
+    },
+    {
+      "conclusion": "",
+      "databaseId": 37699315022,
+      "status": "queued"
+    },
+    {
+      "conclusion": "",
+      "databaseId": 37699184226,
+      "status": "queued"
+    },
+    {
+      "conclusion": "",
+      "databaseId": 37697115067,
+      "status": "queued"
+    },
+    {
+      "conclusion": "",
+      "databaseId": 37649762008,
+      "status": "queued"
+    },
+    {
+      "conclusion": "",
+      "databaseId": 37646123183,
+      "status": "in_progress"
+    }
+  ]
+}

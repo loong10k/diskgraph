@@ -1,0 +1,9 @@
+   Compiling diskgraph-engine v0.3.0 (/build/terminal-red-7fc3330/crates/diskgraph-engine)
+    Finished `test` profile [unoptimized] target(s) in 2.78s
+     Running tests/runtime_revision_authorization.rs (/build/terminal-red-target/debug/deps/runtime_revision_authorization-66af503f119c3d69)
+
+running 1 test
+test in_flight_complete_and_truncated_reads_refuse_runtime_revision_quarantine ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.36s
+

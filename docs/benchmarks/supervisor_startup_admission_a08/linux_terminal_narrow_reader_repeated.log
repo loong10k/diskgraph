@@ -1,0 +1,27 @@
+    Finished `release` profile [optimized] target(s) in 0.07s
+     Running unittests src/lib.rs (/build/terminal-red-target/release/deps/diskgraph_store-b415912815990c41)
+
+running 1 test
+test revision_ownership_reader_tests::release_terminal_connection_costs ... DG_TERMINAL_READ_COST samples=200 general_p50_ns=182917 general_p95_ns=217750 narrow_p50_ns=181833 narrow_p95_ns=220542
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 302 filtered out; finished in 0.09s
+
+    Finished `release` profile [optimized] target(s) in 0.06s
+     Running unittests src/lib.rs (/build/terminal-red-target/release/deps/diskgraph_store-b415912815990c41)
+
+running 1 test
+test revision_ownership_reader_tests::release_terminal_connection_costs ... DG_TERMINAL_READ_COST samples=200 general_p50_ns=183667 general_p95_ns=277625 narrow_p50_ns=181417 narrow_p95_ns=260167
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 302 filtered out; finished in 0.10s
+
+    Finished `release` profile [optimized] target(s) in 0.04s
+     Running unittests src/lib.rs (/build/terminal-red-target/release/deps/diskgraph_store-b415912815990c41)
+
+running 1 test
+test revision_ownership_reader_tests::release_terminal_connection_costs ... DG_TERMINAL_READ_COST samples=200 general_p50_ns=183000 general_p95_ns=251917 narrow_p50_ns=181708 narrow_p95_ns=283375
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 302 filtered out; finished in 0.10s
+

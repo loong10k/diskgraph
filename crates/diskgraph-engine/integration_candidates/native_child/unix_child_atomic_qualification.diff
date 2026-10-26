@@ -1,0 +1,68 @@
+--- committed unix_child.rs
++++ unix_child_atomic_qualification.rs
+@@ -1,3 +1,4 @@
++use super::unix_child_setup::UnixChildSetup;
+ use super::{ChildError, ChildSpawnError};
+ use std::io::{self, Read};
+ use std::os::fd::AsRawFd;
+@@ -29,7 +30,7 @@
+         mut checkpoint: impl FnMut() -> Result<(), E>,
+     ) -> Result<Self, ChildSpawnError<E>> {
+         checkpoint().map_err(ChildSpawnError::checkpoint)?;
+-        reject_auto_reap()?;
++        UnixChildSetup::reject_auto_reap()?;
+         command
+             .process_group(0)
+             .stdin(Stdio::null())
+@@ -56,21 +57,14 @@
+         owner.stdout = owner.child.stdout.take();
+         owner.stderr = owner.child.stderr.take();
+         let initialized: Result<(), ChildSpawnError<E>> = (|| {
+-            for fd in [
+-                owner.stdout.as_ref().map(AsRawFd::as_raw_fd),
+-                owner.stderr.as_ref().map(AsRawFd::as_raw_fd),
+-            ] {
+-                let fd = fd.ok_or(ChildError::Unsupported("missing child pipe"))?;
+-                // 安全性：fd 是 owner 持有的管道，只更改本次描述符的非阻塞标志。
+-                let flags = unsafe { libc::fcntl(fd, libc::F_GETFL) };
+-                if flags < 0
+-                    || unsafe { libc::fcntl(fd, libc::F_SETFL, flags | libc::O_NONBLOCK) } < 0
+-                {
+-                    return Err(
+-                        ChildError::io("nonblocking pipe", io::Error::last_os_error()).into(),
+-                    );
+-                }
+-            }
++            UnixChildSetup::initialize(
++                [
++                    owner.stdout.as_ref().map(AsRawFd::as_raw_fd),
++                    owner.stderr.as_ref().map(AsRawFd::as_raw_fd),
++                ],
++                false,
++                owner.child.id(),
++            )?;
+             checkpoint().map_err(ChildSpawnError::checkpoint)?;
+             Ok(())
+         })();
+@@ -252,21 +246,6 @@
+     }
+ }
+ 
+-fn reject_auto_reap() -> Result<(), ChildError> {
+-    // 只读取宿主配置，不改变全进程 SIGCHLD。忽略信号会失去保留身份的能力。
+-    let mut action: libc::sigaction = unsafe { std::mem::zeroed() };
+-    if unsafe { libc::sigaction(libc::SIGCHLD, std::ptr::null(), &mut action) } < 0 {
+-        return Err(ChildError::io(
+-            "inspect SIGCHLD",
+-            io::Error::last_os_error(),
+-        ));
+-    }
+-    if action.sa_sigaction == libc::SIG_IGN || action.sa_flags & libc::SA_NOCLDWAIT != 0 {
+-        return Err(ChildError::Unsupported("host auto-reaps child processes"));
+-    }
+-    Ok(())
+-}
+-
+ fn read_pipe<T: Read>(
+     pipe: &mut T,
+     eof: &mut bool,

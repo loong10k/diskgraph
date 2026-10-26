@@ -1,0 +1,268 @@
+.......E........................................................................................................................................<frozen importlib._bootstrap_external>:511: ResourceWarning: unclosed file <_io.FileIO name=3 mode='rb+' closefd=True>
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+<frozen importlib._bootstrap_external>:511: ResourceWarning: unclosed file <_io.FileIO name=5 mode='rb+' closefd=True>
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+....................{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 95836.545340916}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 95836.559290458}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 95836.559313541}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 95836.559352916}
+{"phase": "index", "event": "begin", "monotonic_seconds": 95836.559366791}
+{"phase": "index", "event": "end", "monotonic_seconds": 95836.564410916}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 95836.564444875}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 95836.564731833}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 95836.56474325}
+{"phase": "queries", "event": "end", "monotonic_seconds": 95836.564996541}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 95836.565008208}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 95836.565035083}
+.{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 95836.572215333}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 95836.577033416}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 95836.577051833}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 95836.577078791}
+{"phase": "index", "event": "begin", "monotonic_seconds": 95836.57708625}
+{"phase": "index", "event": "end", "monotonic_seconds": 95836.578215583}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 95836.578229416}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 95836.578489375}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 95836.578505875}
+{"phase": "queries", "event": "end", "monotonic_seconds": 95836.578761541}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 95836.578799666}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 95836.57884175}
+.{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 95836.585299625}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 95836.590298333}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 95836.590319833}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 95836.590346208}
+{"phase": "index", "event": "begin", "monotonic_seconds": 95836.590353833}
+{"phase": "index", "event": "end", "monotonic_seconds": 95836.591478583}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 95836.591488791}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 95836.591775083}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 95836.591783541}
+{"phase": "queries", "event": "end", "monotonic_seconds": 95836.591997958}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 95836.592007}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 95836.592032041}
+.{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 95836.600800208}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 95836.606279625}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 95836.60630075}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 95836.606327666}
+{"phase": "index", "event": "begin", "monotonic_seconds": 95836.606335041}
+{"phase": "index", "event": "end", "monotonic_seconds": 95836.607331875}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 95836.607343791}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 95836.607582958}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 95836.607597208}
+{"phase": "queries", "event": "end", "monotonic_seconds": 95836.607801166}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 95836.607810166}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 95836.607831833}
+{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 95836.613507666}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 95836.619055791}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 95836.619078291}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 95836.619104166}
+{"phase": "index", "event": "begin", "monotonic_seconds": 95836.619112166}
+{"phase": "index", "event": "end", "monotonic_seconds": 95836.6203475}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 95836.620359083}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 95836.620639625}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 95836.620648208}
+{"phase": "queries", "event": "end", "monotonic_seconds": 95836.620837375}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 95836.620849125}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 95836.620875541}
+{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 95836.626700416}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 95836.630909541}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 95836.630928416}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 95836.630952583}
+{"phase": "index", "event": "begin", "monotonic_seconds": 95836.630958875}
+{"phase": "index", "event": "end", "monotonic_seconds": 95836.632035}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 95836.632044208}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 95836.632285541}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 95836.632295125}
+{"phase": "queries", "event": "end", "monotonic_seconds": 95836.632486958}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 95836.632498333}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 95836.632524208}
+.{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 95836.638198375}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 95836.642311333}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 95836.642330125}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 95836.642360791}
+{"phase": "index", "event": "begin", "monotonic_seconds": 95836.64236825}
+{"phase": "index", "event": "end", "monotonic_seconds": 95836.643650583}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 95836.643662958}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 95836.643944291}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 95836.643953333}
+{"phase": "queries", "event": "end", "monotonic_seconds": 95836.64416425}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 95836.644180291}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 95836.6442155}
+.{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 95836.64986675}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 95836.654260708}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 95836.654280791}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 95836.654307666}
+{"phase": "index", "event": "begin", "monotonic_seconds": 95836.654315041}
+{"phase": "index", "event": "end", "monotonic_seconds": 95836.655419791}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 95836.655429375}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 95836.655647875}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 95836.655655041}
+{"phase": "queries", "event": "end", "monotonic_seconds": 95836.655882291}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 95836.655898458}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 95836.655923083}
+............................E...........s.owner release unconfirmed: duplicate close
+.owner release unconfirmed: owner close
+.Job retirement or pipe drain unconfirmed: query failed
+...Job retirement or pipe drain unconfirmed: still active
+...............................................EE.......................
+======================================================================
+ERROR: test_prepare_only_is_real_archive_and_only_approved_overlay (test_diagnose_linux_scan_validation.ScanValidationDiagnosticTests.test_prepare_only_is_real_archive_and_only_approved_overlay)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tarfile.py", line 2667, in makefile
+    copyfileobj(source, target, tarinfo.size, ReadError, bufsize)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tarfile.py", line 252, in copyfileobj
+    dst.write(buf)
+    ~~~~~~~~~^^^^^
+OSError: [Errno 28] No space left on device
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_diagnose_linux_scan_validation.py", line 154, in test_prepare_only_is_real_archive_and_only_approved_overlay
+    source = diag.prepare(REPO, work, output, report, harness)
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/diagnose-linux-scan-validation.py", line 181, in prepare
+    bundle.extractall(source, filter="data")
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tarfile.py", line 2418, in extractall
+    self._extract_one(tarinfo, path, set_attrs=not tarinfo.isdir(),
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      numeric_owner=numeric_owner,
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      filter_function=filter_function)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tarfile.py", line 2527, in _extract_one
+    self._handle_fatal_error(e)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tarfile.py", line 2521, in _extract_one
+    self._extract_member(tarinfo, os.path.join(path, tarinfo.name),
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         set_attrs=set_attrs,
+                         ^^^^^^^^^^^^^^^^^^^^
+                         numeric_owner=numeric_owner,
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         filter_function=filter_function,
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         extraction_root=path)
+                         ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tarfile.py", line 2610, in _extract_member
+    self.makefile(tarinfo, targetpath)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tarfile.py", line 2659, in makefile
+    with bltn_open(targetpath, "wb") as target:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^
+OSError: [Errno 28] No space left on device
+
+======================================================================
+ERROR: test_prepare_only_is_real_archive_and_only_approved_overlay (test_scan_validation_493_diagnostic.ScanValidation493DiagnosticTests.test_prepare_only_is_real_archive_and_only_approved_overlay)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tarfile.py", line 2667, in makefile
+    copyfileobj(source, target, tarinfo.size, ReadError, bufsize)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tarfile.py", line 252, in copyfileobj
+    dst.write(buf)
+    ~~~~~~~~~^^^^^
+OSError: [Errno 28] No space left on device
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_scan_validation_493_diagnostic.py", line 182, in test_prepare_only_is_real_archive_and_only_approved_overlay
+    source = diag.prepare(REPO, work, output, report, harness)
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/diagnose-linux-scan-validation-493.py", line 216, in prepare
+    bundle.extractall(source, filter="data")
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tarfile.py", line 2418, in extractall
+    self._extract_one(tarinfo, path, set_attrs=not tarinfo.isdir(),
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      numeric_owner=numeric_owner,
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      filter_function=filter_function)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tarfile.py", line 2527, in _extract_one
+    self._handle_fatal_error(e)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tarfile.py", line 2521, in _extract_one
+    self._extract_member(tarinfo, os.path.join(path, tarinfo.name),
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         set_attrs=set_attrs,
+                         ^^^^^^^^^^^^^^^^^^^^
+                         numeric_owner=numeric_owner,
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         filter_function=filter_function,
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         extraction_root=path)
+                         ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tarfile.py", line 2610, in _extract_member
+    self.makefile(tarinfo, targetpath)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tarfile.py", line 2659, in makefile
+    with bltn_open(targetpath, "wb") as target:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^
+OSError: [Errno 28] No space left on device
+
+======================================================================
+ERROR: test_baseline_build_uses_complete_historical_workspace_without_mutating_product (test_windows_scan_cleanup_qualifier.PreparedBirthBaselineArchiveTests.test_baseline_build_uses_complete_historical_workspace_without_mutating_product) (candidate=PosixPath('crates/diskgraph-engine/integration_candidates/windows_prepared_birth_baseline'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tarfile.py", line 2667, in makefile
+    copyfileobj(source, target, tarinfo.size, ReadError, bufsize)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tarfile.py", line 252, in copyfileobj
+    dst.write(buf)
+    ~~~~~~~~~^^^^^
+OSError: [Errno 28] No space left on device
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_windows_scan_cleanup_qualifier.py", line 263, in test_baseline_build_uses_complete_historical_workspace_without_mutating_product
+    with self.subTest(candidate=candidate), patch.dict(os.environ, git_environment), baseline.isolated_source(checkout, candidate) as (source, manifest):
+                                                                                     ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/contextlib.py", line 141, in __enter__
+    return next(self.gen)
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/qualify_windows_prepared_birth_baseline.py", line 46, in isolated_source
+    original.extractall(source, filter="data")
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tarfile.py", line 2418, in extractall
+    self._extract_one(tarinfo, path, set_attrs=not tarinfo.isdir(),
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      numeric_owner=numeric_owner,
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      filter_function=filter_function)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tarfile.py", line 2527, in _extract_one
+    self._handle_fatal_error(e)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tarfile.py", line 2521, in _extract_one
+    self._extract_member(tarinfo, os.path.join(path, tarinfo.name),
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         set_attrs=set_attrs,
+                         ^^^^^^^^^^^^^^^^^^^^
+                         numeric_owner=numeric_owner,
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         filter_function=filter_function,
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         extraction_root=path)
+                         ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tarfile.py", line 2610, in _extract_member
+    self.makefile(tarinfo, targetpath)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/tarfile.py", line 2659, in makefile
+    with bltn_open(targetpath, "wb") as target:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^
+OSError: [Errno 28] No space left on device
+
+======================================================================
+ERROR: test_baseline_build_uses_complete_historical_workspace_without_mutating_product (test_windows_scan_cleanup_qualifier.PreparedBirthBaselineArchiveTests.test_baseline_build_uses_complete_historical_workspace_without_mutating_product)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/wandl/workspaces/workspace-loong10k/diskgraph/scripts/tests/test_windows_scan_cleanup_qualifier.py", line 281, in test_baseline_build_uses_complete_historical_workspace_without_mutating_product
+    self.assertFalse(source.exists())
+                     ^^^^^^
+UnboundLocalError: cannot access local variable 'source' where it is not associated with a value
+
+----------------------------------------------------------------------
+Ran 287 tests in 17.059s
+
+FAILED (errors=4, skipped=1)

@@ -1,0 +1,11 @@
+{
+  "checkout_sha": "11dd9588f21c65e629f23b46ba44ca2c08366016",
+  "ci_run": 37589701883,
+  "ci_job": 112687983792,
+  "artifact": "windows-real-cloud-content-stable-37589701883",
+  "log_sha256": "c978439a3233ec4208d066228d3acf4858a9b554ab6d2ce099b85bbff8c13d89",
+  "test_result": "1 passed; 0 failed; 0 ignored",
+  "positive_control": "DG_REAL_CFAPI_PRODUCT_NO_FETCH_AND_ORDINARY_FETCH_CONTROL=1",
+  "job_result": "failure: Clippy",
+  "latest_commit_acceptance": false
+}

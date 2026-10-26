@@ -1,0 +1,15 @@
+{
+  "scope": "Actual terminal job metadata for committed 91846e8 only; not raw test logs and not uncommitted product integration acceptance",
+  "run_id": 37310569584,
+  "commit": "91846e8c60a4bf87ad1038f25fa4241f28124a96",
+  "status": "completed",
+  "conclusion": "success",
+  "jobs_passed": 22,
+  "jobs_total": 22,
+  "url": "https://github.com/loong10k/diskgraph/actions/runs/37310569584",
+  "metadata": {
+    "path": "docs/benchmarks/native_ci_37310569584_metadata.json.gz",
+    "raw_sha256": "46fa5009ef198a4687d6600605636ea8c25ed413dfa6cdcff8474d2a4b9ef936",
+    "gzip_sha256": "5e114900711e81fbd0a3a66ec09e2f87d1efd3b559da3bd7e95bf8c04f754902"
+  }
+}

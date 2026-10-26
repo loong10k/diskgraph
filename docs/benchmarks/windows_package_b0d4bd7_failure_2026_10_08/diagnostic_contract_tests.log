@@ -1,0 +1,105 @@
+...s.owner release unconfirmed: duplicate close
+.owner release unconfirmed: owner close
+.Job retirement or pipe drain unconfirmed: query failed
+...Job retirement or pipe drain unconfirmed: still active
+.{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 96629.439506791}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 96629.453558541}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 96629.453576291}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 96629.453600833}
+{"phase": "index", "event": "begin", "monotonic_seconds": 96629.453608541}
+{"phase": "index", "event": "end", "monotonic_seconds": 96629.457332375}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 96629.45734825}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 96629.472958833}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 96629.472986458}
+{"phase": "queries", "event": "end", "monotonic_seconds": 96629.473590291}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 96629.473604291}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 96629.473631541}
+.{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 96629.47958925}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 96629.485784916}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 96629.48579725}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 96629.485814541}
+{"phase": "index", "event": "begin", "monotonic_seconds": 96629.485821875}
+{"phase": "index", "event": "end", "monotonic_seconds": 96629.487128875}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 96629.48713775}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 96629.48741075}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 96629.487418291}
+{"phase": "queries", "event": "end", "monotonic_seconds": 96629.487599416}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 96629.487610625}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 96629.487635}
+.{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 96629.492785833}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 96629.497887083}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 96629.497900333}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 96629.49791975}
+{"phase": "index", "event": "begin", "monotonic_seconds": 96629.497926208}
+{"phase": "index", "event": "end", "monotonic_seconds": 96629.499201083}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 96629.499209416}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 96629.499391958}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 96629.4993995}
+{"phase": "queries", "event": "end", "monotonic_seconds": 96629.499571458}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 96629.499582}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 96629.499604833}
+.{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 96629.504534791}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 96629.510441166}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 96629.51045025}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 96629.510469708}
+{"phase": "index", "event": "begin", "monotonic_seconds": 96629.510476166}
+{"phase": "index", "event": "end", "monotonic_seconds": 96629.511876416}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 96629.511885375}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 96629.51214525}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 96629.5121535}
+{"phase": "queries", "event": "end", "monotonic_seconds": 96629.512319541}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 96629.512330125}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 96629.512354166}
+{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 96629.517041416}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 96629.5231645}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 96629.523179083}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 96629.523195666}
+{"phase": "index", "event": "begin", "monotonic_seconds": 96629.5232035}
+{"phase": "index", "event": "end", "monotonic_seconds": 96629.524508708}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 96629.524517791}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 96629.524711625}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 96629.524719083}
+{"phase": "queries", "event": "end", "monotonic_seconds": 96629.524881833}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 96629.524892041}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 96629.524914333}
+{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 96629.530394166}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 96629.533924958}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 96629.533935125}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 96629.533951166}
+{"phase": "index", "event": "begin", "monotonic_seconds": 96629.533958541}
+{"phase": "index", "event": "end", "monotonic_seconds": 96629.535191083}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 96629.53520025}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 96629.535443041}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 96629.535449833}
+{"phase": "queries", "event": "end", "monotonic_seconds": 96629.5356155}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 96629.535625708}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 96629.535650041}
+.{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 96629.540904541}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 96629.550007833}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 96629.550019625}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 96629.550036625}
+{"phase": "index", "event": "begin", "monotonic_seconds": 96629.550044583}
+{"phase": "index", "event": "end", "monotonic_seconds": 96629.551663208}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 96629.55167325}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 96629.551857375}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 96629.551865416}
+{"phase": "queries", "event": "end", "monotonic_seconds": 96629.552021875}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 96629.552032541}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 96629.552058416}
+.{"phase": "fixture_create", "event": "begin", "monotonic_seconds": 96629.556938333}
+{"phase": "fixture_create", "event": "end", "monotonic_seconds": 96629.564549666}
+{"phase": "scope_registration", "event": "begin", "monotonic_seconds": 96629.564559708}
+{"phase": "scope_registration", "event": "end", "monotonic_seconds": 96629.564574791}
+{"phase": "index", "event": "begin", "monotonic_seconds": 96629.564580541}
+{"phase": "index", "event": "end", "monotonic_seconds": 96629.565810375}
+{"phase": "coverage_validation", "event": "begin", "monotonic_seconds": 96629.565821083}
+{"phase": "coverage_validation", "event": "end", "monotonic_seconds": 96629.566094541}
+{"phase": "queries", "event": "begin", "monotonic_seconds": 96629.566101833}
+{"phase": "queries", "event": "end", "monotonic_seconds": 96629.566261208}
+{"phase": "budget_refusal", "event": "begin", "monotonic_seconds": 96629.5662715}
+{"phase": "budget_refusal", "event": "end", "monotonic_seconds": 96629.56629525}
+......
+----------------------------------------------------------------------
+Ran 22 tests in 0.200s
+
+OK (skipped=1)

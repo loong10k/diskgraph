@@ -1,0 +1,17 @@
+{
+  "commit": "b0d4bd760347dbb8dd9555d6c0d80ed7347d3a33",
+  "run_id": 37725110323,
+  "job_id": 113141767341,
+  "result": "failure",
+  "files": 200000,
+  "fixture_workers": 2,
+  "fixture_seconds": 237.8193706,
+  "scope_registration_seconds": 0.7622485000000552,
+  "total_timeout_seconds": 299.99848760000003,
+  "last_phase": "index begin; no index completion before total timeout",
+  "limits": [
+    "index duration and resource cost not measured to completion",
+    "single runner observation; not controlled speed comparison",
+    "200k acceptance remains failed; no relaxed deadline or reduced coverage"
+  ]
+}

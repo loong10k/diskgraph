@@ -1,0 +1,22 @@
+{
+  "source_sha256": "130a96cfc1848590a5a71f06cae0cee6179b25bf416dd86c2f92a94717dc3f6b",
+  "scope": "real isolated SQLite metadata; Python validator cost only, not native scan/CLI/MCP or process RSS",
+  "results": [
+    {
+      "files": 20000,
+      "coverage_accepted": true,
+      "wrong_parent_refused": true,
+      "multiple_roots_refused": true,
+      "validation_seconds_with_tracemalloc": 0.05241008299344685,
+      "python_traced_peak_bytes": 20942
+    },
+    {
+      "files": 200000,
+      "coverage_accepted": true,
+      "wrong_parent_refused": true,
+      "multiple_roots_refused": true,
+      "validation_seconds_with_tracemalloc": 0.5158905840071384,
+      "python_traced_peak_bytes": 200942
+    }
+  ]
+}

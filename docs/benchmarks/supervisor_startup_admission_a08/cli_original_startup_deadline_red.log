@@ -1,0 +1,25 @@
+   Compiling diskgraph-core v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-core)
+   Compiling diskgraph-store v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-store)
+   Compiling diskgraph-disktree v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-disktree)
+   Compiling diskgraph-engine v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine)
+   Compiling diskgraph-mcp v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-mcp)
+   Compiling diskgraph-cli v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-cli)
+error[E0599]: no associated function or constant named `open_until` found for struct `CliEngineHost` in the current scope
+  --> crates/diskgraph-cli/src/cli_engine_host/tests.rs:14:33
+   |
+14 |     let result = CliEngineHost::open_until(
+   |                                 ^^^^^^^^^^ associated function or constant not found in `CliEngineHost`
+   |
+  ::: crates/diskgraph-cli/src/cli_engine_host.rs:11:1
+   |
+11 | pub(crate) struct CliEngineHost {
+   | ------------------------------- associated function or constant `open_until` not found for this struct
+   |
+note: if you're trying to build a new `CliEngineHost`, consider using `CliEngineHost::open` which returns `Result<CliEngineHost, EngineError>`
+  --> crates/diskgraph-cli/src/cli_engine_host.rs:21:5
+   |
+21 |     pub(crate) fn open(config: EngineConfig) -> Result<Self, EngineError> {
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `diskgraph-cli` (bin "diskgraph" test) due to 1 previous error

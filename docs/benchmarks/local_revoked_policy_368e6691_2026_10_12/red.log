@@ -1,0 +1,24 @@
+   Compiling diskgraph-core v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-core)
+   Compiling diskgraph-disktree v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-disktree)
+   Compiling diskgraph-store v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-store)
+   Compiling diskgraph-engine v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine)
+   Compiling diskgraph-mcp v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-mcp)
+   Compiling diskgraph-cli v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.46s
+     Running unittests src/main.rs (target/debug/deps/diskgraph-2b297645c71baf0b)
+
+running 1 test
+
+thread 'narrow_query_authorization_tests::revoked_local_policy_refuses_before_expired_revision_resolution' (11042853) panicked at crates/diskgraph-cli/src/narrow_query_authorization_tests.rs:154:9:
+known revoked policy was hidden by preparation: node Err(Business(BudgetExceeded))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test narrow_query_authorization_tests::revoked_local_policy_refuses_before_expired_revision_resolution ... FAILED
+
+failures:
+
+failures:
+    narrow_query_authorization_tests::revoked_local_policy_refuses_before_expired_revision_resolution
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 123 filtered out; finished in 0.04s
+
+error: test failed, to rerun pass `-p diskgraph-cli --bin diskgraph`

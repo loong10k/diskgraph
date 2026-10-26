@@ -1,0 +1,27 @@
+{
+  "commit": "b0d4bd760347dbb8dd9555d6c0d80ed7347d3a33",
+  "run_id": 37725110323,
+  "artifact_id": 11526834962,
+  "artifact_zip_sha256": "9a47ae7b86057724a8ff30e264abfb2943850eeffb2bd47d38ced8fa524e6a75",
+  "package_sha256": "eb959613564ea10ed3f2314888fd9c6ef8a8cac25e42cd18766c58ad99a58ab2",
+  "package_checksum_verified": true,
+  "worker_manifest_verified_against_binary": true,
+  "worker_manifest": {
+    "executable": {
+      "bytes": 1227088,
+      "name": "diskgraph-scan-worker",
+      "sha256": "c423798b116ec4b70164a8e893979c6fe581104d2de9885b3542fe9a22f4e611"
+    },
+    "package_version": "0.3.0",
+    "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
+    "protocol_version": 2,
+    "scanner_source_manifest_sha256": "3a39423b6bcedb1c13817600d683684f46db9a8f127df22d49e104f421008b64",
+    "schema_version": 1,
+    "target": "x86_64-unknown-linux-gnu"
+  },
+  "limitations": [
+    "individual runner observation, no paired speed comparison",
+    "no peak RSS or long duration SLO qualification",
+    "other platforms and full CI not complete"
+  ]
+}

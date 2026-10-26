@@ -1,0 +1,9 @@
+{
+  "commit": "fa400fa5e6119a85b9fad74ccfa8e18bdd56accb",
+  "immutable_git_archive": true,
+  "binary_sha256": {
+    "diskgraph": "91a59c163c3ac7fcc4e089010b48aacc1739d22ef901fa37856602cf86649d84",
+    "diskgraph-scan-worker": "a643e32a0dbf9e4eadf33f71236a47644eb3f9913f065fd8db0db61662187702"
+  },
+  "production_acceptance": false
+}

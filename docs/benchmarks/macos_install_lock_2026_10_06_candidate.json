@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "scope": "Mac installation lock lifetime through native birth component",
+  "production_ready": false,
+  "sources": {
+    "crates/diskgraph-engine/src/macos_installation_lock.rs": "2c2d1df22e7fc141894e987c10d9bbd06b65de25a7bcbd7be6303cd8668d1a78",
+    "crates/diskgraph-engine/src/macos_installation_lock_tests.rs": "be173b735d1f8f165078891d9c9829fc26a637985502043c4d96d31131b03073",
+    "crates/diskgraph-engine/src/macos_spawn_permit.rs": "9b097704a37d31fb976ab3c743b16e07aa364aee6dffc58681c232647164ac55",
+    "crates/diskgraph-engine/src/scan_worker_host.rs": "f2a448632e5322430f4b140d93ce0fbedf59e75b6848e2f6953ffd5bd7fd2a64",
+    "crates/diskgraph-engine/src/native_child/macos_native_launcher.rs": "cbff410453d150fd650489728025e9af3fb363968f08d2e8536414afcdf31f30",
+    "crates/diskgraph-engine/src/native_child/macos_native_launcher_tests.rs": "74ece43bbf16eab567cef84a24b60262bb279c77044ee91e7916eb759f3c1ca2",
+    "crates/diskgraph-engine/src/lib.rs": "f96c7ca7b8d8f8e64f54f89ef563afac8774f509170564bea1d90ad9e422621d"
+  },
+  "logs": [
+    {
+      "path": "macos_install_lock_api_red_2026_10_06.log.gz",
+      "uncompressed_sha256": "4c2f939ab724d3ceb943ee182fc9dffa00c279c9decd2b34b6d1e814e97fe0e7"
+    },
+    {
+      "path": "macos_install_lock_contention_negative_control_2026_10_06.log.gz",
+      "uncompressed_sha256": "7c17c1e6c23556d3247e6e8f09662f7a85a9124b077d56a86cea63731c3b9e63"
+    },
+    {
+      "path": "macos_install_lock_macos_final_2026_10_06.log.gz",
+      "uncompressed_sha256": "b555df061d88fe90522033a35dd6b0c637b931e34ea2351612b281cae904df7e"
+    }
+  ],
+  "limitations": [
+    "Real flock tests use user-owned isolated files via cfg(test) entry; they do not establish protected root lock installation.",
+    "Trusted updater must never replace permanent lock inode and must use same exclusive lock protocol.",
+    "Independent epoch floor, trusted issuer durability and root fresh positive tests remain unimplemented.",
+    "Runtime remains Unsupported; no CLI/MCP native Mac scan qualification yet.",
+    "Advisory locking does not resist malicious local readers holding locks; deadline fails closed."
+  ],
+  "actual_results": {
+    "passed": 49,
+    "failed": 0,
+    "ignored": 0,
+    "new_real_lock_cases": 3,
+    "lock_fixture_entry": 1,
+    "qualified_birth_panic_case": 1
+  }
+}

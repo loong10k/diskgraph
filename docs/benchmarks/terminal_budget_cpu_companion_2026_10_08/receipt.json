@@ -1,0 +1,16 @@
+{
+  "status": "historical CPU and Windows failures remain open",
+  "fixture": "same mutable isolated Linux ARM64 source and native scan worker; not full workspace qualification",
+  "image": "rust@sha256:0e2bcaef56d041a486784e54104a81aebe0da44bd03019bd70bc0401e42e4a97",
+  "cpu2": "docker --cpus=2; 10 test threads; 17/17; 9.99s",
+  "noquota": "same source, 10 test threads; 17/17; 5.69s",
+  "limitations": [
+    "single pair; historical failure not reproduced",
+    "cgroup throttling counters not captured",
+    "not Windows/macOS native evidence; no deadline changes"
+  ],
+  "source_sha256": {
+    "crates/diskgraph-engine/src/relation_request.rs": "50c256be8a5246cff0bf09a1ab992143c417454846872a16d0a8d9f4fe71fc1a",
+    "crates/diskgraph-engine/src/relation_request_tests.rs": "25d405c9594909d577bf642a7be96f2fd8663ac6d04aff4879984cdc21c2fae8"
+  }
+}

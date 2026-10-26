@@ -308,3 +308,7 @@ scripts/gates.sh
 ## 许可证
 
 [MIT](LICENSE)，© 2026 Loong Wan。内含 disktree-core 的 vendored 副本（MIT，© Tobi Lütke），固定在 revision `158f9cc` —— 见 [`crates/diskgraph-disktree-core/VENDORED.md`](crates/diskgraph-disktree-core/VENDORED.md)。
+
+CLI 与 MCP 现通过统一平台准入，在打开数据库前沿用同一 30 秒绝对启动期限。macOS 仅从固定 root 保护安装配置取得宿主；完整旧三值环境配置明确拒绝，部分或非法配置仍报告错误。Linux 与其他平台保留显式本地部署解析。[本机准入记录](docs/benchmarks/macos_product_startup_admission_2026_10_06/receipt.json)包含 15 项库层检查及两个二进制各 4 项真实进程检查，只证明启动拒绝、取消和期限，不替代受保护安装后的正向扫描或全平台验收。退出仍先等待作业线程，再处置原进程 owner。
+
+CLI 普通命令与 `init` 现采用同一显式扫描宿主配置及恢复边界。`diskgraph serve` 在创建 CLI 数据库或引导本地管理员前直接转交 MCP，由伴随程序建立传输身份边界。Windows 伴随进程退出状态沿已 join 的工作线程保留全部32位，原生验证仍待完成。见[CLI 启动验收记录](docs/benchmarks/scan_worker_cli_startup_2026_10_05_candidate.json)。当前完整 CLI 回归仍失败（56项通过、11项失败），局部启动通过不构成生产就绪。

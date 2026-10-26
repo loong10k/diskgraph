@@ -1,0 +1,29 @@
+{
+  "source_commit": "1cc15c244e3dbb7f04cda25d392cc07dd4fce03e",
+  "run": 37672712701,
+  "job": 112968279741,
+  "platform": "Linux x86_64 Rust1.97.0",
+  "job_conclusion": "success",
+  "selected_actual_results": {
+    "engine_lib": {
+      "passed": 652,
+      "failed": 0,
+      "ignored": 9
+    },
+    "history_compatibility_matrix": {
+      "passed": 10,
+      "failed": 0,
+      "ignored": 0
+    },
+    "original_fd_write_anomaly": "actual test ok"
+  },
+  "raw_log_sha256": "569813580b36928cf783e2a7904809bea847550177b749f9ac45bef68ccb4f6e",
+  "gzip_log_sha256": "2d3f0e9b8e452e23baedf8b251b1d895f8af5f240412e04850ac0fd93faa5813",
+  "limits": [
+    "single MSRV native job, not complete platform matrix",
+    "does not invalidate same-source stable history timeout",
+    "no source-root cause established by success",
+    "product guardian/executor wiring and production acceptance incomplete"
+  ],
+  "production_acceptance": false
+}

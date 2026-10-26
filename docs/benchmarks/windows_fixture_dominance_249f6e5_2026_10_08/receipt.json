@@ -1,0 +1,38 @@
+{
+  "source_commit": "249f6e5bfd858c60638641838eee2b31d6b3cc81",
+  "run": 37712488081,
+  "job": 113103055360,
+  "job_conclusion": "failure",
+  "log_sha256": "11e388144486e74063b77269197da7e7b38cc766b11b73afaaedf80856215327",
+  "last_phase_events": [
+    {
+      "phase": "fixture_create",
+      "event": "begin",
+      "monotonic_seconds": 598.5284035
+    },
+    {
+      "phase": "fixture_create",
+      "event": "end",
+      "monotonic_seconds": 882.7186033
+    },
+    {
+      "phase": "scope_registration",
+      "event": "begin",
+      "monotonic_seconds": 882.7186939
+    },
+    {
+      "phase": "scope_registration",
+      "event": "end",
+      "monotonic_seconds": 883.3294741
+    },
+    {
+      "phase": "index",
+      "event": "begin",
+      "monotonic_seconds": 883.329525
+    }
+  ],
+  "fixture_seconds": 284.1901998000001,
+  "registration_seconds": 0.610780200000022,
+  "index_max_remaining_outer_seconds": 15.198878499999978,
+  "qualification": "outer 300s timed out; index had less than 16 seconds, no proof scan itself exceeded 300s; no full 200k success"
+}

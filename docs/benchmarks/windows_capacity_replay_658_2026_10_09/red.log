@@ -1,0 +1,9 @@
+[1m[92m   Compiling[0m diskgraph-engine v0.3.0 (D:\a\diskgraph\diskgraph\crates\diskgraph-engine)
+[1m[91merror[E0432][0m[1m[97m: unresolved import `super::git_private_write_profile`[0m
+ [1m[96m--> [0mcrates\diskgraph-engine\src\live_evidence\git_private_write_summary.rs:2:12
+  [1m[96m|[0m
+[1m[96m2[0m [1m[96m|[0m use super::git_private_write_profile::GitPrivateWriteProfile;
+  [1m[96m|[0m            [1m[91m^^^^^^^^^^^^^^^^^^^^^^^^^[0m [1m[91mcould not find `git_private_write_profile` in `super`[0m
+
+[1m[97mFor more information about this error, try `rustc --explain E0432`.[0m
+[1m[91merror[0m: could not compile `diskgraph-engine` (lib test) due to 1 previous error

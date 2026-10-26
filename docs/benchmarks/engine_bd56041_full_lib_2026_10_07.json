@@ -1,0 +1,44 @@
+{
+  "source_commit": "bd560411848266bea213986182bdb5f7b972f6ba",
+  "platform": "local macOS",
+  "command": "cargo test -p diskgraph-engine --lib --locked",
+  "runs": [
+    {
+      "log": "/tmp/diskgraph-bd56041-engine-lib.log",
+      "sha256": "29c3c460f0ad400a039f93b5b11285888442cdf59ae91c3af404a13f9c4672e4",
+      "passed": 513,
+      "failed": 115,
+      "ignored": 13,
+      "unsupported": 98,
+      "missing_driver": 16,
+      "additional_busy": 1
+    },
+    {
+      "log": "/tmp/diskgraph-bd56041-engine-lib-repeat.log",
+      "sha256": "6be04c28608ae4fa112c19abcf9e4bb682fb539a45fb10cb281e215335d6290e",
+      "passed": 514,
+      "failed": 114,
+      "ignored": 13,
+      "unsupported": 98,
+      "missing_driver": 16,
+      "additional_busy": 0
+    }
+  ],
+  "isolated_supervisor_binding_tests": {
+    "passed": 9,
+    "failed": 0
+  },
+  "limitations": [
+    "Full test suite failed; this is not platform acceptance.",
+    "98 Unsupported and 16 missing driver fixture failures recur.",
+    "One additional Busy failure in first full run did not recur in isolated group or second full run; root cause remains open.",
+    "Possible inherited lock descriptor retention is a hypothesis, not a confirmed cause."
+  ],
+  "native_lock_inheritance_probe": {
+    "source": "/tmp/diskgraph-slot-inheritance-probe.rs",
+    "source_sha256": "3731f638c449394dabf4429e29bbab3061f17548a60239127617b32b697f823d",
+    "output": "after_original_drop=Err(\"WouldBlock\")\nafter_inherited_child_exit=Ok(())\n",
+    "proves": "On local macOS, std File.try_lock remains held by a fork-inherited descriptor after original parent File drop, until child exit.",
+    "does_not_prove": "Does not establish which concurrent process caused the intermittent supervisor test Busy."
+  }
+}

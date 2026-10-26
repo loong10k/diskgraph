@@ -1,0 +1,44 @@
+{
+  "commit": "04d28b10d8eb2baa3550f7371ddf685d37ee887d",
+  "run": 37711160426,
+  "job": 113098472517,
+  "conclusion": "failure",
+  "events": [
+    {
+      "phase": "fixture_create",
+      "event": "begin",
+      "monotonic_seconds": 1753.2077572
+    },
+    {
+      "phase": "fixture_create",
+      "event": "end",
+      "monotonic_seconds": 1988.8717621
+    },
+    {
+      "phase": "scope_registration",
+      "event": "begin",
+      "monotonic_seconds": 1988.8718229
+    },
+    {
+      "phase": "scope_registration",
+      "event": "end",
+      "monotonic_seconds": 1989.4034625
+    },
+    {
+      "phase": "index",
+      "event": "begin",
+      "monotonic_seconds": 1989.4035153
+    }
+  ],
+  "fixture_seconds": 235.6640049,
+  "index_remaining_outer_seconds_approx": 63.80424190000008,
+  "outer_timeout_seconds": 300,
+  "fixture_workers": 4,
+  "finding": "200k fixture preparation dominates original shared deadline; no scan completion observed",
+  "not_proven": [
+    "scan duration exceeds 300 seconds",
+    "parallel fixture improves Windows throughput",
+    "all-platform readiness"
+  ],
+  "log_sha256": "d472e28f3a6ab729ea19c1310462f257c5f9d939af393d2bfe449743c30aff60"
+}

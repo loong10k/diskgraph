@@ -1,0 +1,26 @@
+{
+  "commit": "b0d4bd760347dbb8dd9555d6c0d80ed7347d3a33",
+  "run_id": 37725110323,
+  "artifact_id": 11527474557,
+  "package_sha256": "895c796cd857d1811af5b9a01182bd49a1f0c0d05c8ef3970b83b0db2828081b",
+  "worker_manifest_verified_against_binary": true,
+  "package_checksum_verified": true,
+  "worker_manifest": {
+    "executable": {
+      "bytes": 1103464,
+      "name": "diskgraph-scan-worker",
+      "sha256": "2d29e0670947fab9e3df3636ee108e6038c2257ad67db26d1476ee78faa85150"
+    },
+    "package_version": "0.3.0",
+    "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
+    "protocol_version": 2,
+    "scanner_source_manifest_sha256": "3a39423b6bcedb1c13817600d683684f46db9a8f127df22d49e104f421008b64",
+    "schema_version": 1,
+    "target": "x86_64-apple-darwin"
+  },
+  "limits": [
+    "single runner observation, not paired performance comparison",
+    "startup ENOENT not seen in this package run; not a proven root cause fix",
+    "full CI and all production gates incomplete"
+  ]
+}

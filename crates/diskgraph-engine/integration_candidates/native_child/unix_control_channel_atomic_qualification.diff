@@ -1,0 +1,55 @@
+--- frozen unix_control_channel.rs
++++ unix_control_channel_atomic_qualification.rs
+@@ -1,10 +1,7 @@
+ use super::{ChildError, ControlWriteStatus};
+ use std::io;
+ use std::os::fd::AsRawFd;
+-#[cfg(any(target_os = "linux", target_os = "macos"))]
+-use std::os::fd::OwnedFd;
+ use std::os::unix::net::UnixStream;
+-use std::process::Stdio;
+ 
+ /// 独占 AF_UNIX 控制写端与一个有界未发送数据块，不修改宿主信号策略。
+ /// 来源：原生 Rust OS-child 的 socketpair、send 与描述符生命周期。
+@@ -26,41 +23,6 @@
+             stream: Some(stream),
+             pending: None,
+         })
+-    }
+-
+-    /// 建立父非阻塞、子阻塞的 stdin 通道，两个端点都禁止额外 exec 继承。
+-    /// 参数：无；返回：父端唯一 owner 与交给 Command 的子 stdin，或原生能力/I/O 错误。
+-    #[cfg(any(target_os = "linux", target_os = "macos"))]
+-    pub(super) fn pair() -> Result<(Self, Stdio), ChildError> {
+-        let (parent, child) = UnixStream::pair()
+-            .map_err(|error| ChildError::io("create control socketpair", error))?;
+-        close_on_exec(&parent)?;
+-        close_on_exec(&child)?;
+-        parent
+-            .set_nonblocking(true)
+-            .map_err(|error| ChildError::io("nonblocking control socket", error))?;
+-        child
+-            .set_nonblocking(false)
+-            .map_err(|error| ChildError::io("blocking child stdin", error))?;
+-        #[cfg(target_os = "macos")]
+-        suppress_sigpipe(&parent)?;
+-        let child: OwnedFd = child.into();
+-        Ok((
+-            Self {
+-                stream: Some(parent),
+-                pending: None,
+-            },
+-            Stdio::from(child),
+-        ))
+-    }
+-
+-    /// 拒绝尚未证明具有逐写 SIGPIPE 防护的平台，旧 Null 输入不受影响。
+-    /// 参数：无；返回：明确 Unsupported，不建立可能影响宿主信号的通道。
+-    #[cfg(not(any(target_os = "linux", target_os = "macos")))]
+-    pub(super) fn pair() -> Result<(Self, Stdio), ChildError> {
+-        Err(ChildError::Unsupported(
+-            "SIGPIPE-safe worker control is unavailable on this Unix platform",
+-        ))
+     }
+ 
+     /// 准入并复制一个新块，立即尝试一次原生发送；不在内部等待或重试。

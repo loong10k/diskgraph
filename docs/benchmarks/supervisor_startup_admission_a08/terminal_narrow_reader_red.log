@@ -1,0 +1,9 @@
+   Compiling diskgraph-store v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-store)
+error[E0432]: unresolved import `crate::RevisionOwnershipReader`
+ --> crates/diskgraph-store/src/revision_ownership_reader_tests.rs:2:13
+  |
+2 | use crate::{RevisionOwnershipReader, SqliteSnapshotStore, StoreError};
+  |             ^^^^^^^^^^^^^^^^^^^^^^^ no `RevisionOwnershipReader` in the root
+
+For more information about this error, try `rustc --explain E0432`.
+error: could not compile `diskgraph-store` (lib test) due to 1 previous error

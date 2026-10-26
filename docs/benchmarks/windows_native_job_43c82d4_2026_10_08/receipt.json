@@ -1,0 +1,23 @@
+{
+  "commit": "43c82d42e0468a0ad6d1caafb36be6f8e3268569",
+  "run_id": 37710637225,
+  "job_id": 113095596308,
+  "step": {
+    "name": "Verify native Windows acceptance process tree retirement",
+    "status": "completed",
+    "conclusion": "success",
+    "number": 16,
+    "started_at": "2026-10-08T01:06:18Z",
+    "completed_at": "2026-10-08T01:06:21Z"
+  },
+  "source_sha256": {
+    "scripts/windows_acceptance_job.py": "d9a9148a87e9d39b34ff4721d3a3fbd9bbeda6270d5de848e05333a89ad0ee3c",
+    "scripts/tests/test_windows_acceptance_job.py": "bcb73ee1143fcd80571cd3644968c8c8840f3363a2d47d0535f7dd4a8e4900c3"
+  },
+  "scope": "authoritative native Windows test step succeeded; exact final raw test log still pending job completion",
+  "not_proven": [
+    "200k package acceptance",
+    "all-platform readiness",
+    "production guardian OS identity isolation"
+  ]
+}

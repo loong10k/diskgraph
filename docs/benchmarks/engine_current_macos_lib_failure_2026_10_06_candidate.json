@@ -1,0 +1,17 @@
+{
+  "production_acceptance": false,
+  "command": "cargo test --locked -p diskgraph-engine --lib",
+  "exit_code": 101,
+  "passed": 389,
+  "failed": 103,
+  "ignored": 3,
+  "log": "docs/benchmarks/engine_current_macos_lib_failure_2026_10_06.log.gz",
+  "raw_sha256": "4bcc7e77dffa53cfb16c0c4e77b2b7afefb3bd6415e61cdaeb37d086ae523fcc",
+  "known_observation": "multiple git fixture failures return Business(Unsupported) at initial scan; macOS production worker host integration incomplete",
+  "remaining": "classify every failure; this evidence does not prove 103 independent defects",
+  "classified_common_roots": {
+    "missing_scan_host": 89,
+    "missing_driver_fixture": 14
+  },
+  "observations_after_classification": "standalone fixture rebuilt from compiler artifact; targeted driver10/0 and owned-failure6/0 actual pass; full suite has not been rerun or passed"
+}

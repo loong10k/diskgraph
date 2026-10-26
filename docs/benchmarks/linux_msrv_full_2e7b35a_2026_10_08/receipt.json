@@ -1,0 +1,13 @@
+{
+  "source_sha": "2e7b35a9f619340c184593c6226f557999132c38",
+  "ci_run": 37765612472,
+  "job_id": 113273033668,
+  "job_name": "Test (ubuntu-latest / Rust 1.97.0)",
+  "conclusion": "success",
+  "uncompressed_log_sha256": "973d487db0cef6a72016bd798665865ca187aac6f187f1ba652966ff67ed1fa5",
+  "production_ready": false,
+  "limitations": [
+    "One complete Linux x86_64 MSRV job, other native jobs remain separate",
+    "No new local sustained HTTP changes included"
+  ]
+}

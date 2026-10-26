@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "scope": "macOS independent protected epoch floor reader and launch admission",
+  "production_ready": false,
+  "sources": {
+    "crates/diskgraph-engine/src/macos_epoch_floor.rs": "62be98bf4c55540d9b2b44f2c6d39ab999f7c1515a000ea54aebff1d4daf5be2",
+    "crates/diskgraph-engine/src/macos_epoch_floor_tests.rs": "d5fd42b0836a53da556cb437b96a9581314bc66714d7d9f2ad7a521c8a7417e5",
+    "crates/diskgraph-engine/src/macos_host_settings.rs": "bc23e1305a3d385314b5e194035ae392eb253834c598c934caca5f09b2fb11b0",
+    "crates/diskgraph-engine/src/scan_worker_host.rs": "0faafd5c6596ebca878a5491f31e2d2227b066206d2f24278178fef72879197e",
+    "crates/diskgraph-engine/src/lib.rs": "55cce2640c9e340b59cf9cb05eacfa3723b0e56788b37e08215c884f76134dfc"
+  },
+  "logs": [
+    {
+      "path": "macos_epoch_floor_red_2026_10_06.log.gz",
+      "sha256": "00d7bc391e4186588de884c87ad3f3576f43c192c279f0787837ee7c39aec977"
+    },
+    {
+      "path": "macos_epoch_floor_negative_control_2026_10_06.log.gz",
+      "sha256": "8c3ecd4449da5f75b94d898973a27933a9c90541f2707004a6db57560d7f721b"
+    },
+    {
+      "path": "macos_epoch_floor_final_2026_10_06.log.gz",
+      "sha256": "8744aad62d1bd1011f431e4fdc0456021adde694e2cd2d6760f711f674532f7d"
+    },
+    {
+      "path": "macos_epoch_floor_restored_2026_10_06.log.gz",
+      "sha256": "b416eaf356c8a8058af589bbb81658a58cb314881b47cd84a542363452bebb48"
+    },
+    {
+      "path": "macos_epoch_floor_spec_2026_10_06.log.gz",
+      "sha256": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff"
+    }
+  ],
+  "actual_results": {
+    "macos_tests_passed": 52,
+    "failed": 0,
+    "ignored": 0,
+    "negative_control": "disabling floor verify makes regression fail",
+    "openspec_strict": "passed"
+  },
+  "limitations": [
+    "Trusted updater monotonic durable publication is not implemented by this reader.",
+    "Protected root fixture and cross-restart installation acceptance remain open.",
+    "Runtime and actual CLI/MCP macOS scan integration remain open.",
+    "Root rollback of all trusted state is outside this reader threat model."
+  ]
+}

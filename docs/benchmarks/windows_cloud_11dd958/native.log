@@ -1,0 +1,10 @@
+   Compiling diskgraph-engine v0.3.0 (D:\a\diskgraph\diskgraph\crates\diskgraph-engine)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.33s
+     Running tests\content_cloud_windows.rs (target\debug\deps\content_cloud_windows-0a35684dcfde1829.exe)
+
+running 1 test
+test actual_cloud_placeholder_content_never_fetches_and_unguarded_control_does ... DG_REAL_CFAPI_PRODUCT_NO_FETCH_AND_ORDINARY_FETCH_CONTROL=1
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.38s
+

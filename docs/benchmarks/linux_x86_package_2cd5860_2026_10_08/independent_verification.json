@@ -1,0 +1,16 @@
+{
+  "job_success": true,
+  "job_head_sha_verified": "2cd5860b064124267b1fcc2ae50025dc95ee092a",
+  "archive_checksum_verified": "2d84c078f8b2d91a79c7d721e587169150271df0d8ed3c104f61716eba86bea8",
+  "exact_fixture_node_counts": [
+    20001,
+    200001
+  ],
+  "report_checks": "6/6 each, complete paths and exact nodes, four concurrent clients and node-limit refusal",
+  "limitations": [
+    "No RSS in packaged load report",
+    "No latency SLO assertion",
+    "Single flat fixture per size; no long-running or deep-tree qualification",
+    "Historical commit; not whole-platform/latest-HEAD acceptance"
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "platform": "macOS local",
+  "component": "installation receipt cryptographic admission",
+  "production_acceptance": false,
+  "api_red": "E0432 missing implementation, not behavior RED",
+  "signature_negative_control": "temporarily bypassing verify_strict accepted untrusted signature; actual assertion failed, exit101; original source restored",
+  "green": {
+    "passed": 8,
+    "failed": 0,
+    "ignored": 0
+  },
+  "source_sha256": {
+    "crates/diskgraph-engine/src/macos_install_receipt.rs": "b1cd23d930f6940beec2eb01f5be72e3792d9d543a3526cc57710bebbb3d6da7",
+    "crates/diskgraph-engine/src/macos_installation_claims.rs": "c852b7ec685b465489279fccaf424704a03f5321669e988524d5525b605571a1",
+    "crates/diskgraph-engine/src/macos_installation_trust.rs": "0cdca67bbf2c8d218946c82403285646d26198952c630b5b903c9e4e43cae8af",
+    "crates/diskgraph-engine/src/macos_install_receipt_tests.rs": "65794cdb37f22ee550ce1101ab2e58f0b56c256df7520c2b1271d1b68ae22979"
+  },
+  "logs": {
+    "api_red": {
+      "path": "macos_install_receipt_api_red_2026_10_06.log.gz",
+      "raw_sha256": "6aff5f26946b81370f7d491ad202073cd940050bb19e3eccc3092d2c4d4f7bd4"
+    },
+    "signature_negative_control": {
+      "path": "macos_install_receipt_signature_negative_control_2026_10_06.log.gz",
+      "raw_sha256": "4b1512dc96c9e2f613d504e19703402ccc699f908e39dcab3eacd11861375eb4"
+    },
+    "green": {
+      "path": "macos_install_receipt_green_2026_10_06.log.gz",
+      "raw_sha256": "2124902beb4c5ca040dc763012b4b430e997d15e882afde8a360549505dbd7dd"
+    }
+  },
+  "remaining": [
+    "fresh root issuer and independent protected trust store",
+    "held descriptor and protected ancestor admission",
+    "native identity/full digest revalidation",
+    "lease attached at child birth through external recovery",
+    "actual CLI/MCP platform acceptance"
+  ]
+}

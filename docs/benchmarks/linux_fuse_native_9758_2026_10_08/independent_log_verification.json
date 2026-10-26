@@ -1,0 +1,8 @@
+{
+  "job_id": 113071996155,
+  "artifact_id": 11519116745,
+  "commit": "9758b53310365e626ddb485bffc1dde4d16dbb1b",
+  "independent_log_verification": true,
+  "artifact_sha256": "1d27168b1a5ecbe19c5fe52d922cf7890e4d6df8d21a0266e95460ef9bd859ca",
+  "limit": "Specified Linux ARM64 FUSE provider only; no generic provider or latest HEAD qualification"
+}

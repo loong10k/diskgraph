@@ -1,0 +1,19 @@
+{
+  "source_log": "linux_stable_job.log.gz",
+  "decompressed_sha256": "93de4465432accc809d767b1acc77a8e9e1d4133b81da1035888d231df134de9",
+  "observed_failure": [
+    "2026-10-07T22:23:22.0010159Z thread 'admin_policy_lookup_tests::display_complete_reader_refuses_token_expired_during_consumer' (7470) panicked at crates/diskgraph-engine/src/admin_policy_lookup_tests.rs:917:5:",
+    "2026-10-07T22:23:22.0011763Z assertion failed: entered.get()",
+    "2026-10-07T22:23:22.0012824Z note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace",
+    "2026-10-07T22:23:22.0024285Z test admin_policy_lookup_tests::display_initial_callback_control_contention_remains_nonblocking ... ok",
+    "2026-10-07T22:23:22.0029399Z test admin_policy_lookup_tests::display_complete_reader_refuses_token_expired_during_consumer ... FAILED"
+  ],
+  "established": "consumer was not entered; old assertion omitted the Result error",
+  "not_established": [
+    "token expiry before consumer",
+    "control lock contention",
+    "query deadline exhaustion"
+  ],
+  "current_diagnostic": "admin_policy_lookup_tests.rs reports consumer was not entered: {result:?}; original deadline and terminal permission-denied requirement retained",
+  "closure": "open; later complete CI success is not a root-cause explanation"
+}

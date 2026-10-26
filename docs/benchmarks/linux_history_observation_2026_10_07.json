@@ -1,0 +1,65 @@
+{
+  "observed_at": "2026-10-07T12:51:41.473327+00:00",
+  "production_ready": false,
+  "limitation": "Successful steps are not a completed job or proof that the intermittent root cause is eliminated. Current HEAD qualification remains open.",
+  "jobs": [
+    {
+      "job_id": 112792548854,
+      "head_sha": "ccf9c358581b154f3f0c27764a2efca068733c31",
+      "status": "in_progress",
+      "conclusion": null,
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37621476545/job/112792548854",
+      "steps": [
+        {
+          "name": "Native history compatibility deadline isolation",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Test",
+          "status": "in_progress",
+          "conclusion": null
+        },
+        {
+          "name": "Clippy",
+          "status": "pending",
+          "conclusion": null
+        },
+        {
+          "name": "Paired native Linux scan namespace cost",
+          "status": "pending",
+          "conclusion": null
+        }
+      ]
+    },
+    {
+      "job_id": 112785536407,
+      "head_sha": "c151e2d3f704f021263d0a6741500590bc213c84",
+      "status": "in_progress",
+      "conclusion": null,
+      "url": "https://github.com/loong10k/diskgraph/actions/runs/37619391412/job/112785536407",
+      "steps": [
+        {
+          "name": "Native history compatibility deadline isolation",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Test",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Clippy",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Paired native Linux scan namespace cost",
+          "status": "in_progress",
+          "conclusion": null
+        }
+      ]
+    }
+  ]
+}

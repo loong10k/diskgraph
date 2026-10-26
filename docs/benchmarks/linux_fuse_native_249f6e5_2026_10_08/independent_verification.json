@@ -1,0 +1,10 @@
+{
+  "commit": "249f6e5bfd858c60638641838eee2b31d6b3cc81",
+  "run": 37712488081,
+  "artifact": 11522163692,
+  "four_tests_no_recall": true,
+  "positive_fetch_control": true,
+  "original_provider_retired": true,
+  "fixture_current_source_hashes_match": true,
+  "qualification": "limited Linux ARM64 FUSE refusal; not generic provider qualification"
+}

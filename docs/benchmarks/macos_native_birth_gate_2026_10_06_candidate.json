@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "scope": "macOS controlled CLI/MCP child birth synchronization component",
+  "production_ready": false,
+  "sources": {
+    "crates/diskgraph-engine/src/native_child/native_birth_gate.rs": "b05fe7bf0b9b2a10358897b1daa9a45e9fc188975c5fbcb5a308bf7ef9de2247",
+    "crates/diskgraph-engine/src/native_child/native_birth_gate_tests.rs": "2c26736d5842f731cbc03fb76200ee43faea0a8af9779738daa9cefb48dc6ef8",
+    "crates/diskgraph-engine/src/native_child/macos_native_pipes.rs": "7d2cb9bb2357c2c3327b4900d82cd7617a87f0012c0789e3c1f83111832c37fe",
+    "crates/diskgraph-engine/src/native_child/macos_native_launcher.rs": "fd6fcadc7c9a66e2d84752917f6613180b572a8c6c6f59f5937528653d3827f4",
+    "crates/diskgraph-engine/src/native_child/macos_native_launcher_tests.rs": "69c5d817fa36a959ab64ce0ea134e15c87719d7d9ec6966e7c26c0418e76837b",
+    "crates/diskgraph-engine/src/native_child/unix_child.rs": "609659d757ac3762fcf42a6211669f32585b997ce280f83d50ca0024c8fdc531",
+    "crates/diskgraph-engine/src/native_child/mod.rs": "d8f02c236304223ea94afa45ddb41d4a8462abfa2bb0510c167a692c79a2b92c"
+  },
+  "results": [
+    {
+      "log": "macos_native_birth_gate_api_red_2026_10_06.log.gz",
+      "uncompressed_sha256": "fda6223cdf261bf439cae3dc3cfea7ae10af0e6d882874a2c455c78622496d2f",
+      "passed": 0,
+      "status": "expected compilation failure"
+    },
+    {
+      "log": "macos_native_birth_gate_behavior_red_2026_10_06.log.gz",
+      "uncompressed_sha256": "0f0e9d76ff55a17f22d127cda4c93a7531b1ce727abd79c57a935e971fe590d4",
+      "passed": 0,
+      "status": "actual unguarded creator bypassed gate"
+    },
+    {
+      "log": "macos_native_birth_gate_native_final_2026_10_06.log.gz",
+      "uncompressed_sha256": "123def9011dcb5a76b8eec2092d1a83dee00667291b6a51bc807eb801347d51a",
+      "passed": 36,
+      "status": "passed"
+    },
+    {
+      "log": "macos_native_birth_gate_driver_final_2026_10_06.log.gz",
+      "uncompressed_sha256": "849da77ddc24df7a5e2280fd6fd75df107764592f2020edc481f8a869a229f93",
+      "passed": 7,
+      "status": "passed"
+    },
+    {
+      "log": "macos_native_birth_gate_owned_final_2026_10_06.log.gz",
+      "uncompressed_sha256": "1db030e7e2a24c6c7b83c7479838c5b7f97fe0a611b6506b0d541a6d294c407c",
+      "passed": 6,
+      "status": "passed"
+    },
+    {
+      "log": "macos_native_birth_gate_handoff_red_2026_10_06.log.gz",
+      "uncompressed_sha256": "44a6687e1e1469ece7d380542e63d4bade916eafe4ac521a32d40f4201d3489e",
+      "status": "actual successful acquisition skipped original cancellation before fix",
+      "passed": 0
+    }
+  ],
+  "limitations": [
+    "Mac runtime remains unsupported pending trusted installation, loader closure, helper limits and real product recovery qualification.",
+    "Gate covers audited controlled paths only; foreign fork/exec is outside private gate.",
+    "Local arm64 component tests do not establish Intel/Linux/Windows current-source acceptance."
+  ],
+  "review": {
+    "result": "CLEAR for gate handoff correction",
+    "scope": "FD mutual exclusion and checkpoint before retry acquisition",
+    "remaining": "cooperative checkpoints do not make cancellation atomic with process birth; foreign spawn excluded; full Mac Runtime qualification remains open"
+  }
+}

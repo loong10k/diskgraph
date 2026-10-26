@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "direct_and_nested_read_digest_cases": 4,
+  "product_fetch_count": 0,
+  "ordinary_control_open_count": 1,
+  "ordinary_control_fetch_count": 1,
+  "original_unmount_and_reap_verified": true,
+  "commit": "02460b7d6c21f4d6f4e9ff5a4528c993b4ffc74e",
+  "scope": "Linux ARM64 known FUSE refusal; not generic provider no-recall"
+}

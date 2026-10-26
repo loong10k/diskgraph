@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "scope": "macOS trusted fresh publisher and floor-bound recovery implementation",
+  "production_ready": false,
+  "sources": {
+    "macos_installation_bootstrap.rs": "644d970be54cbf23144498cb2cea75da89d8c6aa4994c7bcc62e238c02f7ede2",
+    "macos_installation_bootstrap_tests.rs": "b83c0cc8f628d1e210f536cc60b47e8e96e63a40cad68b836c60493384527d35",
+    "macos_installation_files.rs": "8f5c715e8040b3126618410441dec537299b839f6e2e07d775b847ec8372ddf1",
+    "macos_installation_publisher.rs": "36866470b19b4efaa18bbfd98f1ea85e8c177f70ff9a64c5c524749e576e0359",
+    "macos_installation_publisher_tests.rs": "4a137499fd796a1986cde5152e0fde4bc50d8ff50adaafae03ce4323e785d066",
+    "macos_epoch_floor.rs": "6d54110b90ee65ae2b270d03c6f604608b2d1f32169352cbd285f7cc854b4676",
+    "macos_epoch_floor_tests.rs": "38a9ad28d2be0e2b421b93ac00dd7c673260f4bcfaf9326e5e1ef06cb7ccc588",
+    "lib.rs": "f9ab2291b782d3dbe7a13c31a69cf4cd78c0f250d12030570128c8ce73fd7e4e"
+  },
+  "logs": [
+    {
+      "path": "macos_publisher_publisher_red_2026_10_06.log.gz",
+      "uncompressed_sha256": "e4840be549eae626218f3e24904daccd81ef08249b64432b7feee3484f98a903"
+    },
+    {
+      "path": "macos_publisher_recovery_red_2026_10_06.log.gz",
+      "uncompressed_sha256": "05f2fd7167501dbf843db4fe3bb9a259bef9d0bfe69a77e8be9f855e331efc52"
+    },
+    {
+      "path": "macos_publisher_publisher_first_green_2026_10_06.log.gz",
+      "uncompressed_sha256": "c971b58af4ab758bb24aea71457ad45e63815adf8f9639215bcaf1fe04b5671b"
+    },
+    {
+      "path": "macos_publisher_publisher_order_negative_2026_10_06.log.gz",
+      "uncompressed_sha256": "582ee810a47a38c70d7032a2de9795664cbfbb34662566aba2fe2db750d86447"
+    },
+    {
+      "path": "macos_publisher_publisher_final_2026_10_06.log.gz",
+      "uncompressed_sha256": "ac1e6e3eeb7dcfa629384e15fbfb0e390fe08fbb8c96198ed7bfad15bb1c5047"
+    },
+    {
+      "path": "macos_publisher_publisher_spec_2026_10_06.log.gz",
+      "uncompressed_sha256": "b087786724a83e167c461156275f2257b8e3c79b0767590f6d9f88138cd733ff"
+    },
+    {
+      "path": "macos_publisher_publisher_durable_probe_2026_10_06.log.gz",
+      "uncompressed_sha256": "605c97e52c50109bffe9156fcddbcbc76e5dd54c6f7b9e512787ff1965edd93f"
+    },
+    {
+      "path": "macos_publisher_epoch_vector_2026_10_06.log.gz",
+      "uncompressed_sha256": "5db0c1e8a8bac5e26eef25bac0a270093fb44398ee420704d7e7a18c3f1838ad"
+    }
+  ],
+  "sdk_man_sha256": {
+    "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/share/man/man2/fcntl.2": "9b16ec920ad681d1af2256b2c76d408c7b8506b7cad13aa00d035ba4385787a7",
+    "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/share/man/man2/fsync.2": "2399c28e11ea3a1e71b85d0002ac96b540372d405926657a101025f70ae10006"
+  },
+  "actual_results": {
+    "macos_passed": 69,
+    "failed": 0,
+    "ignored": 0,
+    "publisher_cases": 11,
+    "bootstrap_cases": 3,
+    "negative_control": "Publishing active before floor makes original interrupted-pair regression fail; restored source passes.",
+    "fmt": "passed",
+    "openspec_strict": "passed"
+  },
+  "limitations": [
+    "Actual root fresh bootstrap/publisher/Recovery path has not run yet; ordinary isolated file operations are component evidence.",
+    "No actual cross-restart floor acceptance proof or hardware power-loss qualification.",
+    "Mac Runtime product launch remains Unsupported pending native end-to-end qualification.",
+    "Installer signing root integration and ordinary CLI/MCP installed-host startup remain incomplete."
+  ]
+}

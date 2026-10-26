@@ -1,0 +1,16 @@
+{
+  "source_commit": "7a17e6dbddc6a27692d8ee80dc519cfd7d588e8f",
+  "run": 37664417193,
+  "job": 112939850288,
+  "platform": "Windows stable",
+  "engine": {
+    "passed": 625,
+    "failed": 1,
+    "ignored": 4
+  },
+  "failure": "same supervisor binding second-handle read OS33 as MSRV",
+  "raw_log_sha256": "5198b3db781624077a8cd382145743059f0d6af81c54bb814efc7029a0688487",
+  "gzip_log_sha256": "50a7f5e72032ca834830a5e9c71a72a6be47f4ea3d414b76e1ed4e1466e0f641",
+  "fix_commit": "314441cbe4708fb6d2555998319e3bb2f00dec60",
+  "fixed_native_acceptance": false
+}

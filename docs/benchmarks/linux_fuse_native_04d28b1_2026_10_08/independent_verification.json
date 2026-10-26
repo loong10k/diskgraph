@@ -1,0 +1,11 @@
+{
+  "commit": "04d28b10d8eb2baa3550f7371ddf685d37ee887d",
+  "artifact_id": 11521758301,
+  "run_id": 37711160426,
+  "job_id": 113097145941,
+  "source_fixtures_match": true,
+  "four_real_direct_nested_read_digest_cases": true,
+  "ordinary_read_positive_control_fetch_count": 1,
+  "original_provider_unmounted_and_reaped": true,
+  "qualification": "specific ARM64 FUSE fixture only; not generic Linux no-recall or all-platform readiness"
+}

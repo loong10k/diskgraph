@@ -1,0 +1,221 @@
+--- a/crates/diskgraph-store/src/lib.rs
++++ b/crates/diskgraph-store/src/lib.rs
+@@ -143,6 +143,9 @@
+ mod revision_evidence_reader;
+ #[cfg(test)]
+ mod revision_evidence_tests;
++mod revision_ownership_reader;
++#[cfg(test)]
++mod revision_ownership_reader_tests;
+ mod revision_queries;
+ mod revision_record;
+ mod revision_relation_page_queries;
+@@ -205,6 +208,7 @@
+ pub use recovery_rule::RecoveryRule;
+ pub use recovery_state::RecoveryState;
+ pub use result::Result;
++pub use revision_ownership_reader::RevisionOwnershipReader;
+ pub use revision_record::RevisionRecord;
+ pub use scope_record::ScopeRecord;
+ pub use sqlite_snapshot_store::{SUPPORTED_SCHEMA_VERSION, SqliteSnapshotStore};
+--- a/crates/diskgraph-engine/src/terminal_revision_authorization.rs
++++ b/crates/diskgraph-engine/src/terminal_revision_authorization.rs
+@@ -1,7 +1,7 @@
+ //! revision 读取后终检；来源：OpenSpec SC-04，授权观察不续期数据读取。
+ use crate::{Engine, EngineError};
+ use diskgraph_core::{BusinessError, ScopeId};
+-use diskgraph_store::{ControlStore, SqliteSnapshotStore, StoreError};
++use diskgraph_store::{ControlStore, RevisionOwnershipReader, StoreError};
+ use std::time::Instant;
+ 
+ impl Engine {
+@@ -19,8 +19,8 @@
+         let result = (|| {
+             let server =
+                 control.with_read_deadline(deadline, |control| control.existing_server_id())?;
+-            let reader = SqliteSnapshotStore::open_reader_until(&self.graph_path, deadline, None)?;
+-            if !reader.revision_ownership_matches(revision, server.as_str(), scope.as_str())? {
++            let reader = RevisionOwnershipReader::open_until(&self.graph_path, deadline)?;
++            if !reader.matches(revision, server.as_str(), scope.as_str())? {
+                 return Err(BusinessError::PermissionDenied.into());
+             }
+             if Instant::now() >= deadline {
+--- /dev/null
++++ b/crates/diskgraph-store/src/revision_ownership_reader.rs
+@@ -0,0 +1,58 @@
++use crate::{Result, StoreError};
++use rusqlite::{Connection, OpenFlags, params};
++use std::path::Path;
++use std::time::{Duration, Instant};
++
++/// 终检专用独立归属连接；来源：原生Rust SC-04/Q-08，无Java对等对象。
++/// 不交给消费者、不提供事务或广域查询，只按实际过滤视图读取布尔结果。
++/// 可信内部接口，不代替请求主体、scope授权或数据库启动时的schema校验。
++pub struct RevisionOwnershipReader {
++    connection: Connection,
++    deadline: Instant,
++}
++
++impl RevisionOwnershipReader {
++    /// 参数：path为引擎固定图库路径，deadline为原终检期限；返回独立只读连接或原错误。
++    /// 不迁移、不创建数据库，不配置通用节点缓存或临时存储；同步打开仅协作受限。
++    pub fn open_until(path: &Path, deadline: Instant) -> Result<Self> {
++        check(deadline)?;
++        let connection = Connection::open_with_flags(
++            path,
++            OpenFlags::SQLITE_OPEN_READ_ONLY | OpenFlags::SQLITE_OPEN_NO_MUTEX,
++        )?;
++        check(deadline)?;
++        connection.busy_timeout(
++            deadline
++                .saturating_duration_since(Instant::now())
++                .min(Duration::from_secs(1)),
++        )?;
++        connection.progress_handler(1000, Some(move || Instant::now() >= deadline))?;
++        check(deadline)?;
++        Ok(Self {
++            connection,
++            deadline,
++        })
++    }
++
++    /// 参数：revision/server/scope为首次真实授权身份；返回当前匹配布尔值或原SQL/期限失败。
++    /// 未绑定、隔离和不匹配均为false；真实拒绝先于查询结束后的期限，允许结果须仍在原期限内。
++    pub fn matches(&self, revision: &str, server: &str, scope: &str) -> Result<bool> {
++        check(self.deadline)?;
++        let matches: bool = self.connection.query_row(
++            "SELECT EXISTS(SELECT 1 FROM revision_authorized_ownership WHERE revision_id=?1 AND server_id=?2 AND scope_id=?3)",
++            params![revision, server, scope], |row| row.get(0),
++        )?;
++        if matches {
++            check(self.deadline)?;
++        }
++        Ok(matches)
++    }
++}
++
++fn check(deadline: Instant) -> Result<()> {
++    if Instant::now() >= deadline {
++        Err(StoreError::BudgetExceeded)
++    } else {
++        Ok(())
++    }
++}
+--- /dev/null
++++ b/crates/diskgraph-store/src/revision_ownership_reader_tests.rs
+@@ -0,0 +1,115 @@
++//! 终检独立窄读：真实WAL旧快照、隔离拒权及原期限，不以旧消费者连接作确认。
++use crate::{RevisionOwnershipReader, SqliteSnapshotStore, StoreError};
++use std::time::{Duration, Instant};
++
++#[test]
++fn fresh_terminal_reader_rejects_quarantine_hidden_from_consumer_snapshot() {
++    let directory = tempfile::tempdir().unwrap();
++    let path = directory.path().join("graph.sqlite");
++    let mut writer = SqliteSnapshotStore::open(&path).unwrap();
++    let mut graph = crate::tests::graph("snapshot", 100);
++    graph.evidence.clear();
++    writer.append_staging_nodes("stage", &graph.nodes).unwrap();
++    writer
++        .publish_revision_owned("stage", &graph, "base", 1, Some(("server", "scope")))
++        .unwrap();
++    let deadline = Instant::now() + Duration::from_secs(5);
++    let consumer = SqliteSnapshotStore::open_reader_until(&path, deadline, None).unwrap();
++    consumer.connection.execute_batch("BEGIN").unwrap();
++    assert!(
++        consumer
++            .revision_ownership_matches("base", "server", "scope")
++            .unwrap()
++    );
++    assert_eq!(
++        writer
++            .isolate_unconfirmed_revision_roots("server", "scope", None)
++            .unwrap(),
++        1
++    );
++    assert!(
++        consumer
++            .revision_ownership_matches("base", "server", "scope")
++            .unwrap(),
++        "fixture must hold an actual stale WAL snapshot"
++    );
++    let terminal = RevisionOwnershipReader::open_until(&path, deadline).unwrap();
++    assert!(!terminal.matches("base", "server", "scope").unwrap());
++    assert!(!terminal.matches("base", "server", "foreign").unwrap());
++    consumer.connection.execute_batch("ROLLBACK").unwrap();
++}
++
++#[test]
++fn expired_terminal_admission_does_not_open_or_create_database() {
++    let directory = tempfile::tempdir().unwrap();
++    let path = directory.path().join("not_born.sqlite");
++    assert!(matches!(
++        RevisionOwnershipReader::open_until(&path, Instant::now()),
++        Err(StoreError::BudgetExceeded)
++    ));
++    assert!(!path.exists());
++}
++
++#[test]
++fn terminal_sql_is_interrupted_under_original_deadline() {
++    let directory = tempfile::tempdir().unwrap();
++    let path = directory.path().join("graph.sqlite");
++    let writer = SqliteSnapshotStore::open(&path).unwrap();
++    // 实际SQL强制执行百万步，不用sleep或模拟错误证明progress handler有效。
++    writer.connection.execute_batch("DROP VIEW revision_authorized_ownership; CREATE VIEW revision_authorized_ownership AS WITH RECURSIVE work(n) AS (VALUES(0) UNION ALL SELECT n+1 FROM work WHERE n<5000000) SELECT CAST(n AS TEXT) revision_id, 'server' server_id, 'scope' scope_id FROM work;").unwrap();
++    let started = Instant::now();
++    let terminal =
++        RevisionOwnershipReader::open_until(&path, started + Duration::from_millis(50)).unwrap();
++    let error = terminal.matches("never", "server", "scope").unwrap_err();
++    assert!(
++        matches!(error, StoreError::BudgetExceeded) || error.is_interrupted(),
++        "unexpected SQL failure: {error}"
++    );
++    assert!(started.elapsed() < Duration::from_secs(2));
++}
++
++#[test]
++#[ignore = "release benchmark: compare actual independent terminal connection costs"]
++fn release_terminal_connection_costs() {
++    let directory = tempfile::tempdir().unwrap();
++    let path = directory.path().join("graph.sqlite");
++    let mut writer = SqliteSnapshotStore::open(&path).unwrap();
++    let mut graph = crate::tests::graph("snapshot", 100);
++    graph.evidence.clear();
++    writer.append_staging_nodes("stage", &graph.nodes).unwrap();
++    writer
++        .publish_revision_owned("stage", &graph, "base", 1, Some(("server", "scope")))
++        .unwrap();
++    let mut general = Vec::new();
++    let mut narrow = Vec::new();
++    for index in 0..210 {
++        for specialized in [index % 2 == 0, index % 2 != 0] {
++            let started = Instant::now();
++            let deadline = started + Duration::from_secs(1);
++            if specialized {
++                let reader = RevisionOwnershipReader::open_until(&path, deadline).unwrap();
++                assert!(reader.matches("base", "server", "scope").unwrap());
++            } else {
++                let reader = SqliteSnapshotStore::open_reader_until(&path, deadline, None).unwrap();
++                assert!(
++                    reader
++                        .revision_ownership_matches("base", "server", "scope")
++                        .unwrap()
++                );
++            }
++            if index >= 10 {
++                if specialized {
++                    narrow.push(started.elapsed().as_nanos());
++                } else {
++                    general.push(started.elapsed().as_nanos());
++                }
++            }
++        }
++    }
++    general.sort_unstable();
++    narrow.sort_unstable();
++    eprintln!(
++        "DG_TERMINAL_READ_COST samples=200 general_p50_ns={} general_p95_ns={} narrow_p50_ns={} narrow_p95_ns={}",
++        general[100], general[190], narrow[100], narrow[190]
++    );
++}

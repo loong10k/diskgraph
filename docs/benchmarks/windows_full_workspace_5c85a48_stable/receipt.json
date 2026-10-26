@@ -1,0 +1,40 @@
+{
+  "source_commit": "5c85a48703ce23f7271d43d1f5273fa338428a32",
+  "run_id": 37601447468,
+  "job_id": 112726538681,
+  "job_conclusion": "success",
+  "platform": "native Windows x86_64 stable",
+  "workspace_invocation": {
+    "suites": 174,
+    "passed": 1964,
+    "failed": 0,
+    "ignored": 18
+  },
+  "actual_32767_file_capacity_case": "passed",
+  "real_cfapi": {
+    "artifact_id": 11474129611,
+    "passed": 1,
+    "failed": 0,
+    "ignored": 0,
+    "product_no_fetch_and_ordinary_read_fetch_control": true
+  },
+  "files": [
+    {
+      "file": "workspace.log.gz",
+      "raw_sha256": "5f494135eced3fc59deec3b35312d96487d0f50db2d575aab91296f47955f447",
+      "stored_sha256": "9b505873b02c88621655520880a006d75e13eecef2598b495eed58fe25a42d05"
+    },
+    {
+      "file": "cloud.log.gz",
+      "raw_sha256": "b41c97bb3272fceaadaaf0b85cfc45140522e9ff5941ad7c8b7444a97a6aac54",
+      "stored_sha256": "d446ce379f129b67967a43cd8f3ab15f4a84e9891954d32069a6896ebd2e540c"
+    }
+  ],
+  "current_head_acceptance": false,
+  "production_ready": false,
+  "limits": [
+    "older source than e6fb03b reader-admission and dc98227 tracing changes",
+    "Windows MSRV and all macOS qualification incomplete at observation",
+    "full suite success does not prove supervisor production wiring or bounded foreground exit"
+  ]
+}

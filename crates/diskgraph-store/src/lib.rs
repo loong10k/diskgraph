@@ -137,6 +137,8 @@ mod publication_checkpoint_guard;
 #[cfg(test)]
 mod reader_admission_tests;
 #[cfg(test)]
+mod reader_observation_tests;
+#[cfg(test)]
 mod reader_prepare_benchmark;
 mod recovery_entry;
 mod recovery_rule;

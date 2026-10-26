@@ -1,0 +1,11 @@
+   Compiling diskgraph-engine v0.3.0 (/build/terminal-red-7fc3330/crates/diskgraph-engine)
+    Finished `test` profile [unoptimized] target(s) in 4.92s
+     Running unittests src/lib.rs (/build/terminal-red-target/debug/deps/diskgraph_engine-1e4da972db87bed5)
+
+running 3 tests
+test recovery_slot::linux_supervisor_namespace_tests::foreign_namespace_material_is_rejected_before_path_resolution ... ok
+test recovery_slot::linux_supervisor_namespace_tests::user_owned_namespace_cannot_grant_supervisor_capacity ... ok
+test recovery_slot::linux_supervisor_namespace_tests::root_provisioned_namespace_preserves_original_capacity_and_rejects_aliases ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 592 filtered out; finished in 0.01s
+

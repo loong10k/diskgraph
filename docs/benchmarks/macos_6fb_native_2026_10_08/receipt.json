@@ -1,0 +1,21 @@
+{
+  "jobs": [
+    {
+      "job": 113051593685,
+      "name": "Native read-only package (x86_64-apple-darwin)",
+      "commit": "6fbf3ee7d5ab73d5b0f24935d18eed4003bddf2f",
+      "conclusion": "success",
+      "log_sha256": "b7c1f2f838d590cbf89e56f62f2416ea2d963d2433ede676660880583627e932",
+      "log_bytes": 82829
+    },
+    {
+      "job": 113051449133,
+      "name": "Test (macos-latest / Rust 1.97.0)",
+      "commit": "6fbf3ee7d5ab73d5b0f24935d18eed4003bddf2f",
+      "conclusion": "success",
+      "log_sha256": "fb9b852c313c39b1b5b5af6ddc9d74a94786c024339c6ee1150b81adbcc93b75",
+      "log_bytes": 860901
+    }
+  ],
+  "qualification": "historical SHA native package and full Rust tests; not latest HEAD or real macOS FileProvider no-download acceptance"
+}

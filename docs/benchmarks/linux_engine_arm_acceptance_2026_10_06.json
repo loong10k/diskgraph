@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "source_commit": "43e9435531df659bc2305b1dc0b22ea6884334ed",
+  "run_id": 37364191373,
+  "lane": "ubuntu-24.04-arm stable",
+  "production_acceptance": false,
+  "component_acceptance": "actual Engine scan publication and external Recovery in owned namespace",
+  "executed_cases": 5,
+  "passed": 5,
+  "failed": 0,
+  "ignored": 0,
+  "snapshot_manifest_matches_commit": true,
+  "actual_worker_sha256": "2277ba923faa5d82e44b0f66188c6414d72e0f1b7a5c7b4369c954f72a0e00ee",
+  "worker_bytes": 20026464,
+  "outer_init_reaped": true,
+  "namespace_descendants_gone": true,
+  "logs": {
+    "engine-flow": {
+      "path": "linux_engine_37364191373_arm-stable_engine-flow.log.gz",
+      "raw_sha256": "196f4c2237dbd97cd1dd1ed50665deac37e63325c5dfe93f7dbd13942b613b64"
+    },
+    "recovery": {
+      "path": "linux_engine_37364191373_arm-stable_recovery.log.gz",
+      "raw_sha256": "29f322e20391ec03adf9740807d04a6bf18e4beb8533d931a4d6975294ec8bc2"
+    },
+    "receipt": {
+      "path": "linux_engine_37364191373_arm-stable_receipt.log.gz",
+      "raw_sha256": "3fe245a163523b9f6ce67ff52ca3908ce12317e867bb62064b66de5dee066360"
+    },
+    "namespace": {
+      "path": "linux_engine_37364191373_arm-stable_namespace.log.gz",
+      "raw_sha256": "c23088534370a7cc0602edda36db1bf4af92fbd4f10a406c6fe4384f467e642f"
+    }
+  },
+  "remaining": [
+    "x86 stable and 1.97 native lanes",
+    "full host integration all-target tests and strict Clippy",
+    "actual CLI/MCP scan product flow",
+    "macOS/Windows installation identity and lifecycle"
+  ]
+}

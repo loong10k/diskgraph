@@ -1,0 +1,7 @@
+{
+  "run": 37703163775,
+  "job": 113071181276,
+  "artifact": 11519051561,
+  "artifact_zip_sha256": "6b2df63a5c8b045e44d0fc45ff3b0937d2dae8b33ee37da4c90ad6015dacab6d",
+  "scope": "limited Linux ARM64 private FUSE acceptance; not generic Linux no-recall or latest HEAD"
+}

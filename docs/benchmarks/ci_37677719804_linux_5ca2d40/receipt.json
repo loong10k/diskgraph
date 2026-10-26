@@ -1,0 +1,34 @@
+{
+  "run": 37677719804,
+  "commit": "5ca2d40f23c210f890d7714620e2c115f5229807",
+  "production_acceptance": false,
+  "jobs": [
+    {
+      "job": 112985415327,
+      "platform": "x86_64 stable",
+      "conclusion": "success",
+      "log_sha256": "867071bfcff59b1466f8736d8bc5885547aa241b02f5471b43ea992c2b43e88d",
+      "history_result_lines": [
+        "2026-10-07T19:56:50.1430909Z test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.63s"
+      ]
+    },
+    {
+      "job": 112985415574,
+      "platform": "ARM64 stable",
+      "conclusion": "success",
+      "log_sha256": "09135bcd72b455478daf21cb59c0e944e3b1f0935ba70f24874884da5397967d",
+      "history_result_lines": [
+        "2026-10-07T19:59:09.5843057Z test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.25s"
+      ]
+    },
+    {
+      "job": 112985415821,
+      "platform": "x86_64 Rust1.97.0",
+      "conclusion": "success",
+      "log_sha256": "76e03cac9a26826e71c0bfd516499d97b93bfa5418a027779233afe2d3e8f52d",
+      "history_result_lines": [
+        "2026-10-07T19:58:01.0689285Z test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.29s"
+      ]
+    }
+  ]
+}

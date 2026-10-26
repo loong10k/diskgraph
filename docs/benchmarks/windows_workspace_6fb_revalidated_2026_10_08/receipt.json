@@ -1,0 +1,16 @@
+{
+  "run": 37697115067,
+  "commit": "6fbf3ee7d5ab73d5b0f24935d18eed4003bddf2f",
+  "job": 113051449193,
+  "step": {
+    "completedAt": "2026-10-07T23:08:06Z",
+    "conclusion": "success",
+    "name": "Test",
+    "number": 94,
+    "startedAt": "2026-10-07T22:49:46Z",
+    "status": "completed"
+  },
+  "job_status": "in_progress",
+  "qualification": "workspace test command successful at 6fb; job and release costs still pending; not current-head or whole-platform acceptance",
+  "current_head": "d7506d76deaf8444b37ddf7d24e3b4d65ace401f"
+}

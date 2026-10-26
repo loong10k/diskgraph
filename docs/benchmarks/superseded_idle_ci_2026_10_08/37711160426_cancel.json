@@ -1,0 +1,5 @@
+{
+  "exit_code": 1,
+  "stdout": "",
+  "stderr": "Get \"https://api.github.com/repos/loong10k/diskgraph/actions/runs/37711160426?exclude_pull_requests=true\": net/http: TLS handshake timeout\n"
+}

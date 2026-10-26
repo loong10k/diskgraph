@@ -1,0 +1,15 @@
+{
+  "source_commit": "3ff81eb390275b8c70ca4ff45d3e0fa1c9e09b23",
+  "run_id": 37722599345,
+  "job_id": 113133976656,
+  "artifact_id": 11525714136,
+  "download_sha256": "0cb625c5b25fc9616c3218b2590632124d628e99a401d657b9f4768216ac4ff9",
+  "package_sha256": "fd710f5ec1a709f8273c6012e68bb590d1dcc7b08221f27d4877b57d3c118197",
+  "package_checksum_verified": true,
+  "limits": [
+    "single native Linux x86_64 run",
+    "no measured peak RSS in this package report",
+    "no long-duration qualification",
+    "not a baseline comparison or cross-platform SLO proof"
+  ]
+}

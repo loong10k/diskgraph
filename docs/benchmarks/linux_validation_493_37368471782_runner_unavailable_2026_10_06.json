@@ -1,0 +1,15 @@
+{
+  "production_acceptance": false,
+  "run_id": 37368471782,
+  "job_id": 111959352103,
+  "source": "04892e5ab727d3fa044ecbb9d6f080c93965b740",
+  "run_conclusion": "failure",
+  "job_conclusion": "cancelled",
+  "runner_name": "",
+  "steps_executed": 0,
+  "native_contracts_executed": 0,
+  "measurements_executed": 0,
+  "github_failure_annotation": "The job was not acquired by Runner of type hosted even after multiple attempts",
+  "annotations": "docs/benchmarks/linux_validation_493_37368471782_runner_unavailable_2026_10_06.json.gz",
+  "raw_sha256": "dc301e3fb23c2bf4049568ef56c9e520260cd95f9b8601091d4e2010c3eeb7b6"
+}

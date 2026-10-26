@@ -1,0 +1,35 @@
+{
+  "source_commit": "7a17e6dbddc6a27692d8ee80dc519cfd7d588e8f",
+  "run": 37664417193,
+  "job": 112939849933,
+  "platform": "Linux x86_64 ubuntu-latest",
+  "toolchain": "Rust 1.97.0",
+  "job_conclusion": "success",
+  "selected_actual_test_results": {
+    "engine_lib": {
+      "passed": 652,
+      "failed": 0,
+      "ignored": 9
+    },
+    "relation_request_budget": {
+      "passed": 9,
+      "failed": 0,
+      "ignored": 0
+    },
+    "store_lib_first_full_run": {
+      "passed": 309,
+      "failed": 0,
+      "ignored": 4
+    }
+  },
+  "raw_log_sha256": "71f3f1e30190ff30d8b7b888722234687328f5cc18b6dd27184bf29e2cdbdcb5",
+  "gzip_log_sha256": "76fc91ae81a4243ecfc8511c4d853955f760e2f8e2804da949859f5761de09f6",
+  "limits": [
+    "selected test binaries only; counts not a sum of all CI tests",
+    "ignored cases remain unexecuted unless separately invoked by actual fixture steps",
+    "Linux native job does not establish macOS/Windows acceptance",
+    "supervisor product wiring and OS identity decision remain incomplete",
+    "same SHA full platform release gates still incomplete"
+  ],
+  "production_acceptance": false
+}

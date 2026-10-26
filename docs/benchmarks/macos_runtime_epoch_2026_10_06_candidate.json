@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "scope": "Mac running epoch and revision publication guard preparation",
+  "production_ready": false,
+  "sources": {
+    "scan_worker_host.rs": "604ddba2a4d315e3cfe33c88e860d7278bc5e5ac7cc31061f75d330ce905b4d6",
+    "scan_worker_runtime.rs": "99ccacbc59e4696b9585c90734bccc6cea36b7096e5070c31e3760df65c1603e",
+    "scan_execution.rs": "111f86d089498c511332dc44616bf735eb24e903e9938172652098f1d2b46ab8",
+    "macos_host_admission_tests.rs": "e1f7e754365c8c917309670ff55763a21d3e0f1ded77c2a3aefe442774e0676f",
+    "macos_installation_lock.rs": "aa20f5ddeba55305a0bcf004cdee839868d231c4df8b0fab1895ce2d5c43a46e",
+    "macos_installation_lock_tests.rs": "2c2f939a4c8d22e9b8ecf2f43d1f39a504b14efa9992c0453d3573b4972a4aae"
+  },
+  "logs": [
+    {
+      "path": "macos_runtime_epoch_epoch_final_2026_10_06.log.gz",
+      "uncompressed_sha256": "924fd55b3029933753c8560380990ed642336564c0468dd2fd080982ff58518f"
+    },
+    {
+      "path": "macos_runtime_epoch_epoch_driver_final_2026_10_06.log.gz",
+      "uncompressed_sha256": "fc34c979c6bb1685d433d7e6d2e7e2d0e740859dce4444d1993d35c36800be5c"
+    },
+    {
+      "path": "macos_runtime_epoch_epoch_owned_final_2026_10_06.log.gz",
+      "uncompressed_sha256": "cbf7faa12dddef8fdb1175041b419d98df62ec6e7c65d1b2047acafab7e19da0"
+    },
+    {
+      "path": "macos_runtime_epoch_epoch_driver_2026_10_06.log.gz",
+      "uncompressed_sha256": "f1292d73a9ec7a8ca83a8606bd1604962fd38a89eb223e225718676ef89bef99"
+    },
+    {
+      "path": "macos_runtime_epoch_epoch_owned_2026_10_06.log.gz",
+      "uncompressed_sha256": "046790eeaea1f9e9dc04e81187bdc0d7ac08b54f64c48fc7f347b92a34252320"
+    },
+    {
+      "path": "macos_runtime_epoch_exclusive_lock_2026_10_06.log.gz",
+      "uncompressed_sha256": "ac3b7775824b63b42f06aeadc0ea8dea07d3480fc6137f975e8c22976df879d0"
+    }
+  ],
+  "actual_results": {
+    "macos_filter_passed": 53,
+    "driver_passed": 10,
+    "owned_failure_passed": 6,
+    "lock_filter_passed": 5,
+    "review": "original callback masking found and corrected; follow-up CLEAR"
+  },
+  "fixture_setup_failure": "Initial driver and owned tests lacked DISKGRAPH_SCAN_DRIVER_FIXTURE; real current example built and provided, all 16 then passed. No code relaxed.",
+  "limitations": [
+    "Mac Runtime launch remains Unsupported pending issuer and actual root fixture qualification.",
+    "No actual running installation-epoch revocation or publication update race end-to-end proof yet.",
+    "Exclusive protected root lock positive fixture remains open; unprivileged rejection and original cancellation passed."
+  ]
+}

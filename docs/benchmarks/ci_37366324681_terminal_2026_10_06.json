@@ -1,0 +1,133 @@
+{
+  "status": "completed",
+  "conclusion": "failure",
+  "headSha": "b31975a97fc9d119b48e47681940cf67458bfd0d",
+  "jobs": [
+    {
+      "databaseId": 111952291103,
+      "name": "Vendored scanner",
+      "status": "completed",
+      "conclusion": "success",
+      "step_count": 8
+    },
+    {
+      "databaseId": 111952291306,
+      "name": "rustfmt",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "step_count": 0
+    },
+    {
+      "databaseId": 111952291311,
+      "name": "Kotlin native host (macos-15)",
+      "status": "completed",
+      "conclusion": "success",
+      "step_count": 12
+    },
+    {
+      "databaseId": 111952291393,
+      "name": "Kotlin native host (ubuntu-24.04-arm)",
+      "status": "completed",
+      "conclusion": "success",
+      "step_count": 12
+    },
+    {
+      "databaseId": 111952291421,
+      "name": "Test (macos-latest / Rust stable)",
+      "status": "completed",
+      "conclusion": "failure",
+      "step_count": 34
+    },
+    {
+      "databaseId": 111952291427,
+      "name": "Kotlin native host (windows-2022)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "step_count": 0
+    },
+    {
+      "databaseId": 111952291460,
+      "name": "Swift native host (macos-15)",
+      "status": "completed",
+      "conclusion": "success",
+      "step_count": 9
+    },
+    {
+      "databaseId": 111952291470,
+      "name": "Swift native host (macos-15-intel)",
+      "status": "completed",
+      "conclusion": "success",
+      "step_count": 9
+    },
+    {
+      "databaseId": 111952291507,
+      "name": "Test (macos-latest / Rust 1.97.0)",
+      "status": "completed",
+      "conclusion": "success",
+      "step_count": 35
+    },
+    {
+      "databaseId": 111952291535,
+      "name": "Test (windows-latest / Rust 1.97.0)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "step_count": 0
+    },
+    {
+      "databaseId": 111952291541,
+      "name": "Kotlin native host (ubuntu-24.04)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "step_count": 0
+    },
+    {
+      "databaseId": 111952291644,
+      "name": "Test (macos-15-intel / Rust stable)",
+      "status": "completed",
+      "conclusion": "success",
+      "step_count": 35
+    },
+    {
+      "databaseId": 111952291674,
+      "name": "Test (ubuntu-latest / Rust stable)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "step_count": 0
+    },
+    {
+      "databaseId": 111952291702,
+      "name": "Test (windows-latest / Rust stable)",
+      "status": "completed",
+      "conclusion": "success",
+      "step_count": 35
+    },
+    {
+      "databaseId": 111952291762,
+      "name": "Test (ubuntu-24.04-arm / Rust stable)",
+      "status": "completed",
+      "conclusion": "success",
+      "step_count": 35
+    },
+    {
+      "databaseId": 111952291844,
+      "name": "Kotlin native host (macos-15-intel)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "step_count": 0
+    },
+    {
+      "databaseId": 111952291912,
+      "name": "Test (ubuntu-latest / Rust 1.97.0)",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "step_count": 0
+    },
+    {
+      "databaseId": 111957453229,
+      "name": "Native read-only package (${{ matrix.target }})",
+      "status": "completed",
+      "conclusion": "skipped",
+      "step_count": 0
+    }
+  ]
+}

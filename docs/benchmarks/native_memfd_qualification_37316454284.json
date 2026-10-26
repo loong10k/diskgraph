@@ -1,0 +1,359 @@
+{
+  "run_id": 37316454284,
+  "head_sha": "d6fce64df14d147679d5312f306e6f8396deeaef",
+  "conclusion": "failure",
+  "jobs": [
+    {
+      "name": "Scan qualification (memfd-execution / ubuntu-latest / Rust stable)",
+      "conclusion": "failure"
+    },
+    {
+      "name": "Scan qualification (atomic-launcher / ubuntu-latest / Rust stable)",
+      "conclusion": "success"
+    },
+    {
+      "name": "Scan qualification (memfd-execution / ubuntu-latest / Rust 1.97.0)",
+      "conclusion": "failure"
+    },
+    {
+      "name": "Scan qualification (atomic-launcher / ubuntu-24.04-arm / Rust stable)",
+      "conclusion": "success"
+    },
+    {
+      "name": "Scan qualification (memfd-execution / ubuntu-24.04-arm / Rust stable)",
+      "conclusion": "failure"
+    },
+    {
+      "name": "Scan qualification (atomic-launcher / ubuntu-latest / Rust 1.97.0)",
+      "conclusion": "success"
+    }
+  ],
+  "scope": "QA qualification only; not dirty-worktree product launch acceptance",
+  "observed": {
+    "atomic_lanes_passed": 3,
+    "memfd_lanes_failed": 3,
+    "policy_assertions_run": 0,
+    "policy_setup_phase": "open_owned_memfd_policy",
+    "policy_setup_errno": 13,
+    "profile_cleanup_errno": 12,
+    "original_init_reaped": true
+  },
+  "analysis": "Policy DAC uses GLOBAL_ROOT_UID before namespace capability handler; cleanup outer pid_for_children restoration is a candidate cause pending regression and native verification. No host policy changes authorized or performed.",
+  "raw_artifacts": [
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-24.04-arm-stable-37316454284/diskgraph-memfd-execution/child.stderr.gz",
+      "raw_sha256": "d742edaaf1f983ffc65be95b6d48c9168f454522850dab505080a25d815fe2e8",
+      "raw_bytes": 1176
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-24.04-arm-stable-37316454284/diskgraph-memfd-execution/child.stdout.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-24.04-arm-stable-37316454284/diskgraph-memfd-execution/namespace-receipt.json.gz",
+      "raw_sha256": "8bb58846e063ec3bedfdff1ff1cdbbcc30d2f3734d9067584eb6476c32f491f5",
+      "raw_bytes": 5323
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-24.04-arm-stable-37316454284/diskgraph-memfd-execution/qualification/archive.stderr.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-24.04-arm-stable-37316454284/diskgraph-memfd-execution/qualification/captured-commit.log.gz",
+      "raw_sha256": "406a9e793ecd84de1a4727cb001e69bc77fbcd814e89d2d8dbe36b4283ff9c09",
+      "raw_bytes": 41
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-24.04-arm-stable-37316454284/diskgraph-memfd-execution/qualification/fixture-image-1.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-24.04-arm-stable-37316454284/diskgraph-memfd-execution/qualification/fixture-image-2.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-24.04-arm-stable-37316454284/diskgraph-memfd-execution/qualification/fixture-memfd-policy-namespace.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-24.04-arm-stable-37316454284/diskgraph-memfd-execution/qualification/inventory-linux_memfd_denial_tests.log.gz",
+      "raw_sha256": "e158567f8cd6c0c65d862a54f681a0e2bc6cbe304aa0d3d381af3f5f1221f11b",
+      "raw_bytes": 312
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-24.04-arm-stable-37316454284/diskgraph-memfd-execution/qualification/inventory-linux_memfd_policy_tests.log.gz",
+      "raw_sha256": "46650c2cbb7515616030484a8d63e9af78d3fe019c4a92b65444a274918a2f1e",
+      "raw_bytes": 501
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-24.04-arm-stable-37316454284/diskgraph-memfd-execution/qualification/inventory-linux_scan_image_execution_tests.log.gz",
+      "raw_sha256": "a5ab92f637696a0fdeeed90d4b2d35a0fb39be2c3ecd38af2c590b258ebb8c6b",
+      "raw_bytes": 3033
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-24.04-arm-stable-37316454284/diskgraph-memfd-execution/qualification/native-archive-members.log.gz",
+      "raw_sha256": "05018611eb0a23ee2f150b245857686494fb3bdaf5229c95774d9a4ce72b9961",
+      "raw_bytes": 38
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-24.04-arm-stable-37316454284/diskgraph-memfd-execution/qualification/native-linux_memfd_denial_tests.log.gz",
+      "raw_sha256": "8690259498a721048585e14f6336431b0c0a1f03434ab003a9e7fc9e643d95b7",
+      "raw_bytes": 827
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-24.04-arm-stable-37316454284/diskgraph-memfd-execution/qualification/native-linux_memfd_policy_tests.log.gz",
+      "raw_sha256": "17bbca721e79b86dc0b86b4f3db0ebdc10db15258d5b5eec9e54e72cba90448c",
+      "raw_bytes": 9135
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-24.04-arm-stable-37316454284/diskgraph-memfd-execution/qualification/native-linux_scan_image_execution_tests.log.gz",
+      "raw_sha256": "1226d9e258f0a16da789b7b68eaf4e35dc4c27ab57ea788f3153209172a88021",
+      "raw_bytes": 617
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-24.04-arm-stable-37316454284/diskgraph-memfd-execution/qualification/native-nm-undefined.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-24.04-arm-stable-37316454284/diskgraph-memfd-execution/qualification/native-objdump.log.gz",
+      "raw_sha256": "03600c6d67f38521e45356f131e98f0a3ea1043e2c4d51f613ab846a13c14af0",
+      "raw_bytes": 13009
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-24.04-arm-stable-37316454284/diskgraph-memfd-execution/qualification/receipt.json.gz",
+      "raw_sha256": "a55e1711fdb04f550c374a8d02b15a1f59d9d150cb778f72b22156f602d4d074",
+      "raw_bytes": 32576
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-24.04-arm-stable-37316454284/diskgraph-namespace-self-test/child.stderr.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-24.04-arm-stable-37316454284/diskgraph-namespace-self-test/child.stdout.gz",
+      "raw_sha256": "d26edb584505d3cc26bd88da88e9f3cd421b381e2063377bd56f5d495f93c90b",
+      "raw_bytes": 699
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-24.04-arm-stable-37316454284/diskgraph-namespace-self-test/namespace-receipt.json.gz",
+      "raw_sha256": "249d126905ceb02e245da1eb64b6273162497718d5cb78a8e3a6d095dcb59c1a",
+      "raw_bytes": 1909
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-1.97.0-37316454284/diskgraph-memfd-execution/child.stderr.gz",
+      "raw_sha256": "d742edaaf1f983ffc65be95b6d48c9168f454522850dab505080a25d815fe2e8",
+      "raw_bytes": 1176
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-1.97.0-37316454284/diskgraph-memfd-execution/child.stdout.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-1.97.0-37316454284/diskgraph-memfd-execution/namespace-receipt.json.gz",
+      "raw_sha256": "e1d2a9717353860969b37178a2a80407c65912a6559c7251822406e8969c4680",
+      "raw_bytes": 5328
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-1.97.0-37316454284/diskgraph-memfd-execution/qualification/archive.stderr.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-1.97.0-37316454284/diskgraph-memfd-execution/qualification/captured-commit.log.gz",
+      "raw_sha256": "406a9e793ecd84de1a4727cb001e69bc77fbcd814e89d2d8dbe36b4283ff9c09",
+      "raw_bytes": 41
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-1.97.0-37316454284/diskgraph-memfd-execution/qualification/fixture-image-1.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-1.97.0-37316454284/diskgraph-memfd-execution/qualification/fixture-image-2.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-1.97.0-37316454284/diskgraph-memfd-execution/qualification/fixture-memfd-policy-namespace.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-1.97.0-37316454284/diskgraph-memfd-execution/qualification/inventory-linux_memfd_denial_tests.log.gz",
+      "raw_sha256": "ef715fda81d338cf2035e13a83d43ccc9292e8f10464597373e2450648fe37ed",
+      "raw_bytes": 312
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-1.97.0-37316454284/diskgraph-memfd-execution/qualification/inventory-linux_memfd_policy_tests.log.gz",
+      "raw_sha256": "0ca88bcd5441dcf9e8f3be6097787dbfab32d01238465fa62b4a7115e4bd5733",
+      "raw_bytes": 501
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-1.97.0-37316454284/diskgraph-memfd-execution/qualification/inventory-linux_scan_image_execution_tests.log.gz",
+      "raw_sha256": "ef39ccaccd6ddde679b143a385f4438610a671a5270983e886bffde532811da2",
+      "raw_bytes": 3033
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-1.97.0-37316454284/diskgraph-memfd-execution/qualification/native-archive-members.log.gz",
+      "raw_sha256": "05018611eb0a23ee2f150b245857686494fb3bdaf5229c95774d9a4ce72b9961",
+      "raw_bytes": 38
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-1.97.0-37316454284/diskgraph-memfd-execution/qualification/native-linux_memfd_denial_tests.log.gz",
+      "raw_sha256": "61e51c5afb458c0c79552746cb412bc85412370d89c359fe641aaaf09ae72b75",
+      "raw_bytes": 827
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-1.97.0-37316454284/diskgraph-memfd-execution/qualification/native-linux_memfd_policy_tests.log.gz",
+      "raw_sha256": "f5e07ddd8a75384a45d15c90eaf836022a19603a6d687b478c9169efb40428a5",
+      "raw_bytes": 9135
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-1.97.0-37316454284/diskgraph-memfd-execution/qualification/native-linux_scan_image_execution_tests.log.gz",
+      "raw_sha256": "f23438b4721e08351b839630f31ec77d6a3e1b2500cbcfb0770355b21ddb1f92",
+      "raw_bytes": 617
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-1.97.0-37316454284/diskgraph-memfd-execution/qualification/native-nm-undefined.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-1.97.0-37316454284/diskgraph-memfd-execution/qualification/native-objdump.log.gz",
+      "raw_sha256": "b2367b19b1a87f9467c7bd79617a067e1b8d0bdb6b2adf2a9888a4288c03f5b4",
+      "raw_bytes": 16579
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-1.97.0-37316454284/diskgraph-memfd-execution/qualification/receipt.json.gz",
+      "raw_sha256": "2463fb10e2d6c44166e4ac4673d023ed42e0cc34cf0999c29bcc1172adf612ab",
+      "raw_bytes": 32575
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-1.97.0-37316454284/diskgraph-namespace-self-test/child.stderr.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-1.97.0-37316454284/diskgraph-namespace-self-test/child.stdout.gz",
+      "raw_sha256": "d26edb584505d3cc26bd88da88e9f3cd421b381e2063377bd56f5d495f93c90b",
+      "raw_bytes": 699
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-1.97.0-37316454284/diskgraph-namespace-self-test/namespace-receipt.json.gz",
+      "raw_sha256": "e6a2684e81f71776a687897a2b1bc454b46ce30727ce0fc4a4111e7fbf8312ef",
+      "raw_bytes": 1908
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-stable-37316454284/diskgraph-memfd-execution/child.stderr.gz",
+      "raw_sha256": "d742edaaf1f983ffc65be95b6d48c9168f454522850dab505080a25d815fe2e8",
+      "raw_bytes": 1176
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-stable-37316454284/diskgraph-memfd-execution/child.stdout.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-stable-37316454284/diskgraph-memfd-execution/namespace-receipt.json.gz",
+      "raw_sha256": "448a11244678622b6ddf32b1917b3254d06f1f1f4752ceb1d8628bdd7cd32dbe",
+      "raw_bytes": 5329
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-stable-37316454284/diskgraph-memfd-execution/qualification/archive.stderr.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-stable-37316454284/diskgraph-memfd-execution/qualification/captured-commit.log.gz",
+      "raw_sha256": "406a9e793ecd84de1a4727cb001e69bc77fbcd814e89d2d8dbe36b4283ff9c09",
+      "raw_bytes": 41
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-stable-37316454284/diskgraph-memfd-execution/qualification/fixture-image-1.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-stable-37316454284/diskgraph-memfd-execution/qualification/fixture-image-2.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-stable-37316454284/diskgraph-memfd-execution/qualification/fixture-memfd-policy-namespace.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-stable-37316454284/diskgraph-memfd-execution/qualification/inventory-linux_memfd_denial_tests.log.gz",
+      "raw_sha256": "c128e32121742f05d17c3db4c61f5bcb2795d6de8d457b92b344cdff16a049b5",
+      "raw_bytes": 312
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-stable-37316454284/diskgraph-memfd-execution/qualification/inventory-linux_memfd_policy_tests.log.gz",
+      "raw_sha256": "b87b0bb4a241d3210710aa4f2bc22c572249853ed1ca05eef723e128d4ff0d97",
+      "raw_bytes": 501
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-stable-37316454284/diskgraph-memfd-execution/qualification/inventory-linux_scan_image_execution_tests.log.gz",
+      "raw_sha256": "a1a14694d53e0e0ba59aa2edeb166fe936ac5f37bbb39f9b33040f990afc22fc",
+      "raw_bytes": 3033
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-stable-37316454284/diskgraph-memfd-execution/qualification/native-archive-members.log.gz",
+      "raw_sha256": "05018611eb0a23ee2f150b245857686494fb3bdaf5229c95774d9a4ce72b9961",
+      "raw_bytes": 38
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-stable-37316454284/diskgraph-memfd-execution/qualification/native-linux_memfd_denial_tests.log.gz",
+      "raw_sha256": "5a3d4ef86729603d0b8667496513f6ed99b56750309963811c15fe4fe49661fc",
+      "raw_bytes": 827
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-stable-37316454284/diskgraph-memfd-execution/qualification/native-linux_memfd_policy_tests.log.gz",
+      "raw_sha256": "d2d6eaf2665fa348cf6ed2a774416e4cf6a7ef61bb556f21f9ad5701b5350381",
+      "raw_bytes": 9135
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-stable-37316454284/diskgraph-memfd-execution/qualification/native-linux_scan_image_execution_tests.log.gz",
+      "raw_sha256": "a7cc223f10e930cee245f9c5d47c72741de324f9534ac86e22aba338388667ac",
+      "raw_bytes": 617
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-stable-37316454284/diskgraph-memfd-execution/qualification/native-nm-undefined.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-stable-37316454284/diskgraph-memfd-execution/qualification/native-objdump.log.gz",
+      "raw_sha256": "b2367b19b1a87f9467c7bd79617a067e1b8d0bdb6b2adf2a9888a4288c03f5b4",
+      "raw_bytes": 16579
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-stable-37316454284/diskgraph-memfd-execution/qualification/receipt.json.gz",
+      "raw_sha256": "727d4ee9fa22ac97ac842f0ccfa66c1222c42641f400fc4ef0f96c5e3fe562b8",
+      "raw_bytes": 32575
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-stable-37316454284/diskgraph-namespace-self-test/child.stderr.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-stable-37316454284/diskgraph-namespace-self-test/child.stdout.gz",
+      "raw_sha256": "d26edb584505d3cc26bd88da88e9f3cd421b381e2063377bd56f5d495f93c90b",
+      "raw_bytes": 699
+    },
+    {
+      "path": "docs/benchmarks/native_memfd_qualification_37316454284/scan-memfd-execution-ubuntu-latest-stable-37316454284/diskgraph-namespace-self-test/namespace-receipt.json.gz",
+      "raw_sha256": "ee02fe3446b6a029d77d41d3dd9f0ccbdb19d6ed97f3e18d7482d4e88166925c",
+      "raw_bytes": 1907
+    }
+  ]
+}

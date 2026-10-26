@@ -1,0 +1,11 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running tests/pinned_upstream.rs (target/debug/deps/pinned_upstream-2dff95b43fd89ca1)
+
+running 4 tests
+test generated_bindings_stay_out_of_the_repository ... ok
+test no_upstream_app_or_product_dependency_leaks_into_the_workspace ... ok
+test the_workspace_depends_on_the_vendored_path_not_a_registry_or_git_pin ... ok
+test the_vendored_copy_matches_its_recorded_upstream_digests ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+

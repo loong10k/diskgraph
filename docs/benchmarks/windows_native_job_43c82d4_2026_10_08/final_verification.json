@@ -1,0 +1,47 @@
+{
+  "commit": "43c82d42e0468a0ad6d1caafb36be6f8e3268569",
+  "run_id": 37710637225,
+  "job_id": 113095596308,
+  "raw_log_sha256": "1ff965c6854199a2693aa5f6318189fdb206d0e1f8132a8d7e28101f1a7b0e11",
+  "native_job_tests": {
+    "passed": 8,
+    "failed": 0,
+    "skipped": 0
+  },
+  "package_conclusion": "failure",
+  "fixture_create_seconds": 207.86924980000003,
+  "phases": [
+    {
+      "phase": "fixture_create",
+      "event": "begin",
+      "monotonic_seconds": 774.8962418
+    },
+    {
+      "phase": "fixture_create",
+      "event": "end",
+      "monotonic_seconds": 982.7654916
+    },
+    {
+      "phase": "scope_registration",
+      "event": "begin",
+      "monotonic_seconds": 982.7655777
+    },
+    {
+      "phase": "scope_registration",
+      "event": "end",
+      "monotonic_seconds": 983.1534344
+    },
+    {
+      "phase": "index",
+      "event": "begin",
+      "monotonic_seconds": 983.153488
+    }
+  ],
+  "actual_package_timeout_retirement": "original timeout propagated; native Job active-zero and pipe drain path returned without uncertainty notes; no cleanup PermissionError",
+  "not_proven": [
+    "200k performance acceptance",
+    "new parallel preparation improvement",
+    "generic Windows retirement qualification",
+    "all-platform readiness"
+  ]
+}

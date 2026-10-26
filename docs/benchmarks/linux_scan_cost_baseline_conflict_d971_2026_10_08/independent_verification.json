@@ -1,0 +1,38 @@
+{
+  "run": 37712133579,
+  "job": 113100218463,
+  "artifact": 11522792132,
+  "baseline": "2a2f8281f9f211b6632bdb26afdcd4a4fb21a44d",
+  "candidate": "d971427f58f72c5f5ab3f6e410d62db058577d19",
+  "failure": "baseline 200k run_job Business(Conflict), no published revision",
+  "original_error_log_hash_matches_receipt": true,
+  "complete_measurements": [
+    {
+      "label": "baseline",
+      "round": 1,
+      "fixture": "20000-wide",
+      "scan_seconds": 3.240434689
+    },
+    {
+      "label": "candidate",
+      "round": 1,
+      "fixture": "20000-wide",
+      "scan_seconds": 3.407287974
+    },
+    {
+      "label": "candidate",
+      "round": 2,
+      "fixture": "20000-wide",
+      "scan_seconds": 3.335866642
+    },
+    {
+      "label": "baseline",
+      "round": 2,
+      "fixture": "20000-wide",
+      "scan_seconds": 3.251570483
+    }
+  ],
+  "candidate_200k_measured": false,
+  "root_cause_proven": false,
+  "boundary": "posterior control diagnostic is non-atomic; do not infer original failure cause or latest-source readiness"
+}

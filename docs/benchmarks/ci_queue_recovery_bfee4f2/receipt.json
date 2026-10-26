@@ -1,0 +1,999 @@
+{
+  "current_run": 37597292546,
+  "candidate": "bfee4f2005aaf2630f1e4c9fd39beb7c0186252b",
+  "policy": "fresh no-active-job check, ancestor main commits, only queued macOS work; completed job results retained; cancelled work is not passed acceptance",
+  "cancelled_runs": [
+    {
+      "run": 37593889410,
+      "head_sha": "8cff3c65ec0787d5ba796e11aaf483ec2c938539",
+      "queued_jobs": [
+        112701678662,
+        112701678748,
+        112701678775,
+        112701678897,
+        112701678901,
+        112701678992,
+        112701679029,
+        112701838734,
+        112701838739
+      ],
+      "completed_jobs": [
+        {
+          "id": 112701678425,
+          "conclusion": "success"
+        },
+        {
+          "id": 112701678529,
+          "conclusion": "success"
+        },
+        {
+          "id": 112701678556,
+          "conclusion": "success"
+        },
+        {
+          "id": 112701678607,
+          "conclusion": "success"
+        },
+        {
+          "id": 112701678835,
+          "conclusion": "success"
+        },
+        {
+          "id": 112701678894,
+          "conclusion": "success"
+        },
+        {
+          "id": 112701678930,
+          "conclusion": "success"
+        },
+        {
+          "id": 112701678965,
+          "conclusion": "success"
+        },
+        {
+          "id": 112701679119,
+          "conclusion": "success"
+        },
+        {
+          "id": 112701679148,
+          "conclusion": "success"
+        },
+        {
+          "id": 112701838602,
+          "conclusion": "success"
+        },
+        {
+          "id": 112701838627,
+          "conclusion": "success"
+        },
+        {
+          "id": 112701838764,
+          "conclusion": "success"
+        }
+      ],
+      "reason": "superseded ancestor, only queued macOS jobs, no active job at fresh check",
+      "final_status": "completed",
+      "final_conclusion": "cancelled",
+      "completed_job_results_retained": true
+    },
+    {
+      "run": 37592199397,
+      "head_sha": "923b6d80a041d194de72e7fb6f1759e92596927a",
+      "queued_jobs": [
+        112696120036,
+        112696120107,
+        112696120147,
+        112696120189,
+        112696120200,
+        112696120226,
+        112696120428,
+        112696246694,
+        112696246880
+      ],
+      "completed_jobs": [
+        {
+          "id": 112696119680,
+          "conclusion": "success"
+        },
+        {
+          "id": 112696120039,
+          "conclusion": "success"
+        },
+        {
+          "id": 112696120067,
+          "conclusion": "success"
+        },
+        {
+          "id": 112696120088,
+          "conclusion": "success"
+        },
+        {
+          "id": 112696120094,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112696120165,
+          "conclusion": "success"
+        },
+        {
+          "id": 112696120169,
+          "conclusion": "success"
+        },
+        {
+          "id": 112696120173,
+          "conclusion": "success"
+        },
+        {
+          "id": 112696120188,
+          "conclusion": "success"
+        },
+        {
+          "id": 112696120334,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112696246735,
+          "conclusion": "success"
+        },
+        {
+          "id": 112696246796,
+          "conclusion": "success"
+        },
+        {
+          "id": 112696246797,
+          "conclusion": "success"
+        }
+      ],
+      "reason": "superseded ancestor, only queued macOS jobs, no active job at fresh check",
+      "final_status": "completed",
+      "final_conclusion": "cancelled",
+      "completed_job_results_retained": true
+    },
+    {
+      "run": 37589701883,
+      "head_sha": "11dd9588f21c65e629f23b46ba44ca2c08366016",
+      "queued_jobs": [
+        112687983575,
+        112687983618,
+        112687983717,
+        112687983779,
+        112687983795,
+        112687983815,
+        112687983973,
+        112688162669,
+        112688162689
+      ],
+      "completed_jobs": [
+        {
+          "id": 112687983464,
+          "conclusion": "success"
+        },
+        {
+          "id": 112687983603,
+          "conclusion": "success"
+        },
+        {
+          "id": 112687983677,
+          "conclusion": "success"
+        },
+        {
+          "id": 112687983733,
+          "conclusion": "success"
+        },
+        {
+          "id": 112687983749,
+          "conclusion": "success"
+        },
+        {
+          "id": 112687983792,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112687983811,
+          "conclusion": "success"
+        },
+        {
+          "id": 112687983812,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112687983835,
+          "conclusion": "success"
+        },
+        {
+          "id": 112687983884,
+          "conclusion": "success"
+        },
+        {
+          "id": 112688162621,
+          "conclusion": "success"
+        },
+        {
+          "id": 112688162650,
+          "conclusion": "success"
+        },
+        {
+          "id": 112688162692,
+          "conclusion": "success"
+        }
+      ],
+      "reason": "superseded ancestor, only queued macOS jobs, no active job at fresh check",
+      "final_status": "completed",
+      "final_conclusion": "cancelled",
+      "completed_job_results_retained": true
+    },
+    {
+      "run": 37587028677,
+      "head_sha": "bd7cfefa06e718b94683cdcbccbb148b29330933",
+      "queued_jobs": [
+        112679430821,
+        112679431000,
+        112679431033,
+        112679431226,
+        112679431231,
+        112679431246,
+        112679431304,
+        112679612022,
+        112679612293
+      ],
+      "completed_jobs": [
+        {
+          "id": 112679430601,
+          "conclusion": "success"
+        },
+        {
+          "id": 112679430956,
+          "conclusion": "success"
+        },
+        {
+          "id": 112679431014,
+          "conclusion": "success"
+        },
+        {
+          "id": 112679431171,
+          "conclusion": "success"
+        },
+        {
+          "id": 112679431209,
+          "conclusion": "success"
+        },
+        {
+          "id": 112679431305,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112679431316,
+          "conclusion": "success"
+        },
+        {
+          "id": 112679431320,
+          "conclusion": "success"
+        },
+        {
+          "id": 112679431336,
+          "conclusion": "success"
+        },
+        {
+          "id": 112679431347,
+          "conclusion": "success"
+        },
+        {
+          "id": 112679611950,
+          "conclusion": "success"
+        },
+        {
+          "id": 112679612023,
+          "conclusion": "success"
+        },
+        {
+          "id": 112679612046,
+          "conclusion": "success"
+        }
+      ],
+      "reason": "superseded ancestor, only queued macOS jobs, no active job at fresh check",
+      "final_status": "completed",
+      "final_conclusion": "cancelled",
+      "completed_job_results_retained": true
+    },
+    {
+      "run": 37585710586,
+      "head_sha": "0058e90667ddbd91a9c89bc3cf629a7d2c783102",
+      "queued_jobs": [
+        112675221479,
+        112675221521,
+        112675221530,
+        112675221554,
+        112675221644,
+        112675221706,
+        112675221779,
+        112675334516,
+        112675334688
+      ],
+      "completed_jobs": [
+        {
+          "id": 112675221259,
+          "conclusion": "success"
+        },
+        {
+          "id": 112675221558,
+          "conclusion": "success"
+        },
+        {
+          "id": 112675221566,
+          "conclusion": "success"
+        },
+        {
+          "id": 112675221568,
+          "conclusion": "success"
+        },
+        {
+          "id": 112675221623,
+          "conclusion": "success"
+        },
+        {
+          "id": 112675221645,
+          "conclusion": "success"
+        },
+        {
+          "id": 112675221691,
+          "conclusion": "success"
+        },
+        {
+          "id": 112675221733,
+          "conclusion": "success"
+        },
+        {
+          "id": 112675221770,
+          "conclusion": "success"
+        },
+        {
+          "id": 112675221771,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112675334441,
+          "conclusion": "success"
+        },
+        {
+          "id": 112675334496,
+          "conclusion": "success"
+        },
+        {
+          "id": 112675334524,
+          "conclusion": "success"
+        }
+      ],
+      "reason": "superseded ancestor, only queued macOS jobs, no active job at fresh check",
+      "final_status": "completed",
+      "final_conclusion": "cancelled",
+      "completed_job_results_retained": true
+    },
+    {
+      "run": 37584049241,
+      "head_sha": "29701a3921488f32811fda29dc2e0ac8f1b05928",
+      "queued_jobs": [
+        112670021304,
+        112670021359,
+        112670021368,
+        112670021403,
+        112670021633,
+        112670021738,
+        112670021741,
+        112670167850,
+        112670167874
+      ],
+      "completed_jobs": [
+        {
+          "id": 112670021044,
+          "conclusion": "success"
+        },
+        {
+          "id": 112670021305,
+          "conclusion": "success"
+        },
+        {
+          "id": 112670021341,
+          "conclusion": "success"
+        },
+        {
+          "id": 112670021363,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112670021396,
+          "conclusion": "success"
+        },
+        {
+          "id": 112670021422,
+          "conclusion": "success"
+        },
+        {
+          "id": 112670021460,
+          "conclusion": "success"
+        },
+        {
+          "id": 112670021500,
+          "conclusion": "success"
+        },
+        {
+          "id": 112670021613,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112670021655,
+          "conclusion": "success"
+        },
+        {
+          "id": 112670167777,
+          "conclusion": "success"
+        },
+        {
+          "id": 112670167826,
+          "conclusion": "success"
+        },
+        {
+          "id": 112670167829,
+          "conclusion": "success"
+        }
+      ],
+      "reason": "superseded ancestor, only queued macOS jobs, no active job at fresh check",
+      "final_status": "completed",
+      "final_conclusion": "cancelled",
+      "completed_job_results_retained": true
+    },
+    {
+      "run": 37581237942,
+      "head_sha": "1c9fe464c586d2c1db203ce092d13c3d0b06a830",
+      "queued_jobs": [
+        112661149190,
+        112661149238,
+        112661149266,
+        112661149332,
+        112661149425,
+        112661149472,
+        112661149615,
+        112661288930,
+        112661288958
+      ],
+      "completed_jobs": [
+        {
+          "id": 112661149108,
+          "conclusion": "success"
+        },
+        {
+          "id": 112661149226,
+          "conclusion": "success"
+        },
+        {
+          "id": 112661149292,
+          "conclusion": "success"
+        },
+        {
+          "id": 112661149373,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112661149415,
+          "conclusion": "success"
+        },
+        {
+          "id": 112661149493,
+          "conclusion": "success"
+        },
+        {
+          "id": 112661149499,
+          "conclusion": "success"
+        },
+        {
+          "id": 112661149538,
+          "conclusion": "success"
+        },
+        {
+          "id": 112661149578,
+          "conclusion": "success"
+        },
+        {
+          "id": 112661149766,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112661288924,
+          "conclusion": "success"
+        },
+        {
+          "id": 112661288945,
+          "conclusion": "success"
+        },
+        {
+          "id": 112661288979,
+          "conclusion": "success"
+        }
+      ],
+      "reason": "superseded ancestor, only queued macOS jobs, no active job at fresh check",
+      "final_status": "completed",
+      "final_conclusion": "cancelled",
+      "completed_job_results_retained": true
+    },
+    {
+      "run": 37579701185,
+      "head_sha": "a08a5b1e0ddc12344a1f7bf9cca14464b284cc01",
+      "queued_jobs": [
+        112656311595,
+        112656311627,
+        112656311656,
+        112656311814,
+        112656311817,
+        112656311906,
+        112656311957,
+        112656779085,
+        112656779125
+      ],
+      "completed_jobs": [
+        {
+          "id": 112656311426,
+          "conclusion": "success"
+        },
+        {
+          "id": 112656311547,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112656311587,
+          "conclusion": "success"
+        },
+        {
+          "id": 112656311615,
+          "conclusion": "success"
+        },
+        {
+          "id": 112656311668,
+          "conclusion": "success"
+        },
+        {
+          "id": 112656311795,
+          "conclusion": "success"
+        },
+        {
+          "id": 112656311812,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112656311832,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112656311882,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112656311886,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112656779087,
+          "conclusion": "success"
+        },
+        {
+          "id": 112656779103,
+          "conclusion": "success"
+        },
+        {
+          "id": 112656779126,
+          "conclusion": "success"
+        }
+      ],
+      "reason": "superseded ancestor, only queued macOS jobs, no active job at fresh check",
+      "final_status": "completed",
+      "final_conclusion": "cancelled",
+      "completed_job_results_retained": true
+    },
+    {
+      "run": 37579424974,
+      "head_sha": "01c652c8512f231c880e6deafb0c3be5831f7e9b",
+      "queued_jobs": [
+        112655465850,
+        112655465972,
+        112655466129,
+        112655466170,
+        112655466227,
+        112655466262,
+        112655466343,
+        112655636536,
+        112655636561
+      ],
+      "completed_jobs": [
+        {
+          "id": 112655465955,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112655466060,
+          "conclusion": "success"
+        },
+        {
+          "id": 112655466061,
+          "conclusion": "success"
+        },
+        {
+          "id": 112655466094,
+          "conclusion": "success"
+        },
+        {
+          "id": 112655466120,
+          "conclusion": "success"
+        },
+        {
+          "id": 112655466135,
+          "conclusion": "success"
+        },
+        {
+          "id": 112655466199,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112655466239,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112655466250,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112655466383,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112655636495,
+          "conclusion": "success"
+        },
+        {
+          "id": 112655636547,
+          "conclusion": "success"
+        },
+        {
+          "id": 112655636616,
+          "conclusion": "success"
+        }
+      ],
+      "reason": "superseded ancestor, only queued macOS jobs, no active job at fresh check",
+      "final_status": "completed",
+      "final_conclusion": "cancelled",
+      "completed_job_results_retained": true
+    },
+    {
+      "run": 37578970268,
+      "head_sha": "31c1cbb345a1e204b1b21508e4549de56b0307f9",
+      "queued_jobs": [
+        112654091819,
+        112654091967,
+        112654092018,
+        112654092078,
+        112654092088,
+        112654092279,
+        112654092375,
+        112654238108,
+        112654238109
+      ],
+      "completed_jobs": [
+        {
+          "id": 112654091965,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112654091989,
+          "conclusion": "success"
+        },
+        {
+          "id": 112654092010,
+          "conclusion": "success"
+        },
+        {
+          "id": 112654092015,
+          "conclusion": "success"
+        },
+        {
+          "id": 112654092034,
+          "conclusion": "success"
+        },
+        {
+          "id": 112654092115,
+          "conclusion": "success"
+        },
+        {
+          "id": 112654092224,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112654092263,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112654092304,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112654092313,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112654238081,
+          "conclusion": "success"
+        },
+        {
+          "id": 112654238091,
+          "conclusion": "success"
+        },
+        {
+          "id": 112654238224,
+          "conclusion": "success"
+        }
+      ],
+      "reason": "superseded ancestor, only queued macOS jobs, no active job at fresh check",
+      "final_status": "completed",
+      "final_conclusion": "cancelled",
+      "completed_job_results_retained": true
+    },
+    {
+      "run": 37571865055,
+      "head_sha": "7fc333018276143aea3b5b2e08b1198354bced84",
+      "queued_jobs": [
+        112632060032,
+        112632060053,
+        112632060067,
+        112632060182,
+        112632060197,
+        112632060237,
+        112632060262,
+        112638935858,
+        112638935898
+      ],
+      "completed_jobs": [
+        {
+          "id": 112632059825,
+          "conclusion": "success"
+        },
+        {
+          "id": 112632059948,
+          "conclusion": "success"
+        },
+        {
+          "id": 112632059957,
+          "conclusion": "success"
+        },
+        {
+          "id": 112632060060,
+          "conclusion": "success"
+        },
+        {
+          "id": 112632060113,
+          "conclusion": "success"
+        },
+        {
+          "id": 112632060172,
+          "conclusion": "success"
+        },
+        {
+          "id": 112632060239,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112632060260,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112632060271,
+          "conclusion": "success"
+        },
+        {
+          "id": 112632060463,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112638935807,
+          "conclusion": "success"
+        },
+        {
+          "id": 112638935839,
+          "conclusion": "success"
+        },
+        {
+          "id": 112638935969,
+          "conclusion": "success"
+        }
+      ],
+      "reason": "superseded ancestor, only queued macOS jobs, no active job at fresh check",
+      "final_status": "completed",
+      "final_conclusion": "cancelled",
+      "completed_job_results_retained": true
+    },
+    {
+      "run": 37571123949,
+      "head_sha": "76e91947d87564ac0d0d37fcb14b1494b09a9334",
+      "queued_jobs": [
+        112635258829,
+        112635258872
+      ],
+      "completed_jobs": [
+        {
+          "id": 112629760260,
+          "conclusion": "success"
+        },
+        {
+          "id": 112629760351,
+          "conclusion": "success"
+        },
+        {
+          "id": 112629760355,
+          "conclusion": "success"
+        },
+        {
+          "id": 112629760434,
+          "conclusion": "success"
+        },
+        {
+          "id": 112629760442,
+          "conclusion": "success"
+        },
+        {
+          "id": 112629760455,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112629760456,
+          "conclusion": "success"
+        },
+        {
+          "id": 112629760463,
+          "conclusion": "success"
+        },
+        {
+          "id": 112629760477,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112629760481,
+          "conclusion": "success"
+        },
+        {
+          "id": 112629760496,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112629760513,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112629760543,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112629760578,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112629760589,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112629760632,
+          "conclusion": "success"
+        },
+        {
+          "id": 112629760685,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112635258854,
+          "conclusion": "success"
+        },
+        {
+          "id": 112635258860,
+          "conclusion": "success"
+        },
+        {
+          "id": 112635258900,
+          "conclusion": "success"
+        }
+      ],
+      "reason": "superseded ancestor, only queued macOS jobs, no active job at fresh check",
+      "final_status": "completed",
+      "final_conclusion": "cancelled",
+      "completed_job_results_retained": true
+    },
+    {
+      "run": 37569535906,
+      "head_sha": "d101c4164e618dcb3dc8621da8e25359124dd2a5",
+      "queued_jobs": [
+        112634116223,
+        112634116229
+      ],
+      "completed_jobs": [
+        {
+          "id": 112624795935,
+          "conclusion": "success"
+        },
+        {
+          "id": 112624796085,
+          "conclusion": "success"
+        },
+        {
+          "id": 112624796108,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112624796128,
+          "conclusion": "success"
+        },
+        {
+          "id": 112624796139,
+          "conclusion": "success"
+        },
+        {
+          "id": 112624796162,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112624796170,
+          "conclusion": "success"
+        },
+        {
+          "id": 112624796187,
+          "conclusion": "success"
+        },
+        {
+          "id": 112624796215,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112624796225,
+          "conclusion": "success"
+        },
+        {
+          "id": 112624796230,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112624796246,
+          "conclusion": "success"
+        },
+        {
+          "id": 112624796247,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112624796269,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112624796343,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112624796353,
+          "conclusion": "failure"
+        },
+        {
+          "id": 112624796356,
+          "conclusion": "success"
+        },
+        {
+          "id": 112634116206,
+          "conclusion": "success"
+        },
+        {
+          "id": 112634116231,
+          "conclusion": "success"
+        },
+        {
+          "id": 112634116263,
+          "conclusion": "success"
+        }
+      ],
+      "reason": "superseded ancestor, only queued macOS jobs, no active job at fresh check",
+      "final_status": "completed",
+      "final_conclusion": "cancelled",
+      "completed_job_results_retained": true
+    }
+  ],
+  "full_production_acceptance": false
+}

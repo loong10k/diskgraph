@@ -1,0 +1,9 @@
+{
+  "head_sha": "aa9819e2b907a284ac32d4c9a01bf4742ac507c5",
+  "job_id": 113088216295,
+  "artifact_id": 11521005445,
+  "archive_sha256": "93b25f8cb606b1838b01c085ca3dc6b57852b955b72cbd39f7733b610a82a1f9",
+  "verified": true,
+  "scope": "4 direct/nested read/hash provider cases no data open/fetch; ordinary positive control one fetch; actual original provider unmount and reap",
+  "limitation": "Only this Linux ARM64 FUSE provider, not generic ondemand provider or all-platform readiness"
+}

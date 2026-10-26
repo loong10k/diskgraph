@@ -1,0 +1,19 @@
+   Compiling diskgraph-engine v0.3.0 (/build/terminal-red-7fc3330/crates/diskgraph-engine)
+    Finished `test` profile [unoptimized] target(s) in 1.03s
+     Running tests/scope_authorization_projection_tests.rs (/build/terminal-red-target/debug/deps/scope_authorization_projection_tests-989c320bde1b429f)
+
+running 1 test
+
+thread 'terminal_policy_sql_keeps_its_budget_after_the_capability_callback' (28) panicked at crates/diskgraph-engine/tests/scope_authorization_projection_tests.rs:494:5:
+unbounded terminal SQL: 4.843506794s
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test terminal_policy_sql_keeps_its_budget_after_the_capability_callback ... FAILED
+
+failures:
+
+failures:
+    terminal_policy_sql_keeps_its_budget_after_the_capability_callback
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 4 filtered out; finished in 4.91s
+
+error: test failed, to rerun pass `-p diskgraph-engine --test scope_authorization_projection_tests`

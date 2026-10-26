@@ -1,0 +1,205 @@
+{
+  "checkout_sha": "923b6d80a041d194de72e7fb6f1759e92596927a",
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "source_sha256": "24ffebad082f02833a9e51840c2dcb4734d027db4b365b0cc5a909314eb4bbaf",
+  "binary_sha256": "87c0b91c085259c7a499415f012f11c8b3265f987b1d7554114d3ae03e7c09a7",
+  "command": "release test binary --ignored --exact child_aggregate_benchmark::measure_directory_aggregate_costs --nocapture",
+  "result": "passed",
+  "measurements": [
+    {
+      "after_counts": {
+        "p50_ms": 0.005959,
+        "p95_ms": 0.007417,
+        "samples": 100
+      },
+      "arch": "aarch64",
+      "backup_bytes": 7225344,
+      "before_counts": {
+        "p50_ms": 0.562,
+        "p95_ms": 0.601,
+        "samples": 100
+      },
+      "bounded_pages": [
+        {
+          "cache_state": "same connection, repeated warm queries",
+          "decoded_nodes_per_query": 10,
+          "directory_page": {
+            "p50_ms": 0.035666,
+            "p95_ms": 0.053209,
+            "samples": 100
+          },
+          "does_not_measure_sqlite_pages_or_process_rss": true,
+          "page_size": 10,
+          "tree_page": {
+            "p50_ms": 0.087375,
+            "p95_ms": 0.095833,
+            "samples": 100
+          }
+        },
+        {
+          "cache_state": "same connection, repeated warm queries",
+          "decoded_nodes_per_query": 100,
+          "directory_page": {
+            "p50_ms": 0.08870800000000001,
+            "p95_ms": 0.097042,
+            "samples": 100
+          },
+          "does_not_measure_sqlite_pages_or_process_rss": true,
+          "page_size": 100,
+          "tree_page": {
+            "p50_ms": 0.16154200000000002,
+            "p95_ms": 0.1735,
+            "samples": 100
+          }
+        }
+      ],
+      "children": 20000,
+      "concurrent_directory_pages": {
+        "connection_opening_excluded_from_query_timing": true,
+        "connections": 4,
+        "decoded_nodes_per_query": 100,
+        "page_size": 100,
+        "per_connection": [
+          {
+            "p50_ms": 0.342083,
+            "p95_ms": 0.481917,
+            "samples": 100
+          },
+          {
+            "p50_ms": 0.341917,
+            "p95_ms": 0.508,
+            "samples": 100
+          },
+          {
+            "p50_ms": 0.342708,
+            "p95_ms": 0.526125,
+            "samples": 100
+          },
+          {
+            "p50_ms": 0.337042,
+            "p95_ms": 0.49850000000000005,
+            "samples": 100
+          }
+        ]
+      },
+      "db_after_migration_bytes": 8802304,
+      "db_after_publish_bytes": 20525056,
+      "db_before_migration_bytes": 7225344,
+      "distinct_sizes": 20000,
+      "fixture": "synthetic immutable metadata",
+      "migration_including_backup_ms": 60.6235,
+      "migration_sampled_peak_sqlite_temp_bytes": 684700,
+      "migration_sampled_peak_wal_bytes": 2385536,
+      "os": "macos",
+      "owned_staging_fenced_publish_ms": 221.945375,
+      "profile": "release",
+      "publish_phase_includes_sampler_validation_commit_checkpoint": true,
+      "publish_sampled_peak_sqlite_temp_bytes": 1763000,
+      "publish_sampled_peak_wal_bytes": 17753112,
+      "space_sampling_interval_ms": 1,
+      "staging_db_before_publish_bytes": 10379264,
+      "temp_sampling_is_upper_bound": false
+    },
+    {
+      "after_counts": {
+        "p50_ms": 0.005915999999999999,
+        "p95_ms": 0.006583,
+        "samples": 100
+      },
+      "arch": "aarch64",
+      "backup_bytes": 72425472,
+      "before_counts": {
+        "p50_ms": 7.039041,
+        "p95_ms": 7.586334,
+        "samples": 100
+      },
+      "bounded_pages": [
+        {
+          "cache_state": "same connection, repeated warm queries",
+          "decoded_nodes_per_query": 10,
+          "directory_page": {
+            "p50_ms": 0.034999999999999996,
+            "p95_ms": 0.042208,
+            "samples": 100
+          },
+          "does_not_measure_sqlite_pages_or_process_rss": true,
+          "page_size": 10,
+          "tree_page": {
+            "p50_ms": 0.090208,
+            "p95_ms": 0.19875,
+            "samples": 100
+          }
+        },
+        {
+          "cache_state": "same connection, repeated warm queries",
+          "decoded_nodes_per_query": 100,
+          "directory_page": {
+            "p50_ms": 0.090042,
+            "p95_ms": 0.136167,
+            "samples": 100
+          },
+          "does_not_measure_sqlite_pages_or_process_rss": true,
+          "page_size": 100,
+          "tree_page": {
+            "p50_ms": 0.169458,
+            "p95_ms": 0.230334,
+            "samples": 100
+          }
+        }
+      ],
+      "children": 200000,
+      "concurrent_directory_pages": {
+        "connection_opening_excluded_from_query_timing": true,
+        "connections": 4,
+        "decoded_nodes_per_query": 100,
+        "page_size": 100,
+        "per_connection": [
+          {
+            "p50_ms": 0.352209,
+            "p95_ms": 0.526375,
+            "samples": 100
+          },
+          {
+            "p50_ms": 0.355042,
+            "p95_ms": 0.527167,
+            "samples": 100
+          },
+          {
+            "p50_ms": 0.355958,
+            "p95_ms": 0.5721670000000001,
+            "samples": 100
+          },
+          {
+            "p50_ms": 0.364625,
+            "p95_ms": 0.531459,
+            "samples": 100
+          }
+        ]
+      },
+      "db_after_migration_bytes": 88977408,
+      "db_after_publish_bytes": 209051648,
+      "db_before_migration_bytes": 72425472,
+      "distinct_sizes": 200000,
+      "fixture": "synthetic immutable metadata",
+      "migration_including_backup_ms": 807.354042,
+      "migration_sampled_peak_sqlite_temp_bytes": 14341073,
+      "migration_sampled_peak_wal_bytes": 23661192,
+      "os": "macos",
+      "owned_staging_fenced_publish_ms": 1981.658084,
+      "profile": "release",
+      "publish_phase_includes_sampler_validation_commit_checkpoint": true,
+      "publish_sampled_peak_sqlite_temp_bytes": 9208600,
+      "publish_sampled_peak_wal_bytes": 182907432,
+      "space_sampling_interval_ms": 1,
+      "staging_db_before_publish_bytes": 102375424,
+      "temp_sampling_is_upper_bound": false
+    }
+  ],
+  "limitations": [
+    "synthetic immutable metadata",
+    "warm query connection",
+    "no complete filesystem scan",
+    "no process peak RSS",
+    "before_counts is old SQL comparison on same fixture, not a historical build"
+  ]
+}

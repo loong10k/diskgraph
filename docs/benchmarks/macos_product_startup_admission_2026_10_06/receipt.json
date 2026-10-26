@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "production_acceptance": false,
+  "api_tests": {
+    "passed": 15,
+    "failed": 0
+  },
+  "actual_cli_process_tests": {
+    "passed": 4,
+    "failed": 0
+  },
+  "actual_mcp_process_tests": {
+    "passed": 4,
+    "failed": 0
+  },
+  "actual_red": "old complete env accepted by CLI doctor and MCP EOF startup; CLI created data dir",
+  "platform": "local macOS",
+  "remaining": "installed positive CLI/MCP scans, native Intel/ARM results, default feature qualification, other platforms and full workspace remain open",
+  "source_sha256": {
+    "crates/diskgraph-mcp/src/scan_worker_settings.rs": "82ff0ab2bcc2ef810778a00c2d02415faf0b4be7e665012f853a424403fdc7af",
+    "crates/diskgraph-mcp/src/scan_worker_settings_tests.rs": "aec3f619eff8422021e5a535657b1a16b060e0940e64aa554deb3490bd11748b",
+    "crates/diskgraph-mcp/src/main.rs": "8d558742bb95ec998316b3667fc82602ab42e1910481ca60265fea52953a2c45",
+    "crates/diskgraph-cli/src/cli_engine_host.rs": "4ed1eb631c6f29a8dad0c8dc07742cc6abb304a9f6d2f92d57e9e046283838bc",
+    "crates/diskgraph-cli/tests/scan_worker_binary_config.rs": "f7e049bee018aa3c28f8f9b264d77fb025d5343c2acd46f20f2d45c1dd602d92",
+    "crates/diskgraph-mcp/tests/scan_worker_binary_config.rs": "2c4d5006fd8d5f1074b60cd59277fb1b11d3990f48d2e9f947fa0ba0339ff5f2"
+  }
+}

@@ -1,0 +1,323 @@
+{
+  "source_commit": "5c85a48703ce23f7271d43d1f5273fa338428a32",
+  "kind": "isolated_diagnostic_not_production_acceptance",
+  "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "architecture": "arm64",
+  "diagnostic_source_sha256": "d00a3444802bc0fd17bf77dd525ba4bb1d21ba049f961374444c11afe672e945",
+  "binary_sha256": "0cf87b8ade809671641eed41ca36df9bf31a070c36a2980aab429ccc0ae98109",
+  "rounds": [
+    {
+      "file": "positive_1.jsonl",
+      "sha256": "0791e0818f02f697e9e153dd1f6ce858bdedcdc867bf9815c42f312f389731f9",
+      "phases": [
+        {
+          "mode": "positive",
+          "p50_ns": 6208,
+          "p95_ns": 8417,
+          "phase": "control_existing_server_with_deadline",
+          "samples": 1000
+        },
+        {
+          "mode": "positive",
+          "p50_ns": 181584,
+          "p95_ns": 230208,
+          "phase": "fresh_reader_open_configure",
+          "samples": 1000
+        },
+        {
+          "mode": "positive",
+          "p50_ns": 8375,
+          "p95_ns": 11500,
+          "phase": "ownership_filtered_query",
+          "samples": 1000
+        },
+        {
+          "mode": "positive",
+          "p50_ns": 21792,
+          "p95_ns": 26333,
+          "phase": "reader_drop",
+          "samples": 1000
+        }
+      ]
+    },
+    {
+      "file": "missing_1.jsonl",
+      "sha256": "eb9cb04b723254e20d4bf417bef60740e111ad5b2f293c574680ae0f835b307d",
+      "phases": [
+        {
+          "mode": "missing",
+          "p50_ns": 6083,
+          "p95_ns": 7875,
+          "phase": "control_existing_server_with_deadline",
+          "samples": 1000
+        },
+        {
+          "mode": "missing",
+          "p50_ns": 180750,
+          "p95_ns": 217958,
+          "phase": "fresh_reader_open_configure",
+          "samples": 1000
+        },
+        {
+          "mode": "missing",
+          "p50_ns": 7000,
+          "p95_ns": 9625,
+          "phase": "ownership_filtered_query",
+          "samples": 1000
+        },
+        {
+          "mode": "missing",
+          "p50_ns": 21625,
+          "p95_ns": 25667,
+          "phase": "reader_drop",
+          "samples": 1000
+        }
+      ]
+    },
+    {
+      "file": "quarantined_1.jsonl",
+      "sha256": "6fd6314c46d7e802238a6a13135a4e2b3befa010ef67b456d1a3ba6e03b11c9b",
+      "phases": [
+        {
+          "mode": "quarantined",
+          "p50_ns": 6208,
+          "p95_ns": 9334,
+          "phase": "control_existing_server_with_deadline",
+          "samples": 1000
+        },
+        {
+          "mode": "quarantined",
+          "p50_ns": 182209,
+          "p95_ns": 257208,
+          "phase": "fresh_reader_open_configure",
+          "samples": 1000
+        },
+        {
+          "mode": "quarantined",
+          "p50_ns": 8708,
+          "p95_ns": 14875,
+          "phase": "ownership_filtered_query",
+          "samples": 1000
+        },
+        {
+          "mode": "quarantined",
+          "p50_ns": 22042,
+          "p95_ns": 29125,
+          "phase": "reader_drop",
+          "samples": 1000
+        }
+      ]
+    },
+    {
+      "file": "positive_2.jsonl",
+      "sha256": "35d4a35746a5be41e115d11eacb2ac8f791ed0a9cb4465f706fb4b0f7fa0fb17",
+      "phases": [
+        {
+          "mode": "positive",
+          "p50_ns": 6042,
+          "p95_ns": 8125,
+          "phase": "control_existing_server_with_deadline",
+          "samples": 1000
+        },
+        {
+          "mode": "positive",
+          "p50_ns": 181084,
+          "p95_ns": 220917,
+          "phase": "fresh_reader_open_configure",
+          "samples": 1000
+        },
+        {
+          "mode": "positive",
+          "p50_ns": 8334,
+          "p95_ns": 11708,
+          "phase": "ownership_filtered_query",
+          "samples": 1000
+        },
+        {
+          "mode": "positive",
+          "p50_ns": 21708,
+          "p95_ns": 26208,
+          "phase": "reader_drop",
+          "samples": 1000
+        }
+      ]
+    },
+    {
+      "file": "missing_2.jsonl",
+      "sha256": "fe9acd28ba31aa4afd222752cb84b4d430a6919a8df48d31c60d57a5a890756d",
+      "phases": [
+        {
+          "mode": "missing",
+          "p50_ns": 6000,
+          "p95_ns": 7709,
+          "phase": "control_existing_server_with_deadline",
+          "samples": 1000
+        },
+        {
+          "mode": "missing",
+          "p50_ns": 183042,
+          "p95_ns": 211584,
+          "phase": "fresh_reader_open_configure",
+          "samples": 1000
+        },
+        {
+          "mode": "missing",
+          "p50_ns": 7125,
+          "p95_ns": 9166,
+          "phase": "ownership_filtered_query",
+          "samples": 1000
+        },
+        {
+          "mode": "missing",
+          "p50_ns": 22125,
+          "p95_ns": 25833,
+          "phase": "reader_drop",
+          "samples": 1000
+        }
+      ]
+    },
+    {
+      "file": "quarantined_2.jsonl",
+      "sha256": "358525c5451b1890d33e809923dec5269ef1b4af2a2a417c799eebb2219126f5",
+      "phases": [
+        {
+          "mode": "quarantined",
+          "p50_ns": 6209,
+          "p95_ns": 8875,
+          "phase": "control_existing_server_with_deadline",
+          "samples": 1000
+        },
+        {
+          "mode": "quarantined",
+          "p50_ns": 183667,
+          "p95_ns": 232375,
+          "phase": "fresh_reader_open_configure",
+          "samples": 1000
+        },
+        {
+          "mode": "quarantined",
+          "p50_ns": 8625,
+          "p95_ns": 13250,
+          "phase": "ownership_filtered_query",
+          "samples": 1000
+        },
+        {
+          "mode": "quarantined",
+          "p50_ns": 22125,
+          "p95_ns": 27459,
+          "phase": "reader_drop",
+          "samples": 1000
+        }
+      ]
+    },
+    {
+      "file": "positive_3.jsonl",
+      "sha256": "be560ffbc3c608990528eb75b5aec3db4fd0b6438fc067f409ed44f4c2948f0a",
+      "phases": [
+        {
+          "mode": "positive",
+          "p50_ns": 6208,
+          "p95_ns": 7584,
+          "phase": "control_existing_server_with_deadline",
+          "samples": 1000
+        },
+        {
+          "mode": "positive",
+          "p50_ns": 182750,
+          "p95_ns": 205375,
+          "phase": "fresh_reader_open_configure",
+          "samples": 1000
+        },
+        {
+          "mode": "positive",
+          "p50_ns": 8417,
+          "p95_ns": 10417,
+          "phase": "ownership_filtered_query",
+          "samples": 1000
+        },
+        {
+          "mode": "positive",
+          "p50_ns": 21875,
+          "p95_ns": 24625,
+          "phase": "reader_drop",
+          "samples": 1000
+        }
+      ]
+    },
+    {
+      "file": "missing_3.jsonl",
+      "sha256": "045a7c1a348f27ad0b3752534986549380dd056a95216b419441e2f20b844467",
+      "phases": [
+        {
+          "mode": "missing",
+          "p50_ns": 6292,
+          "p95_ns": 9834,
+          "phase": "control_existing_server_with_deadline",
+          "samples": 1000
+        },
+        {
+          "mode": "missing",
+          "p50_ns": 181666,
+          "p95_ns": 247583,
+          "phase": "fresh_reader_open_configure",
+          "samples": 1000
+        },
+        {
+          "mode": "missing",
+          "p50_ns": 7125,
+          "p95_ns": 11791,
+          "phase": "ownership_filtered_query",
+          "samples": 1000
+        },
+        {
+          "mode": "missing",
+          "p50_ns": 21750,
+          "p95_ns": 29500,
+          "phase": "reader_drop",
+          "samples": 1000
+        }
+      ]
+    },
+    {
+      "file": "quarantined_3.jsonl",
+      "sha256": "1a096530688dde0f6271bff923db4ce3b6e960d8437c8778075abc85bb0c5eaf",
+      "phases": [
+        {
+          "mode": "quarantined",
+          "p50_ns": 6125,
+          "p95_ns": 7375,
+          "phase": "control_existing_server_with_deadline",
+          "samples": 1000
+        },
+        {
+          "mode": "quarantined",
+          "p50_ns": 182208,
+          "p95_ns": 202417,
+          "phase": "fresh_reader_open_configure",
+          "samples": 1000
+        },
+        {
+          "mode": "quarantined",
+          "p50_ns": 8541,
+          "p95_ns": 10625,
+          "phase": "ownership_filtered_query",
+          "samples": 1000
+        },
+        {
+          "mode": "quarantined",
+          "p50_ns": 22000,
+          "p95_ns": 25125,
+          "phase": "reader_drop",
+          "samples": 1000
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "macOS host; not Linux regression attribution",
+    "two-node metadata graph published through actual store API; ownership and denial rows populated in isolated fixture",
+    "no full Engine query, 20k/200k graph, concurrency or response encoding",
+    "original fresh reader and filtered authorization view; fixed 50ms observation deadline",
+    "100 warmup and 1000 measurements per case; no changes to production source"
+  ]
+}

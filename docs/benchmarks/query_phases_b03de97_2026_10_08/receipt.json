@@ -1,0 +1,17 @@
+{
+  "commit": "b03de97b32e767c23b04e8308b876cd9eaee4a88",
+  "release": true,
+  "platform": "Linux ARM64 Docker Rust1.97.1",
+  "passed": 1,
+  "requests": 100,
+  "source_archive": "release_b03de97_source",
+  "raw_sha256": "fd550ab50fd555c1d32d73010966c2ad8a1f70877a6fa3e84f6f4dce300cfc5f",
+  "explains_200k_cli_latency": false,
+  "slo_acceptance": false,
+  "production_acceptance": false,
+  "limits": [
+    "synthetic two-node relation query, not top/children CLI",
+    "no CPU quota comparison",
+    "same immutable source archive previously bound to 1481 Git blobs"
+  ]
+}

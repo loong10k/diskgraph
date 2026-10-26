@@ -1,0 +1,194 @@
+{
+  "baseline": "1cc15c244e3dbb7f04cda25d392cc07dd4fce03e",
+  "candidate": "5ca2d40f23c210f890d7714620e2c115f5229807",
+  "binary_sha256": {
+    "baseline": {
+      "diskgraph": "e9cae12b7bfd61c5b24ebf6c142f7cbea1155586cb714db3e12b1148ee97cea8",
+      "diskgraph-scan-worker": "a643e32a0dbf9e4eadf33f71236a47644eb3f9913f065fd8db0db61662187702"
+    },
+    "candidate": {
+      "diskgraph": "a8c8c469bb33916e2fbb8f9c5869def1adc8ba1a0a641aec4f57cca6b25493d1",
+      "diskgraph-scan-worker": "a643e32a0dbf9e4eadf33f71236a47644eb3f9913f065fd8db0db61662187702"
+    }
+  },
+  "records": [
+    {
+      "label": "paired-20000-round1-baseline",
+      "report": {
+        "version": "diskgraph 0.3.0",
+        "platform": "linux",
+        "files": 20000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 1.334,
+        "query_p50_ms": 10.388,
+        "query_p95_ms": 14.299,
+        "database_and_wal_bytes": 41447424,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      }
+    },
+    {
+      "label": "paired-20000-round1-candidate",
+      "report": {
+        "version": "diskgraph 0.3.0",
+        "platform": "linux",
+        "files": 20000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 1.145,
+        "query_p50_ms": 10.221,
+        "query_p95_ms": 14.808,
+        "database_and_wal_bytes": 41414656,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      }
+    },
+    {
+      "label": "paired-20000-round2-candidate",
+      "report": {
+        "version": "diskgraph 0.3.0",
+        "platform": "linux",
+        "files": 20000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 1.248,
+        "query_p50_ms": 10.555,
+        "query_p95_ms": 17.196,
+        "database_and_wal_bytes": 41414656,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      }
+    },
+    {
+      "label": "paired-20000-round2-baseline",
+      "report": {
+        "version": "diskgraph 0.3.0",
+        "platform": "linux",
+        "files": 20000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 1.158,
+        "query_p50_ms": 12.089,
+        "query_p95_ms": 15.444,
+        "database_and_wal_bytes": 41414656,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      }
+    },
+    {
+      "label": "paired-200000-round1-baseline",
+      "report": {
+        "version": "diskgraph 0.3.0",
+        "platform": "linux",
+        "files": 200000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 11.861,
+        "query_p50_ms": 12.076,
+        "query_p95_ms": 14.921,
+        "database_and_wal_bytes": 415858688,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      }
+    },
+    {
+      "label": "paired-200000-round1-candidate",
+      "report": {
+        "version": "diskgraph 0.3.0",
+        "platform": "linux",
+        "files": 200000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 12.484,
+        "query_p50_ms": 12.317,
+        "query_p95_ms": 15.054,
+        "database_and_wal_bytes": 415858688,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      }
+    },
+    {
+      "label": "paired-200000-round2-candidate",
+      "report": {
+        "version": "diskgraph 0.3.0",
+        "platform": "linux",
+        "files": 200000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 15.832,
+        "query_p50_ms": 11.635,
+        "query_p95_ms": 14.829,
+        "database_and_wal_bytes": 415858688,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      }
+    },
+    {
+      "label": "paired-200000-round2-baseline",
+      "report": {
+        "version": "diskgraph 0.3.0",
+        "platform": "linux",
+        "files": 200000,
+        "queries": 32,
+        "concurrent_clients": 4,
+        "scan_seconds": 13.505,
+        "query_p50_ms": 31.839,
+        "query_p95_ms": 46.268,
+        "database_and_wal_bytes": 415858688,
+        "passed": 4,
+        "total": 4,
+        "checks": {
+          "full_index_published": true,
+          "concurrent_reads_bound_to_revision": true,
+          "query_results_bounded": true,
+          "node_budget_refuses_partial_publish": true
+        }
+      }
+    }
+  ],
+  "limits": "AB/BA ordering, independent generated identical-shape fixtures; no CPU cache flush; no accepted SLO; no RSS comparison; Linux ARM64 only",
+  "production_acceptance": false
+}

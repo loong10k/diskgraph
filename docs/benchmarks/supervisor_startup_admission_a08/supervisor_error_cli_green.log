@@ -1,0 +1,16 @@
+   Compiling diskgraph-core v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-core)
+   Compiling diskgraph-store v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-store)
+   Compiling diskgraph-disktree v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-disktree)
+   Compiling diskgraph-engine v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine)
+   Compiling diskgraph-mcp v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-mcp)
+   Compiling diskgraph-cli v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.39s
+     Running unittests src/main.rs (target/debug/deps/diskgraph-af05c3b2dd9dd6eb)
+
+running 3 tests
+test engine_error_cleanup_tests::cli_cleanup_does_not_classify_io_from_business_like_text ... ok
+test engine_error_cleanup_tests::cli_cleanup_keeps_business_codes_and_exit_codes ... ok
+test engine_error_cleanup_tests::cli_cleanup_keeps_existing_store_failure_codes ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 71 filtered out; finished in 0.01s
+

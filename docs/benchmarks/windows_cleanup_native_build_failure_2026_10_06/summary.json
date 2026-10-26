@@ -1,0 +1,242 @@
+{
+  "schema_version": 1,
+  "production_acceptance": false,
+  "ci_run": 37383214027,
+  "source_sha": "bbe46fb9a5891fc53660e389efc0c085a6973726",
+  "phase": "actual Windows Engine compile failed; cleanup regression cases not executed",
+  "error_count": 21,
+  "errors": [
+    {
+      "code": "E0277",
+      "message": "`*mut c_void` cannot be sent between threads safely",
+      "primary_locations": [
+        {
+          "file_name": "crates\\diskgraph-engine\\src\\git_late_enqueue_tests.rs",
+          "line_start": 19,
+          "column_start": 38
+        }
+      ]
+    },
+    {
+      "code": "E0277",
+      "message": "`*mut c_void` cannot be sent between threads safely",
+      "primary_locations": [
+        {
+          "file_name": "crates\\diskgraph-engine\\src\\git_late_enqueue_tests.rs",
+          "line_start": 107,
+          "column_start": 39
+        }
+      ]
+    },
+    {
+      "code": "E0277",
+      "message": "`*mut c_void` cannot be sent between threads safely",
+      "primary_locations": [
+        {
+          "file_name": "crates\\diskgraph-engine\\src\\job_authorization_tests.rs",
+          "line_start": 251,
+          "column_start": 37
+        }
+      ]
+    },
+    {
+      "code": "E0277",
+      "message": "`*mut c_void` cannot be sent between threads safely",
+      "primary_locations": [
+        {
+          "file_name": "crates\\diskgraph-engine\\src\\job_execution.rs",
+          "line_start": 121,
+          "column_start": 44
+        }
+      ]
+    },
+    {
+      "code": "E0277",
+      "message": "`*mut c_void` cannot be sent between threads safely",
+      "primary_locations": [
+        {
+          "file_name": "crates\\diskgraph-engine\\src\\job_keeper_unwind_tests.rs",
+          "line_start": 13,
+          "column_start": 37
+        }
+      ]
+    },
+    {
+      "code": "E0277",
+      "message": "`*mut c_void` cannot be sent between threads safely",
+      "primary_locations": [
+        {
+          "file_name": "crates\\diskgraph-engine\\src\\job_stop_cause_outcome_tests.rs",
+          "line_start": 199,
+          "column_start": 39
+        }
+      ]
+    },
+    {
+      "code": "E0277",
+      "message": "`*mut c_void` cannot be sent between threads safely",
+      "primary_locations": [
+        {
+          "file_name": "crates\\diskgraph-engine\\src\\job_stop_cause_tests.rs",
+          "line_start": 26,
+          "column_start": 39
+        }
+      ]
+    },
+    {
+      "code": "E0277",
+      "message": "`*mut c_void` cannot be sent between threads safely",
+      "primary_locations": [
+        {
+          "file_name": "crates\\diskgraph-engine\\src\\job_stop_cause_tests.rs",
+          "line_start": 81,
+          "column_start": 39
+        }
+      ]
+    },
+    {
+      "code": "E0277",
+      "message": "`*mut c_void` cannot be sent between threads safely",
+      "primary_locations": [
+        {
+          "file_name": "crates\\diskgraph-engine\\src\\job_stop_cause_tests.rs",
+          "line_start": 137,
+          "column_start": 39
+        }
+      ]
+    },
+    {
+      "code": "E0277",
+      "message": "`*mut c_void` cannot be sent between threads safely",
+      "primary_locations": [
+        {
+          "file_name": "crates\\diskgraph-engine\\src\\job_stop_cause_tests.rs",
+          "line_start": 212,
+          "column_start": 39
+        }
+      ]
+    },
+    {
+      "code": "E0277",
+      "message": "`*mut c_void` cannot be sent between threads safely",
+      "primary_locations": [
+        {
+          "file_name": "crates\\diskgraph-engine\\src\\job_stop_registration_tests.rs",
+          "line_start": 65,
+          "column_start": 39
+        }
+      ]
+    },
+    {
+      "code": "E0277",
+      "message": "`*mut c_void` cannot be sent between threads safely",
+      "primary_locations": [
+        {
+          "file_name": "crates\\diskgraph-engine\\src\\job_stop_signals_tests.rs",
+          "line_start": 61,
+          "column_start": 39
+        }
+      ]
+    },
+    {
+      "code": "E0277",
+      "message": "`*mut c_void` cannot be sent between threads safely",
+      "primary_locations": [
+        {
+          "file_name": "crates\\diskgraph-engine\\src\\job_stop_signals_tests.rs",
+          "line_start": 299,
+          "column_start": 39
+        }
+      ]
+    },
+    {
+      "code": "E0277",
+      "message": "`*mut c_void` cannot be sent between threads safely",
+      "primary_locations": [
+        {
+          "file_name": "crates\\diskgraph-engine\\src\\process_entry_budget_tests.rs",
+          "line_start": 52,
+          "column_start": 37
+        }
+      ]
+    },
+    {
+      "code": "E0277",
+      "message": "`*mut c_void` cannot be sent between threads safely",
+      "primary_locations": [
+        {
+          "file_name": "crates\\diskgraph-engine\\src\\relation_request_tests.rs",
+          "line_start": 222,
+          "column_start": 37
+        }
+      ]
+    },
+    {
+      "code": "E0277",
+      "message": "`*mut c_void` cannot be sent between threads safely",
+      "primary_locations": [
+        {
+          "file_name": "crates\\diskgraph-engine\\src\\runner.rs",
+          "line_start": 59,
+          "column_start": 20
+        }
+      ]
+    },
+    {
+      "code": "E0277",
+      "message": "`*mut c_void` cannot be sent between threads safely",
+      "primary_locations": [
+        {
+          "file_name": "crates\\diskgraph-engine\\src\\scan_observation_tests.rs",
+          "line_start": 267,
+          "column_start": 40
+        }
+      ]
+    },
+    {
+      "code": "E0277",
+      "message": "`*mut c_void` cannot be sent between threads safely",
+      "primary_locations": [
+        {
+          "file_name": "crates\\diskgraph-engine\\src\\scan_worker_registry_tests.rs",
+          "line_start": 49,
+          "column_start": 40
+        }
+      ]
+    },
+    {
+      "code": "E0277",
+      "message": "`*mut c_void` cannot be sent between threads safely",
+      "primary_locations": [
+        {
+          "file_name": "crates\\diskgraph-engine\\src\\status_contention_tests.rs",
+          "line_start": 16,
+          "column_start": 35
+        }
+      ]
+    },
+    {
+      "code": "E0277",
+      "message": "`*mut c_void` cannot be sent between threads safely",
+      "primary_locations": [
+        {
+          "file_name": "crates\\diskgraph-engine\\src\\status_contention_tests.rs",
+          "line_start": 41,
+          "column_start": 35
+        }
+      ]
+    },
+    {
+      "code": "E0277",
+      "message": "`*mut c_void` cannot be sent between threads safely",
+      "primary_locations": [
+        {
+          "file_name": "crates\\diskgraph-engine\\src\\status_contention_tests.rs",
+          "line_start": 95,
+          "column_start": 35
+        }
+      ]
+    }
+  ],
+  "next_action": "audit owned handles and stable pending operation Send transfer; preserve cleanup RED algorithm and concurrent tests"
+}

@@ -1,0 +1,9 @@
+   Compiling diskgraph-disktree-core v0.3.0 (/src/crates/diskgraph-disktree-core)
+   Compiling diskgraph-scan-worker v0.3.0 (/src/crates/diskgraph-scan-worker)
+   Compiling diskgraph-core v0.3.0 (/src/crates/diskgraph-core)
+   Compiling diskgraph-engine v0.3.0 (/src/crates/diskgraph-engine)
+   Compiling diskgraph-disktree v0.3.0 (/src/crates/diskgraph-disktree)
+   Compiling diskgraph-store v0.3.0 (/src/crates/diskgraph-store)
+   Compiling diskgraph-mcp v0.3.0 (/src/crates/diskgraph-mcp)
+   Compiling diskgraph-cli v0.3.0 (/src/crates/diskgraph-cli)
+    Finished `release` profile [optimized] target(s) in 21.95s

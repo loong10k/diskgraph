@@ -1,0 +1,7 @@
+{
+  "engine_runners": [],
+  "actual_cloud_provider": [
+    "2026-10-07T23:15:35.2004177Z test actual_cloud_placeholder_content_never_fetches_and_unguarded_control_does ... DG_REAL_CFAPI_PRODUCT_NO_FETCH_AND_ORDINARY_FETCH_CONTROL=1"
+  ],
+  "note": "successful native Windows complete job at 6fb; overall and current-head acceptance separate"
+}

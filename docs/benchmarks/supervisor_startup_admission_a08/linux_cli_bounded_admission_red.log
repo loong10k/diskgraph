@@ -1,0 +1,19 @@
+   Compiling diskgraph-cli v0.3.0 (/build/terminal-red-7fc3330/crates/diskgraph-cli)
+    Finished `test` profile [unoptimized] target(s) in 0.69s
+     Running tests/supervisor_startup_admission.rs (/build/target/debug/deps/supervisor_startup_admission-45206b207fba2c62)
+
+running 1 test
+
+thread 'unconfirmed_supervisor_slot_refuses_cli_before_database_birth' (27) panicked at crates/diskgraph-cli/tests/supervisor_startup_admission.rs:61:5:
+unconfirmed supervisor was ignored: database_born=true, slot_unchanged=true, output=Output { status: ExitStatus(unix_wait_status(0)), stdout: "{\"api_version\":2,\"ok\":true,\"server_id\":\"srv-adf5fc1f-807b-4195-b347-3be85258957f\",\"coverage\":null,\"data\":{\"checks\":[{\"check\":\"graph_store\",\"message\":\"present at /tmp/.tmpcaoM6N/refused_data/diskgraph.sqlite\",\"severity\":\"ok\"},{\"check\":\"control_store\",\"message\":\"present at /tmp/.tmpcaoM6N/refused_data/diskgraph-control.sqlite\",\"severity\":\"ok\"},{\"check\":\"server_identity\",\"message\":\"srv-adf5fc1f-807b-4195-b347-3be85258957f\",\"severity\":\"ok\"},{\"check\":\"authorization\",\"message\":\"an ungranted principal sees no scope\",\"severity\":\"ok\"},{\"check\":\"capacity\",\"message\":\"data directory holds 732192 bytes\",\"severity\":\"ok\"},{\"check\":\"capabilities\",\"message\":\"13 tools served in profile read-full; 26 catalog families not yet delivered\",\"severity\":\"ok\"}],\"data_dir\":\"/tmp/.tmpcaoM6N/refused_data\",\"healthy\":true,\"served\":{\"profile\":\"read-full\",\"tools\":[\"diskgraph_status\",\"diskgraph_snapshots\",\"diskgraph_changes\",\"diskgraph_growth\",\"diskgraph_explore\",\"diskgraph_search\",\"diskgraph_node\",\"diskgraph_children\",\"diskgraph_top\",\"diskgraph_related\",\"diskgraph_explain\",\"diskgraph_impact\",\"diskgraph_candidates\"]}},\"warnings\":[],\"truncated\":false}\n", stderr: "" }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test unconfirmed_supervisor_slot_refuses_cli_before_database_birth ... FAILED
+
+failures:
+
+failures:
+    unconfirmed_supervisor_slot_refuses_cli_before_database_birth
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+
+error: test failed, to rerun pass `-p diskgraph-cli --test supervisor_startup_admission`

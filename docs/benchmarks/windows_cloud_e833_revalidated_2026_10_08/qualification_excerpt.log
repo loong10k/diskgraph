@@ -1,0 +1,10 @@
+2026-10-07T22:11:57.2332885Z [31;1m[1m[92m   Compiling[0m diskgraph-engine v0.3.0 (D:\a\diskgraph\diskgraph\crates\diskgraph-engine)[0m
+2026-10-07T22:11:58.4819996Z [31;1m[1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 1.54s[0m
+2026-10-07T22:11:58.4917833Z [31;1m[1m[92m     Running[0m tests\content_cloud_windows.rs (target\debug\deps\content_cloud_windows-ce3d07865a754a10.exe)[0m
+2026-10-07T22:11:58.5045841Z 
+2026-10-07T22:11:58.5049377Z running 1 test
+2026-10-07T22:11:59.0273168Z test actual_cloud_placeholder_content_never_fetches_and_unguarded_control_does ... DG_REAL_CFAPI_PRODUCT_NO_FETCH_AND_ORDINARY_FETCH_CONTROL=1
+2026-10-07T22:11:59.0769176Z ok
+2026-10-07T22:11:59.0771837Z 
+2026-10-07T22:11:59.0775793Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.57s
+2026-10-07T22:11:59.0779000Z 

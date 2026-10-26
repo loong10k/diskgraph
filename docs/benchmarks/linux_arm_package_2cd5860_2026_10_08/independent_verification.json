@@ -1,0 +1,32 @@
+{
+  "commit": "2cd5860b064124267b1fcc2ae50025dc95ee092a",
+  "run_id": 37706171013,
+  "job_id": 113083910042,
+  "artifact_id": 11519843923,
+  "artifact_sha256": "232579e7d02624c5f2086aea012787d10b4334a271f806b6d83fda7dc4a43c0e",
+  "archive_sha256_verified": "6f8c9ad1dc7fd3a9016b08672772d08fc6929fbd8e20947e720561a3a6c9bf8e",
+  "native_success": true,
+  "measurements": [
+    {
+      "files": 20000,
+      "indexed_nodes": 20001,
+      "scan_seconds": 2.207,
+      "query_p50_ms": 6.18,
+      "query_p95_ms": 7.668,
+      "database_and_wal_bytes": 59363328
+    },
+    {
+      "files": 200000,
+      "indexed_nodes": 200001,
+      "scan_seconds": 21.753,
+      "query_p50_ms": 6.768,
+      "query_p95_ms": 9.187,
+      "database_and_wal_bytes": 594530304
+    }
+  ],
+  "limitations": [
+    "Historical commit not current HEAD",
+    "No RSS or long-running/deep fixture in package report",
+    "No latency SLO assertion"
+  ]
+}

@@ -1,0 +1,128 @@
+{
+  "candidate": "bfee4f2005aaf2630f1e4c9fd39beb7c0186252b",
+  "run": 37597292546,
+  "job": 112712926859,
+  "artifact": 11471793592,
+  "archive_sha256": "aab75be4fb81756a142f674835bb9bf0b454399ac9eaf235eb0ec477ed69c576",
+  "acceptance_scope": "release_20k_200k_300deep",
+  "limitations": [
+    "Same runner and pre-created roots; caches are not dropped or claimed cold.",
+    "Host and reaped child RSS are separate high waters; their sum is conservative and not simultaneous live RSS.",
+    "Historical baseline uses its original Engine entry; candidate uses explicit process host, with distinct adapter fingerprints.",
+    "Database lengths and signed deltas are logical file sizes, not physical write bytes.",
+    "Query phase includes preserved explicit rebuildable fixture evidence insertion.",
+    "Qualification is persisted Linux capture; Unsupported is failure, not a performance result.",
+    "Two alternating rounds describe this host only; no performance improvement threshold."
+  ],
+  "full_production_acceptance": false,
+  "candidate_measurements": [
+    {
+      "fixture": "20000-wide",
+      "command": "20000-wide-round1-candidate",
+      "scan_seconds": 3.295591557,
+      "parent_scan_high_water_rss_bytes": 46194688,
+      "reaped_child_scan_high_water_rss_bytes": 8208384,
+      "top20": {
+        "p50_ms": 0.638741,
+        "p95_ms": 0.6572760000000001,
+        "samples": 31
+      },
+      "candidates": {
+        "p50_ms": 2.418051,
+        "p95_ms": 2.5372820000000003,
+        "samples": 11
+      },
+      "native_qualification": true
+    },
+    {
+      "fixture": "20000-wide",
+      "command": "20000-wide-round2-candidate",
+      "scan_seconds": 3.299527467,
+      "parent_scan_high_water_rss_bytes": 46194688,
+      "reaped_child_scan_high_water_rss_bytes": 8208384,
+      "top20": {
+        "p50_ms": 0.635855,
+        "p95_ms": 0.6778850000000001,
+        "samples": 31
+      },
+      "candidates": {
+        "p50_ms": 2.409244,
+        "p95_ms": 2.5239279999999997,
+        "samples": 11
+      },
+      "native_qualification": true
+    },
+    {
+      "fixture": "200000-wide",
+      "command": "200000-wide-round1-candidate",
+      "scan_seconds": 34.987105929,
+      "parent_scan_high_water_rss_bytes": 217288704,
+      "reaped_child_scan_high_water_rss_bytes": 57180160,
+      "top20": {
+        "p50_ms": 0.641708,
+        "p95_ms": 0.679397,
+        "samples": 31
+      },
+      "candidates": {
+        "p50_ms": 2.441033,
+        "p95_ms": 2.535218,
+        "samples": 11
+      },
+      "native_qualification": true
+    },
+    {
+      "fixture": "200000-wide",
+      "command": "200000-wide-round2-candidate",
+      "scan_seconds": 35.237328052,
+      "parent_scan_high_water_rss_bytes": 217120768,
+      "reaped_child_scan_high_water_rss_bytes": 58142720,
+      "top20": {
+        "p50_ms": 0.647147,
+        "p95_ms": 0.6753,
+        "samples": 31
+      },
+      "candidates": {
+        "p50_ms": 2.441364,
+        "p95_ms": 2.582968,
+        "samples": 11
+      },
+      "native_qualification": true
+    },
+    {
+      "fixture": "300-deep",
+      "command": "300-deep-round1-candidate",
+      "scan_seconds": 0.120453729,
+      "parent_scan_high_water_rss_bytes": 46194688,
+      "reaped_child_scan_high_water_rss_bytes": 3092480,
+      "top20": {
+        "p50_ms": 0.614987,
+        "p95_ms": 0.652918,
+        "samples": 31
+      },
+      "candidates": {
+        "p50_ms": 2.452173,
+        "p95_ms": 2.518617,
+        "samples": 11
+      },
+      "native_qualification": true
+    },
+    {
+      "fixture": "300-deep",
+      "command": "300-deep-round2-candidate",
+      "scan_seconds": 0.141932895,
+      "parent_scan_high_water_rss_bytes": 46194688,
+      "reaped_child_scan_high_water_rss_bytes": 3194880,
+      "top20": {
+        "p50_ms": 0.623623,
+        "p95_ms": 0.6683859999999999,
+        "samples": 31
+      },
+      "candidates": {
+        "p50_ms": 2.486638,
+        "p95_ms": 2.5471909999999998,
+        "samples": 11
+      },
+      "native_qualification": true
+    }
+  ]
+}

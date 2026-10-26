@@ -1,0 +1,1406 @@
+{
+  "run_id": 37619391412,
+  "job_id": 112785536407,
+  "artifact_id": 11482594138,
+  "archive_sha256": "6e65aa05824bac126c90fa9f7c8d19c5595b94fc5b4b5efd5df249d400207a8f",
+  "status": "passed",
+  "production_ready": false,
+  "sources": {
+    "baseline": {
+      "adapter_mode": "historical_engine_open",
+      "adapter_sha256": "cf8fbe696a1bf4d3a1dca18ca799ffa2afb15493a1fcaf1ba19a9b0c4ccb8d5d",
+      "archive_sha256": "07d9ab737e7a2e69c3e69c10a1bc77209d2c73eeaee24ba96a7c1f45b3666a33",
+      "binary": "/home/runner/work/_temp/diskgraph-scan-cost-c9fs9i5z/target-baseline/release/deps/hardening_benchmark-9e9b9aa5436c5538",
+      "binary_sha256": "75f69784c1ed37863b8866d6fd1993965e89cad4d2b5a63146ee972ae3c0aa73",
+      "commit": "2a2f8281f9f211b6632bdb26afdcd4a4fb21a44d",
+      "harness": {
+        "crates/diskgraph-engine/tests/benchmark_support/mod.rs": "e0506dc43ac1faa481c3c4dadd0f0de7b3f72b4d3b80028ddf3a893b1cb1ed6a",
+        "crates/diskgraph-engine/tests/benchmark_support/namespace_cost.rs": "09628c65414696d555e29b08902e2506ddea193a3676b4c00484706d70c9737c",
+        "crates/diskgraph-engine/tests/benchmark_support/scan_failure_diagnostic.rs": "ec9743b0691f6ab3af65f7aa3108e0402465cb178b4794332c54e841c0339500",
+        "crates/diskgraph-engine/tests/hardening_benchmark.rs": "4078803c2573466bd208203e0d3991f1b5740018b31b7c65ceffbc5fe204a90f"
+      },
+      "lock_sha256": "4b1b9a275602e77343e4b6f8357643736e122d31d989ed183e3a9b3040e25b6d",
+      "measured_manifest_sha256": "89a49e7780f0022692600c6552391a9220d426c4dd39ede1bca03c1426a742c2",
+      "original_manifest_sha256": "f28ac5033fb34079010b3ab93fb74a4458873bb71f5a383eb2aa64dff4c03388",
+      "worker": null
+    },
+    "candidate": {
+      "adapter_mode": "explicit_native_host",
+      "adapter_sha256": "f371b99427293765b43a0f1696ba707775d9bd9a296c558ce66dd5f58e68bc95",
+      "archive_sha256": "bfa7a3827957c0d42da576864ccf562893821c01a962281e9c15dbeb8363f192",
+      "binary": "/home/runner/work/_temp/diskgraph-scan-cost-c9fs9i5z/target-candidate/release/deps/hardening_benchmark-8cd2ed389d025bb8",
+      "binary_sha256": "244e5c24d4e69d382b6d0d740c21a8ee2b2b0f9db7bbf755ce94debae4499ed1",
+      "commit": "c151e2d3f704f021263d0a6741500590bc213c84",
+      "harness": {
+        "crates/diskgraph-engine/tests/benchmark_support/mod.rs": "e0506dc43ac1faa481c3c4dadd0f0de7b3f72b4d3b80028ddf3a893b1cb1ed6a",
+        "crates/diskgraph-engine/tests/benchmark_support/namespace_cost.rs": "09628c65414696d555e29b08902e2506ddea193a3676b4c00484706d70c9737c",
+        "crates/diskgraph-engine/tests/benchmark_support/scan_failure_diagnostic.rs": "ec9743b0691f6ab3af65f7aa3108e0402465cb178b4794332c54e841c0339500",
+        "crates/diskgraph-engine/tests/hardening_benchmark.rs": "4078803c2573466bd208203e0d3991f1b5740018b31b7c65ceffbc5fe204a90f"
+      },
+      "lock_sha256": "4f2944da418fa1c428fcccce0ba1cfefac033b0746f802a8be0ff0cbe01edbea",
+      "measured_manifest_sha256": "ebd0899742bb2f868df42246a98af3e4d42205af0338ea7480172925e518ac7d",
+      "original_manifest_sha256": "ebd0899742bb2f868df42246a98af3e4d42205af0338ea7480172925e518ac7d",
+      "worker": {
+        "binary": "/home/runner/work/_temp/diskgraph-scan-cost-c9fs9i5z/target-candidate/release/diskgraph-scan-worker",
+        "binary_sha256": "71861ff2695086faa25348fbe718bf8c2bdd2b7f6e6467a3e75500e7946e60f5",
+        "bytes": 1226888,
+        "commit": "c151e2d3f704f021263d0a6741500590bc213c84",
+        "source_manifest_sha256": "ebd0899742bb2f868df42246a98af3e4d42205af0338ea7480172925e518ac7d"
+      }
+    }
+  },
+  "hardware": {
+    "cpu_count": 4,
+    "uname": [
+      "Linux",
+      "runnervm8df0l",
+      "6.17.0-1022-azure",
+      "#22-Ubuntu SMP Mon Jul 27 17:24:03 UTC 2026",
+      "x86_64",
+      "x86_64"
+    ]
+  },
+  "limitations": [
+    "Same runner and pre-created roots; caches are not dropped or claimed cold.",
+    "Host and reaped child RSS are separate high waters; their sum is conservative and not simultaneous live RSS.",
+    "Historical baseline uses its original Engine entry; candidate uses explicit process host, with distinct adapter fingerprints.",
+    "Database lengths and signed deltas are logical file sizes, not physical write bytes.",
+    "Query phase includes preserved explicit rebuildable fixture evidence insertion.",
+    "Qualification is persisted Linux capture; Unsupported is failure, not a performance result.",
+    "Two alternating rounds describe this host only; no performance improvement threshold."
+  ],
+  "measurements": [
+    {
+      "artifact_file": "20000-wide-round1-baseline.json",
+      "sha256": "ea15b9a3c8ef8d3f42eafa6334d8e7299603613fbd680b32b83e645ab1148a01",
+      "measurement": {
+        "after_narrow_candidates": {
+          "p50_ms": 0.965454,
+          "p95_ms": 1.1238380000000001,
+          "samples": 11
+        },
+        "after_narrow_top20": {
+          "p50_ms": 0.448472,
+          "p95_ms": 0.488391,
+          "samples": 31
+        },
+        "before_full_revision_candidates": {
+          "p50_ms": 22.760958000000002,
+          "p95_ms": 23.151207,
+          "samples": 3
+        },
+        "before_full_revision_top20": {
+          "p50_ms": 22.385946999999998,
+          "p95_ms": 26.781014,
+          "samples": 7
+        },
+        "budgeted_tree": {
+          "p50_ms": 1.041393,
+          "p95_ms": 1.270024,
+          "samples": 11
+        },
+        "concurrent_4_readers": [
+          {
+            "p50_ms": 3.526522,
+            "p95_ms": 3.9924690000000003,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.3861540000000003,
+            "p95_ms": 3.71857,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.507763,
+            "p95_ms": 4.005768,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.400257,
+            "p95_ms": 3.811976,
+            "samples": 31
+          }
+        ],
+        "database_bytes": 63385600,
+        "files": 20000,
+        "process_scan_high_water_rss_bytes": 46170112,
+        "process_total_high_water_rss_bytes": 46170112,
+        "reaped_child_scan_high_water_rss_bytes": 0,
+        "scan_parent_and_child_high_water_sum_bytes": 46170112,
+        "scan_seconds": 2.160254136,
+        "shape": "wide",
+        "storage_phases": {
+          "after_queries": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 63385600,
+            "diskgraph.sqlite-shm": 131072,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "after_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 63385600,
+            "diskgraph.sqlite-shm": 131072,
+            "diskgraph.sqlite-wal": 0
+          },
+          "before_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 4096,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 510912
+          },
+          "query_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 0,
+            "diskgraph.sqlite-shm": 0,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "scan_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 63381504,
+            "diskgraph.sqlite-shm": 98304,
+            "diskgraph.sqlite-wal": -510912
+          }
+        },
+        "wal_bytes": 12392,
+        "native_qualification": {
+          "captured_files": 20000,
+          "gaps": 0,
+          "method": "linux_handle",
+          "qualified": true,
+          "snapshot_id": "05beb4d5-a9a1-48fa-b75d-9418af9fa4fd"
+        }
+      }
+    },
+    {
+      "artifact_file": "20000-wide-round1-candidate.json",
+      "sha256": "d825c3a5dc2c75fc09e0c36e24cb9726538f4c9cac768b63034a337bb14523f9",
+      "measurement": {
+        "after_narrow_candidates": {
+          "p50_ms": 1.775069,
+          "p95_ms": 1.9692199999999997,
+          "samples": 11
+        },
+        "after_narrow_top20": {
+          "p50_ms": 0.45563,
+          "p95_ms": 0.49297100000000005,
+          "samples": 31
+        },
+        "before_full_revision_candidates": {
+          "p50_ms": 23.516034,
+          "p95_ms": 24.675137,
+          "samples": 3
+        },
+        "before_full_revision_top20": {
+          "p50_ms": 23.248646,
+          "p95_ms": 25.886514,
+          "samples": 7
+        },
+        "budgeted_tree": {
+          "p50_ms": 1.04823,
+          "p95_ms": 1.28932,
+          "samples": 11
+        },
+        "concurrent_4_readers": [
+          {
+            "p50_ms": 3.611333,
+            "p95_ms": 4.78603,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.417445,
+            "p95_ms": 4.060031,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.591332,
+            "p95_ms": 4.007676,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.570598,
+            "p95_ms": 4.465745,
+            "samples": 31
+          }
+        ],
+        "database_bytes": 63393792,
+        "files": 20000,
+        "process_scan_high_water_rss_bytes": 46170112,
+        "process_total_high_water_rss_bytes": 51744768,
+        "reaped_child_scan_high_water_rss_bytes": 8237056,
+        "scan_parent_and_child_high_water_sum_bytes": 54407168,
+        "scan_seconds": 2.258931241,
+        "shape": "wide",
+        "storage_phases": {
+          "after_queries": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 63393792,
+            "diskgraph.sqlite-shm": 131072,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "after_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 63393792,
+            "diskgraph.sqlite-shm": 131072,
+            "diskgraph.sqlite-wal": 0
+          },
+          "before_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 4096,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 527392
+          },
+          "query_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 0,
+            "diskgraph.sqlite-shm": 0,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "scan_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 63389696,
+            "diskgraph.sqlite-shm": 98304,
+            "diskgraph.sqlite-wal": -527392
+          }
+        },
+        "wal_bytes": 12392,
+        "native_qualification": {
+          "captured_files": 20000,
+          "gaps": 0,
+          "method": "linux_handle",
+          "qualified": true,
+          "snapshot_id": "804783af-cb67-4d6c-a535-67263d14916c"
+        }
+      }
+    },
+    {
+      "artifact_file": "20000-wide-round2-baseline.json",
+      "sha256": "8027ba14a0f70b6ee732df4721846f441362d9eaf5a581d12da77717eaf46049",
+      "measurement": {
+        "after_narrow_candidates": {
+          "p50_ms": 0.933172,
+          "p95_ms": 1.146654,
+          "samples": 11
+        },
+        "after_narrow_top20": {
+          "p50_ms": 0.439583,
+          "p95_ms": 0.472845,
+          "samples": 31
+        },
+        "before_full_revision_candidates": {
+          "p50_ms": 23.410402,
+          "p95_ms": 23.608845,
+          "samples": 3
+        },
+        "before_full_revision_top20": {
+          "p50_ms": 22.573504,
+          "p95_ms": 25.814848,
+          "samples": 7
+        },
+        "budgeted_tree": {
+          "p50_ms": 1.003323,
+          "p95_ms": 1.259866,
+          "samples": 11
+        },
+        "concurrent_4_readers": [
+          {
+            "p50_ms": 3.403626,
+            "p95_ms": 3.69295,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.362958,
+            "p95_ms": 3.728162,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.4464360000000003,
+            "p95_ms": 3.751443,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.391562,
+            "p95_ms": 3.7089760000000003,
+            "samples": 31
+          }
+        ],
+        "database_bytes": 63385600,
+        "files": 20000,
+        "process_scan_high_water_rss_bytes": 46170112,
+        "process_total_high_water_rss_bytes": 46170112,
+        "reaped_child_scan_high_water_rss_bytes": 0,
+        "scan_parent_and_child_high_water_sum_bytes": 46170112,
+        "scan_seconds": 2.235420062,
+        "shape": "wide",
+        "storage_phases": {
+          "after_queries": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 63385600,
+            "diskgraph.sqlite-shm": 131072,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "after_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 63385600,
+            "diskgraph.sqlite-shm": 131072,
+            "diskgraph.sqlite-wal": 0
+          },
+          "before_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 4096,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 510912
+          },
+          "query_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 0,
+            "diskgraph.sqlite-shm": 0,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "scan_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 63381504,
+            "diskgraph.sqlite-shm": 98304,
+            "diskgraph.sqlite-wal": -510912
+          }
+        },
+        "wal_bytes": 12392,
+        "native_qualification": {
+          "captured_files": 20000,
+          "gaps": 0,
+          "method": "linux_handle",
+          "qualified": true,
+          "snapshot_id": "653eecea-c80c-42db-8659-1beaa44cc0bf"
+        }
+      }
+    },
+    {
+      "artifact_file": "20000-wide-round2-candidate.json",
+      "sha256": "ea4be6b0aed658ca3ced83ca8a2df91f14e06f29dac0c5a77eb7fc666e507997",
+      "measurement": {
+        "after_narrow_candidates": {
+          "p50_ms": 1.7794969999999999,
+          "p95_ms": 1.915803,
+          "samples": 11
+        },
+        "after_narrow_top20": {
+          "p50_ms": 0.46783,
+          "p95_ms": 0.542328,
+          "samples": 31
+        },
+        "before_full_revision_candidates": {
+          "p50_ms": 22.795266,
+          "p95_ms": 24.03805,
+          "samples": 3
+        },
+        "before_full_revision_top20": {
+          "p50_ms": 23.532897000000002,
+          "p95_ms": 25.790535,
+          "samples": 7
+        },
+        "budgeted_tree": {
+          "p50_ms": 1.035182,
+          "p95_ms": 1.243286,
+          "samples": 11
+        },
+        "concurrent_4_readers": [
+          {
+            "p50_ms": 3.485171,
+            "p95_ms": 3.7520729999999998,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.6768349999999996,
+            "p95_ms": 4.21996,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.4722820000000003,
+            "p95_ms": 3.9021199999999996,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.443991,
+            "p95_ms": 4.095231,
+            "samples": 31
+          }
+        ],
+        "database_bytes": 63393792,
+        "files": 20000,
+        "process_scan_high_water_rss_bytes": 46170112,
+        "process_total_high_water_rss_bytes": 51593216,
+        "reaped_child_scan_high_water_rss_bytes": 8163328,
+        "scan_parent_and_child_high_water_sum_bytes": 54333440,
+        "scan_seconds": 2.349168329,
+        "shape": "wide",
+        "storage_phases": {
+          "after_queries": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 63393792,
+            "diskgraph.sqlite-shm": 131072,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "after_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 63393792,
+            "diskgraph.sqlite-shm": 131072,
+            "diskgraph.sqlite-wal": 0
+          },
+          "before_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 4096,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 527392
+          },
+          "query_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 0,
+            "diskgraph.sqlite-shm": 0,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "scan_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 63389696,
+            "diskgraph.sqlite-shm": 98304,
+            "diskgraph.sqlite-wal": -527392
+          }
+        },
+        "wal_bytes": 12392,
+        "native_qualification": {
+          "captured_files": 20000,
+          "gaps": 0,
+          "method": "linux_handle",
+          "qualified": true,
+          "snapshot_id": "0141695a-99ca-402b-bec8-9016dd421bda"
+        }
+      }
+    },
+    {
+      "artifact_file": "200000-wide-round1-baseline.json",
+      "sha256": "9687056f3ecb2e44a5e3fe4577801c35cb19b5ad78bab302e48f74c47a97c4a7",
+      "measurement": {
+        "after_narrow_candidates": {
+          "p50_ms": 0.956182,
+          "p95_ms": 1.10797,
+          "samples": 11
+        },
+        "after_narrow_top20": {
+          "p50_ms": 0.442928,
+          "p95_ms": 0.463616,
+          "samples": 31
+        },
+        "before_full_revision_candidates": {
+          "p50_ms": 242.790234,
+          "p95_ms": 242.864301,
+          "samples": 3
+        },
+        "before_full_revision_top20": {
+          "p50_ms": 238.331361,
+          "p95_ms": 241.340785,
+          "samples": 7
+        },
+        "budgeted_tree": {
+          "p50_ms": 1.0405010000000001,
+          "p95_ms": 1.482116,
+          "samples": 11
+        },
+        "concurrent_4_readers": [
+          {
+            "p50_ms": 3.430122,
+            "p95_ms": 4.095472999999999,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.331507,
+            "p95_ms": 3.615574,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.4024680000000003,
+            "p95_ms": 4.0479840000000005,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.358626,
+            "p95_ms": 3.671927,
+            "samples": 31
+          }
+        ],
+        "database_bytes": 636403712,
+        "files": 200000,
+        "process_scan_high_water_rss_bytes": 205135872,
+        "process_total_high_water_rss_bytes": 301232128,
+        "reaped_child_scan_high_water_rss_bytes": 0,
+        "scan_parent_and_child_high_water_sum_bytes": 205135872,
+        "scan_seconds": 23.694698517,
+        "shape": "wide",
+        "storage_phases": {
+          "after_queries": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 636403712,
+            "diskgraph.sqlite-shm": 1146880,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "after_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 636403712,
+            "diskgraph.sqlite-shm": 1146880,
+            "diskgraph.sqlite-wal": 0
+          },
+          "before_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 4096,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 510912
+          },
+          "query_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 0,
+            "diskgraph.sqlite-shm": 0,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "scan_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 636399616,
+            "diskgraph.sqlite-shm": 1114112,
+            "diskgraph.sqlite-wal": -510912
+          }
+        },
+        "wal_bytes": 12392,
+        "native_qualification": {
+          "captured_files": 200000,
+          "gaps": 0,
+          "method": "linux_handle",
+          "qualified": true,
+          "snapshot_id": "1e705123-a92f-40ed-ab05-99730ee9e5b3"
+        }
+      }
+    },
+    {
+      "artifact_file": "200000-wide-round1-candidate.json",
+      "sha256": "29cbdb1b74c104a418ff1438c22e7c825749351741773ee98d1f31e88b20bbb5",
+      "measurement": {
+        "after_narrow_candidates": {
+          "p50_ms": 1.815793,
+          "p95_ms": 2.124448,
+          "samples": 11
+        },
+        "after_narrow_top20": {
+          "p50_ms": 0.45990000000000003,
+          "p95_ms": 0.5052,
+          "samples": 31
+        },
+        "before_full_revision_candidates": {
+          "p50_ms": 242.37178400000002,
+          "p95_ms": 245.689419,
+          "samples": 3
+        },
+        "before_full_revision_top20": {
+          "p50_ms": 235.345142,
+          "p95_ms": 241.995136,
+          "samples": 7
+        },
+        "budgeted_tree": {
+          "p50_ms": 1.052379,
+          "p95_ms": 1.515087,
+          "samples": 11
+        },
+        "concurrent_4_readers": [
+          {
+            "p50_ms": 3.514709,
+            "p95_ms": 3.969772,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.46789,
+            "p95_ms": 3.9632599999999996,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.533721,
+            "p95_ms": 4.164491,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.573316,
+            "p95_ms": 4.339563,
+            "samples": 31
+          }
+        ],
+        "database_bytes": 636411904,
+        "files": 200000,
+        "process_scan_high_water_rss_bytes": 217104384,
+        "process_total_high_water_rss_bytes": 278970368,
+        "reaped_child_scan_high_water_rss_bytes": 58118144,
+        "scan_parent_and_child_high_water_sum_bytes": 275222528,
+        "scan_seconds": 23.752207935,
+        "shape": "wide",
+        "storage_phases": {
+          "after_queries": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 636411904,
+            "diskgraph.sqlite-shm": 1146880,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "after_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 636411904,
+            "diskgraph.sqlite-shm": 1146880,
+            "diskgraph.sqlite-wal": 0
+          },
+          "before_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 4096,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 527392
+          },
+          "query_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 0,
+            "diskgraph.sqlite-shm": 0,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "scan_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 636407808,
+            "diskgraph.sqlite-shm": 1114112,
+            "diskgraph.sqlite-wal": -527392
+          }
+        },
+        "wal_bytes": 12392,
+        "native_qualification": {
+          "captured_files": 200000,
+          "gaps": 0,
+          "method": "linux_handle",
+          "qualified": true,
+          "snapshot_id": "2d9f141e-9f8c-48f9-bebd-fc49b204b6d8"
+        }
+      }
+    },
+    {
+      "artifact_file": "200000-wide-round2-baseline.json",
+      "sha256": "41e2fccd9e2f3afbafe38c3f58e9d5c16700e4a308cef6e72be062e000253e04",
+      "measurement": {
+        "after_narrow_candidates": {
+          "p50_ms": 0.943286,
+          "p95_ms": 1.10931,
+          "samples": 11
+        },
+        "after_narrow_top20": {
+          "p50_ms": 0.432554,
+          "p95_ms": 0.48280399999999996,
+          "samples": 31
+        },
+        "before_full_revision_candidates": {
+          "p50_ms": 241.427745,
+          "p95_ms": 241.81177300000002,
+          "samples": 3
+        },
+        "before_full_revision_top20": {
+          "p50_ms": 233.78675099999998,
+          "p95_ms": 238.424312,
+          "samples": 7
+        },
+        "budgeted_tree": {
+          "p50_ms": 1.0625229999999999,
+          "p95_ms": 1.487263,
+          "samples": 11
+        },
+        "concurrent_4_readers": [
+          {
+            "p50_ms": 3.464048,
+            "p95_ms": 3.68716,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.3628500000000003,
+            "p95_ms": 3.7252140000000002,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.469265,
+            "p95_ms": 3.734893,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.402138,
+            "p95_ms": 3.727585,
+            "samples": 31
+          }
+        ],
+        "database_bytes": 636403712,
+        "files": 200000,
+        "process_scan_high_water_rss_bytes": 205217792,
+        "process_total_high_water_rss_bytes": 301154304,
+        "reaped_child_scan_high_water_rss_bytes": 0,
+        "scan_parent_and_child_high_water_sum_bytes": 205217792,
+        "scan_seconds": 23.083335712,
+        "shape": "wide",
+        "storage_phases": {
+          "after_queries": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 636403712,
+            "diskgraph.sqlite-shm": 1146880,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "after_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 636403712,
+            "diskgraph.sqlite-shm": 1146880,
+            "diskgraph.sqlite-wal": 0
+          },
+          "before_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 4096,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 510912
+          },
+          "query_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 0,
+            "diskgraph.sqlite-shm": 0,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "scan_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 636399616,
+            "diskgraph.sqlite-shm": 1114112,
+            "diskgraph.sqlite-wal": -510912
+          }
+        },
+        "wal_bytes": 12392,
+        "native_qualification": {
+          "captured_files": 200000,
+          "gaps": 0,
+          "method": "linux_handle",
+          "qualified": true,
+          "snapshot_id": "531b310d-7802-48c0-becc-0a35f9713cf1"
+        }
+      }
+    },
+    {
+      "artifact_file": "200000-wide-round2-candidate.json",
+      "sha256": "9728be2b94e1947cd7fcab8a748f1c9bfc3132ce9902c4110655a479577350b0",
+      "measurement": {
+        "after_narrow_candidates": {
+          "p50_ms": 1.773075,
+          "p95_ms": 2.016922,
+          "samples": 11
+        },
+        "after_narrow_top20": {
+          "p50_ms": 0.446758,
+          "p95_ms": 0.49269799999999997,
+          "samples": 31
+        },
+        "before_full_revision_candidates": {
+          "p50_ms": 243.19782700000002,
+          "p95_ms": 243.487468,
+          "samples": 3
+        },
+        "before_full_revision_top20": {
+          "p50_ms": 236.412698,
+          "p95_ms": 238.169363,
+          "samples": 7
+        },
+        "budgeted_tree": {
+          "p50_ms": 1.059717,
+          "p95_ms": 1.506826,
+          "samples": 11
+        },
+        "concurrent_4_readers": [
+          {
+            "p50_ms": 3.71198,
+            "p95_ms": 4.207265,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.673866,
+            "p95_ms": 3.9066650000000003,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.730849,
+            "p95_ms": 3.947102,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.6553549999999997,
+            "p95_ms": 4.1361159999999995,
+            "samples": 31
+          }
+        ],
+        "database_bytes": 636411904,
+        "files": 200000,
+        "process_scan_high_water_rss_bytes": 217280512,
+        "process_total_high_water_rss_bytes": 274944000,
+        "reaped_child_scan_high_water_rss_bytes": 57208832,
+        "scan_parent_and_child_high_water_sum_bytes": 274489344,
+        "scan_seconds": 23.570938326,
+        "shape": "wide",
+        "storage_phases": {
+          "after_queries": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 636411904,
+            "diskgraph.sqlite-shm": 1146880,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "after_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 636411904,
+            "diskgraph.sqlite-shm": 1146880,
+            "diskgraph.sqlite-wal": 0
+          },
+          "before_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 4096,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 527392
+          },
+          "query_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 0,
+            "diskgraph.sqlite-shm": 0,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "scan_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 636407808,
+            "diskgraph.sqlite-shm": 1114112,
+            "diskgraph.sqlite-wal": -527392
+          }
+        },
+        "wal_bytes": 12392,
+        "native_qualification": {
+          "captured_files": 200000,
+          "gaps": 0,
+          "method": "linux_handle",
+          "qualified": true,
+          "snapshot_id": "7ae5b677-1636-404a-8c0b-86ee05ccb5ae"
+        }
+      }
+    },
+    {
+      "artifact_file": "300-deep-round1-baseline.json",
+      "sha256": "64bf6f408cb9434374588ff6a9f923fe3156e8c5942e11fdd8d453e74d0f9977",
+      "measurement": {
+        "after_narrow_candidates": {
+          "p50_ms": 0.934346,
+          "p95_ms": 1.046807,
+          "samples": 11
+        },
+        "after_narrow_top20": {
+          "p50_ms": 0.416385,
+          "p95_ms": 0.451461,
+          "samples": 31
+        },
+        "before_full_revision_candidates": {
+          "p50_ms": 0.801886,
+          "p95_ms": 1.08775,
+          "samples": 3
+        },
+        "before_full_revision_top20": {
+          "p50_ms": 0.75592,
+          "p95_ms": 0.926785,
+          "samples": 7
+        },
+        "budgeted_tree": {
+          "p50_ms": 0.836556,
+          "p95_ms": 0.9444170000000001,
+          "samples": 11
+        },
+        "concurrent_4_readers": [
+          {
+            "p50_ms": 3.5450429999999997,
+            "p95_ms": 3.85005,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.424753,
+            "p95_ms": 4.150135,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.4587709999999996,
+            "p95_ms": 3.9570819999999998,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.519777,
+            "p95_ms": 3.845729,
+            "samples": 31
+          }
+        ],
+        "database_bytes": 3387392,
+        "files": 300,
+        "process_scan_high_water_rss_bytes": 46170112,
+        "process_total_high_water_rss_bytes": 46170112,
+        "reaped_child_scan_high_water_rss_bytes": 0,
+        "scan_parent_and_child_high_water_sum_bytes": 46170112,
+        "scan_seconds": 0.09406947,
+        "shape": "deep",
+        "storage_phases": {
+          "after_queries": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 3387392,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "after_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 3387392,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 0
+          },
+          "before_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 4096,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 510912
+          },
+          "query_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 0,
+            "diskgraph.sqlite-shm": 0,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "scan_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 3383296,
+            "diskgraph.sqlite-shm": 0,
+            "diskgraph.sqlite-wal": -510912
+          }
+        },
+        "wal_bytes": 12392,
+        "native_qualification": {
+          "captured_files": 300,
+          "gaps": 0,
+          "method": "linux_handle",
+          "qualified": true,
+          "snapshot_id": "88b83783-229f-4f9a-b657-7859bc388df5"
+        }
+      }
+    },
+    {
+      "artifact_file": "300-deep-round1-candidate.json",
+      "sha256": "c6d8efa1f29020f514520f252f19afd89300dd21cd2b53c5c090bf9413fb78d9",
+      "measurement": {
+        "after_narrow_candidates": {
+          "p50_ms": 1.721528,
+          "p95_ms": 1.864671,
+          "samples": 11
+        },
+        "after_narrow_top20": {
+          "p50_ms": 0.426783,
+          "p95_ms": 0.486121,
+          "samples": 31
+        },
+        "before_full_revision_candidates": {
+          "p50_ms": 0.837531,
+          "p95_ms": 1.176051,
+          "samples": 3
+        },
+        "before_full_revision_top20": {
+          "p50_ms": 0.7837369999999999,
+          "p95_ms": 1.350098,
+          "samples": 7
+        },
+        "budgeted_tree": {
+          "p50_ms": 0.862225,
+          "p95_ms": 0.991938,
+          "samples": 11
+        },
+        "concurrent_4_readers": [
+          {
+            "p50_ms": 3.570894,
+            "p95_ms": 4.028528,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.435244,
+            "p95_ms": 3.8284759999999998,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.5978630000000003,
+            "p95_ms": 4.205615,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.4844009999999996,
+            "p95_ms": 3.755175,
+            "samples": 31
+          }
+        ],
+        "database_bytes": 3395584,
+        "files": 300,
+        "process_scan_high_water_rss_bytes": 46170112,
+        "process_total_high_water_rss_bytes": 46170112,
+        "reaped_child_scan_high_water_rss_bytes": 3248128,
+        "scan_parent_and_child_high_water_sum_bytes": 49418240,
+        "scan_seconds": 0.122491987,
+        "shape": "deep",
+        "storage_phases": {
+          "after_queries": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 3395584,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "after_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 3395584,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 0
+          },
+          "before_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 4096,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 527392
+          },
+          "query_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 0,
+            "diskgraph.sqlite-shm": 0,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "scan_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 3391488,
+            "diskgraph.sqlite-shm": 0,
+            "diskgraph.sqlite-wal": -527392
+          }
+        },
+        "wal_bytes": 12392,
+        "native_qualification": {
+          "captured_files": 300,
+          "gaps": 0,
+          "method": "linux_handle",
+          "qualified": true,
+          "snapshot_id": "c9cbb050-1548-4f87-9ff0-757e523854a1"
+        }
+      }
+    },
+    {
+      "artifact_file": "300-deep-round2-baseline.json",
+      "sha256": "b832309a2ea82990e45cd3c9fbac2d342ca1fce4a94f151bae323d897c4d22eb",
+      "measurement": {
+        "after_narrow_candidates": {
+          "p50_ms": 0.948313,
+          "p95_ms": 1.101407,
+          "samples": 11
+        },
+        "after_narrow_top20": {
+          "p50_ms": 0.430328,
+          "p95_ms": 0.50497,
+          "samples": 31
+        },
+        "before_full_revision_candidates": {
+          "p50_ms": 0.838089,
+          "p95_ms": 1.218168,
+          "samples": 3
+        },
+        "before_full_revision_top20": {
+          "p50_ms": 0.7885019999999999,
+          "p95_ms": 1.137525,
+          "samples": 7
+        },
+        "budgeted_tree": {
+          "p50_ms": 0.862661,
+          "p95_ms": 1.013993,
+          "samples": 11
+        },
+        "concurrent_4_readers": [
+          {
+            "p50_ms": 3.49478,
+            "p95_ms": 4.120986,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.418371,
+            "p95_ms": 4.158969,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.491041,
+            "p95_ms": 4.068804,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.228664,
+            "p95_ms": 3.812971,
+            "samples": 31
+          }
+        ],
+        "database_bytes": 3387392,
+        "files": 300,
+        "process_scan_high_water_rss_bytes": 46170112,
+        "process_total_high_water_rss_bytes": 46170112,
+        "reaped_child_scan_high_water_rss_bytes": 0,
+        "scan_parent_and_child_high_water_sum_bytes": 46170112,
+        "scan_seconds": 0.099369721,
+        "shape": "deep",
+        "storage_phases": {
+          "after_queries": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 3387392,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "after_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 3387392,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 0
+          },
+          "before_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 4096,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 510912
+          },
+          "query_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 0,
+            "diskgraph.sqlite-shm": 0,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "scan_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 3383296,
+            "diskgraph.sqlite-shm": 0,
+            "diskgraph.sqlite-wal": -510912
+          }
+        },
+        "wal_bytes": 12392,
+        "native_qualification": {
+          "captured_files": 300,
+          "gaps": 0,
+          "method": "linux_handle",
+          "qualified": true,
+          "snapshot_id": "784b4651-7f00-4454-aa64-a2d7080cbfc4"
+        }
+      }
+    },
+    {
+      "artifact_file": "300-deep-round2-candidate.json",
+      "sha256": "4a12d865e254b18021d517f51c35f28fdfba0cef8f8e887e6dd4959b45db7f3c",
+      "measurement": {
+        "after_narrow_candidates": {
+          "p50_ms": 1.7238,
+          "p95_ms": 1.8866200000000002,
+          "samples": 11
+        },
+        "after_narrow_top20": {
+          "p50_ms": 0.431427,
+          "p95_ms": 0.470498,
+          "samples": 31
+        },
+        "before_full_revision_candidates": {
+          "p50_ms": 0.818017,
+          "p95_ms": 1.138395,
+          "samples": 3
+        },
+        "before_full_revision_top20": {
+          "p50_ms": 0.758296,
+          "p95_ms": 1.281092,
+          "samples": 7
+        },
+        "budgeted_tree": {
+          "p50_ms": 0.85852,
+          "p95_ms": 0.994891,
+          "samples": 11
+        },
+        "concurrent_4_readers": [
+          {
+            "p50_ms": 3.706585,
+            "p95_ms": 4.064955,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.655631,
+            "p95_ms": 3.842599,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.625104,
+            "p95_ms": 3.989615,
+            "samples": 31
+          },
+          {
+            "p50_ms": 3.872939,
+            "p95_ms": 4.23624,
+            "samples": 31
+          }
+        ],
+        "database_bytes": 3395584,
+        "files": 300,
+        "process_scan_high_water_rss_bytes": 46170112,
+        "process_total_high_water_rss_bytes": 46170112,
+        "reaped_child_scan_high_water_rss_bytes": 3284992,
+        "scan_parent_and_child_high_water_sum_bytes": 49455104,
+        "scan_seconds": 0.123539302,
+        "shape": "deep",
+        "storage_phases": {
+          "after_queries": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 3395584,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "after_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 3395584,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 0
+          },
+          "before_scan": {
+            "diskgraph-control.sqlite": 167936,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 4096,
+            "diskgraph.sqlite-shm": 32768,
+            "diskgraph.sqlite-wal": 527392
+          },
+          "query_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 0,
+            "diskgraph.sqlite-shm": 0,
+            "diskgraph.sqlite-wal": 12392
+          },
+          "scan_signed_delta": {
+            "diskgraph-control.sqlite": 0,
+            "diskgraph-control.sqlite-shm": 0,
+            "diskgraph-control.sqlite-wal": 0,
+            "diskgraph.sqlite": 3391488,
+            "diskgraph.sqlite-shm": 0,
+            "diskgraph.sqlite-wal": -527392
+          }
+        },
+        "wal_bytes": 12392,
+        "native_qualification": {
+          "captured_files": 300,
+          "gaps": 0,
+          "method": "linux_handle",
+          "qualified": true,
+          "snapshot_id": "c01a8afe-6028-46ff-b15d-6f760319bec2"
+        }
+      }
+    }
+  ]
+}

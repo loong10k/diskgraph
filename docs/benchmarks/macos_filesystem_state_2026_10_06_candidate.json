@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "component": "macOS original FD current filesystem metadata and volume/ACL adapter",
+  "production_acceptance": false,
+  "uid": 501,
+  "api_red": "E0432 missing implementation; not behavior proof",
+  "behavior_red": "real readonly ALLOW ACL unexpectedly rejected; 6 passed/1 failed",
+  "cause": "filesec_query_property ACL presence is bitmask32, not normalized1",
+  "fix": "zero absent; nonzero strict ACL validation; retain all mutation ALLOW and unknown/error rejections",
+  "green": {
+    "passed": 7,
+    "failed": 0,
+    "ignored": 0
+  },
+  "source_sha256": {
+    "crates/diskgraph-engine/src/macos_filesystem_state.rs": "688a10a9117ebbae13509a1b2307fe3710196cf268762dface4c3983a29c70e5",
+    "crates/diskgraph-engine/src/macos_filesystem_state_tests.rs": "810741a16c8f61a3505844ee1c3175e27cd58c774c3864cd5f1e6b20daa0684d",
+    "crates/diskgraph-engine/src/macos_installation_metadata.c": "c4116fa33140f071bced33ce4486101014853f93d45bf5418bca157f7e82314e"
+  },
+  "logs": {
+    "api_red": {
+      "path": "macos_filesystem_state_api_red_2026_10_06.log.gz",
+      "raw_sha256": "21224c73503ffb85aa2c7d9dbd044df3eab8eb975f9b5897808489e06a4e67e0"
+    },
+    "acl_behavior_red": {
+      "path": "macos_filesystem_state_acl_behavior_red_2026_10_06.log.gz",
+      "raw_sha256": "69c6543c533ba0f89ac3ebc118acc9f2dba5200cc638639e8338a2d0f63a904c"
+    },
+    "green": {
+      "path": "macos_filesystem_state_green_2026_10_06.log.gz",
+      "raw_sha256": "5e7c79aa01964c03a482dc4d47380c9376eddef8b3e097b12783fce6b794f72e"
+    },
+    "native_acl_api": {
+      "path": "macos_filesystem_state_acl_api_diagnostic_2026_10_06.log.gz",
+      "raw_sha256": "eac745eb884d1c90ba07ef25c098d0e23f14b45df766159b4093125acc7092ad"
+    }
+  },
+  "verified": [
+    "actual root-owned system FD volume/metadata read on local Apple Silicon",
+    "actual own-fixture noACL/read-only ALLOW/DENY-write accepted by C adapter; write/delete/writeattr/writesecurity ALLOW rejected",
+    "generic ordinary-owner materials rejected"
+  ],
+  "coverage_limits": [
+    "nonroot fixture mode and nlink cases can fail at owner gate; independent root positive controls not executed",
+    "generic readonly regular and held-replacement root positive branches not executed",
+    "macOS Intel native adapter not yet executed",
+    "fresh issuer/ancestor lease/full image digest/child lifecycle not implemented by this layer"
+  ]
+}

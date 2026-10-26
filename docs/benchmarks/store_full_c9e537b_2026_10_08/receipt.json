@@ -1,0 +1,11 @@
+{
+  "base_commit": "c9e537b76476fde38f6722ea5ec31c99f34b895d",
+  "overlay": "previously reviewed reader_observation_tests plus lib test module",
+  "platform": "Linux ARM64 Docker Rust1.97.1",
+  "passed": 315,
+  "failed": 0,
+  "ignored": 5,
+  "log_sha256": "5ad618f0f5807d826984891210cba26c79c981e40e6c2fee35b8fb032c0d73d1",
+  "production_acceptance": false,
+  "three_platform_acceptance": false
+}

@@ -1,0 +1,70 @@
+{
+  "job_id": "wc_job__gBNfw3-xo0nhi5p",
+  "description": "Default parallel complete Engine lib before narrow terminal reader; actual terminal failure; no budget or test selector reduction.",
+  "base_head": "c3ff925d99e4fb80ae716b7a9483fa9008cea952",
+  "source_hashes": {
+    "crates/diskgraph-engine/src/live_evidence/windows_git_cleanup_tests.rs": "7f59b153eaecd9e1cb8f64e256cc938adbd16b08fa07c50a2f933af6f062a490",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_foreign_removal_witness.rs": "795ef9c62179862813f202e6c8df752b44f2424822a3fc8056bdb5a93037d0cb",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_directory_cursor.rs": "330086a0be6d15360adbb3a07b54e197abbb9df09e0d080c9650b58ca8a25e86",
+    "crates/diskgraph-engine/src/live_evidence/windows_git_removal_observation.rs": "6a8225166aca3abbcfe13f470b0851d2e156740e2659e0dd45010e632d863eb5"
+  },
+  "commands": [
+    {
+      "name": "engine_lib",
+      "argv": [
+        "cargo",
+        "+1.99.0",
+        "test",
+        "--locked",
+        "-p",
+        "diskgraph-engine",
+        "--lib",
+        "--target",
+        "x86_64-pc-windows-msvc",
+        "--",
+        "--nocapture"
+      ],
+      "exit_code": 101,
+      "elapsed_seconds": 248.03099999998813
+    }
+  ],
+  "working_tree_diff_sha256": "bac139b14fc5cf6003406392409e24ef6c917c180ba6e99b3599cb28d9694871",
+  "tracked_status": " M crates/diskgraph-cli/src/candidate_commands.rs\n M crates/diskgraph-cli/src/query_terminal_tests.rs\n M crates/diskgraph-cli/src/relation_commands.rs\n M crates/diskgraph-cli/src/relation_reply.rs\n M crates/diskgraph-engine/src/relation_access.rs\n M crates/diskgraph-engine/src/relation_queries.rs\n M crates/diskgraph-mcp/src/history_budget_tests.rs\n M crates/diskgraph-mcp/src/lib.rs\n M crates/diskgraph-mcp/src/relation_budget_tests.rs\n M crates/diskgraph-mcp/src/relation_reply.rs\n M crates/diskgraph-mcp/src/relation_tools.rs\n M crates/diskgraph-mcp/src/service_dispatch.rs\n M crates/diskgraph-mcp/src/tests/query_revision_fixture.rs\n",
+  "summaries": [
+    "test result: FAILED. 680 passed; 25 failed; 5 ignored; 0 measured; 0 filtered out; finished in 247.46s"
+  ],
+  "failed_tests": [
+    "test history_relation_withdrawal_tests::history_request_remembers_each_distinct_scope_through_encoding ... FAILED",
+    "test git_evidence_publication_tests::git_job_publishes_safe_summary_on_same_snapshot_and_preserves_old_revision ... FAILED",
+    "test live_evidence::git_callback_tests::native_fsmonitor_positive_control_does_not_execute_during_public_sampling ... FAILED",
+    "test live_evidence::git_config_policy_tests::native_fscache_preserves_dirty_stash_and_tracking_without_source_writes ... FAILED",
+    "test live_evidence::git_isolation_semantics_tests::linked_worktree_keeps_its_own_head_index_and_the_common_stash ... FAILED",
+    "test job_stop_signals_tests::running_keeper_distinguishes_request_cancel_from_verified_deny_stop ... FAILED",
+    "test live_evidence::git_isolation_semantics_tests::racy_index_same_size_change_with_restored_mtime_remains_dirty ... FAILED",
+    "test live_evidence::git_metadata_tests::assume_valid_bit_preserves_git_status_semantics_in_private_view ... FAILED",
+    "test live_evidence::git_isolation_semantics_tests::ordinary_dirty_stash_and_upstream_match_real_git_without_source_writes ... FAILED",
+    "test live_evidence::git_object_database_tests::packed_sha1_and_sha256_keep_status_stash_and_upstream_without_source_writes ... FAILED",
+    "test live_evidence::git_scope_boundary_tests::registered_parent_maps_absolute_attributes_and_excludes_dependencies ... FAILED",
+    "test live_evidence::git_scope_boundary_tests::registered_parent_allows_linked_worktree_and_absolute_common_dependency ... FAILED",
+    "test live_evidence::git_scoped_semantics_tests::scoped_sha1_and_sha256_local_tracking_divergence_matches_real_git ... FAILED",
+    "test live_evidence::git_semantics_tests::missing_tracking_ref_is_reported_as_unavailable_not_unconfigured ... FAILED",
+    "test live_evidence::git_semantics_tests::sha256_repository_keeps_full_oids_and_correct_commit_counts ... FAILED",
+    "test live_evidence::git_semantics_tests::unborn_repository_counts_each_untracked_and_staged_file ... FAILED",
+    "test live_evidence::probe_tests::an_exited_leader_does_not_make_inherited_pipes_complete ... FAILED",
+    "test relation_request_tests::timely_terminal_callback_does_not_pay_for_post_callback_observation ... FAILED",
+    "test live_evidence::tests::git_samples_dirty_stash_and_upstream_honestly ... FAILED",
+    "test runner::tests::strict_tick_bounds_candidate_work_and_advances_past_legacy_jobs ... FAILED",
+    "test terminal_capability_tests::history_terminal_callbacks_can_reenter_and_revoke_the_other_scope ... FAILED",
+    "test terminal_capability_tests::initial_authorization_control_contention_expires_while_original_lock_is_held ... FAILED",
+    "test terminal_capability_tests::late_history_side_does_not_hide_the_other_scope_revocation ... FAILED",
+    "test live_evidence::git_status_output_tests::real_wide_status_exhausts_default_output_without_partial_sample_or_private_data ... FAILED",
+    "test live_evidence::git_private_capacity_tests::zero_allocation_files_still_reach_the_real_owner_entry_limit ... FAILED"
+  ],
+  "raw_hashes": {
+    "engine_lib.stderr.log": "133eeebdc94769a2fac93bacb90b97e338fb8544876598e39058055a2bec2b96",
+    "engine_lib.stdout.log": "3ffa6e1ae464ab2db0abf23d82fa1b29c8f75c6d6ce3f9e1e052544546802800",
+    "receipt.json": "e4afccd4e748cc656bcc126ebd0a5a41c17efaa92a70429000f5d29ebf23f77a",
+    "run.py": "59fb1a66ca189532503054ff3de6cbcf56543deb20c9a084508bfd7b9a66239a",
+    "source.diff": "bac139b14fc5cf6003406392409e24ef6c917c180ba6e99b3599cb28d9694871"
+  }
+}

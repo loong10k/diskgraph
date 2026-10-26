@@ -1,0 +1,22 @@
+{
+  "commit": "8ccdb4155671aa100760ddb5003691cc11a5bf59",
+  "source_sha256": {
+    "scripts/accept-readonly-package.py": "234482c8cc88078f691b17b1c27d48b90db3272fbf1436c0a4c4aa0662712f8f",
+    "scripts/accept-readonly-load.py": "0a2bb827829107fc067ab6383902c750608c5e6772b4c8650ee83adc9a37e71e",
+    "crates/diskgraph-engine/src/native_child/windows/windows_child_spawn.rs": "f6ed931addbffebb21b124dfead532e31d173f2434b9d361d64df8f194b8fed1",
+    "crates/diskgraph-engine/src/native_child/windows/windows_child_poll_cleanup.rs": "619080abac89b394ed6d458bcdc32927d7a5b97efb38cd8d8926ba17d359bfc4"
+  },
+  "finding": "Python acceptance wrapper invokes subprocess.run; it is outside Rust WindowsChild Job ownership. Rust worker cleanup cannot retire the Python wrapper or CLI parent when outer Python times out.",
+  "required_followup": "Bind acceptance process tree to an owned native Job at birth; preserve original deadlines and verify active process count plus owned I/O retirement before removing images. Native Windows test required.",
+  "not_proven": [
+    "200k timeout phase",
+    "all process owners",
+    "readiness"
+  ],
+  "native_exit_fixture": {
+    "artifact_id": 11521646232,
+    "verified_bytes": true,
+    "status": "compiled; direct and CLI execution remain required",
+    "runtime_acceptance": false
+  }
+}

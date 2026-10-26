@@ -1,0 +1,54 @@
+   Compiling diskgraph-engine v0.3.0 (/build/terminal-red-7fc3330/crates/diskgraph-engine)
+    Finished `test` profile [unoptimized] target(s) in 6.59s
+     Running tests/history_scope_eligibility.rs (/build/terminal-red-target/debug/deps/history_scope_eligibility-f98b8f115fdefedc)
+
+running 13 tests
+test authorized_distinct_actual_scopes_are_not_growth_compatible ... ok
+test foreign_server_owned_history_is_denied_before_comparability ... ok
+test authorized_distinct_actual_scopes_have_changes_incompatibility ... ok
+test generic_authorized_comparison_remains_available_across_scopes_and_roots ... ok
+test linux_fs_tests::linux_real_raw_roots_with_distinct_owned_scopes_have_changes_diagnostic ... ok
+test linux_fs_tests::linux_real_raw_roots_with_distinct_owned_scopes_have_no_growth ... ok
+test same_actual_scope_history_keeps_positive_delta_and_size_changes ... ok
+test scope_incompatible_growth_still_cannot_fit_null_in_one_byte_budget ... ok
+test missing_grant_on_either_side_is_denied_instead_of_incompatible ... ok
+test scope_incompatible_changes_still_rechecks_terminal_revocation ... ok
+test scope_incompatible_growth_still_rechecks_terminal_revocation ... ok
+test scope_incompatible_changes_cannot_hide_response_budget_or_deadline ... ok
+test scope_incompatible_growth_still_rejects_terminal_deadline ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.91s
+
+     Running tests/history_size_eligibility.rs (/build/terminal-red-target/debug/deps/history_size_eligibility-1cf3fe4f8b3514f7)
+
+running 9 tests
+test comparison_unknown_side_is_null_while_known_zero_remains_zero ... ok
+test growth_refuses_same_path_file_directory_replacement_in_both_directions ... ok
+test directory_unknown_comparison_has_null_bytes_and_unknown_summary_not_same ... ok
+test growth_refuses_unknown_or_read_error_on_either_side_in_both_public_apis ... ok
+test known_directory_size_changes_count_but_count_only_changes_do_not ... ok
+test revision_changes_excludes_unknown_and_type_replacement_from_size_changed ... ok
+test unknown_growth_still_rechecks_terminal_authorization_and_budget ... ok
+test root_unknown_growth_and_unknown_type_replacement_never_produce_delta ... ok
+test unknown_growth_still_rejects_expiry_at_terminal_authorization ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 4.53s
+
+     Running tests/runtime_revision_authorization.rs (/build/terminal-red-target/debug/deps/runtime_revision_authorization-66af503f119c3d69)
+
+running 1 test
+test in_flight_complete_and_truncated_reads_refuse_runtime_revision_quarantine ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.39s
+
+     Running tests/scope_authorization_projection_tests.rs (/build/terminal-red-target/debug/deps/scope_authorization_projection_tests-989c320bde1b429f)
+
+running 5 tests
+test ordinary_scope_completes_the_real_display_request_within_the_original_budget ... ok
+test grant_withdrawn_by_the_real_terminal_callback_refuses_the_display ... ok
+test scope_withdrawn_by_the_real_terminal_callback_refuses_the_display ... ok
+test giant_optional_scope_fields_are_not_owned_by_the_real_display_request ... ok
+test terminal_policy_sql_keeps_its_budget_after_the_capability_callback ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.39s
+

@@ -1,0 +1,7 @@
+{
+  "job": 113071996228,
+  "commit": "9758b53310365e626ddb485bffc1dde4d16dbb1b",
+  "entire_job": "success",
+  "log_sha256": "12dd76e27900f2295ec922f7a22371f78294276345c8acfdc51300d96d02f4a5",
+  "limitation": "Historical Windows MSRV job; no current HEAD or intermittent root-cause closure"
+}

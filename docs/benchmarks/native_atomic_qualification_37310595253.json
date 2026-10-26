@@ -1,0 +1,333 @@
+{
+  "scope": "Atomic launcher component only; does not prove memfd policy or production Engine integration",
+  "run_id": 37310595253,
+  "lanes": [
+    {
+      "lane": "scan-atomic-launcher-ubuntu-24.04-arm-stable-37310595253",
+      "commit": "91846e8c60a4bf87ad1038f25fa4241f28124a96",
+      "executed_cases": 17,
+      "outer_init_reaped": true,
+      "steps_verified": 9,
+      "artifacts": [
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-24.04-arm-stable-37310595253/diskgraph-atomic-launcher/child.stderr.gz",
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-24.04-arm-stable-37310595253/diskgraph-atomic-launcher/child.stdout.gz",
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-24.04-arm-stable-37310595253/diskgraph-atomic-launcher/namespace-receipt.json.gz",
+          "raw_sha256": "26cf11ca0b5bd9d71e3897906481facba5fdcb99799cd74ef526125c3f0d8a80",
+          "gzip_sha256": "5af32b5797bd9aa8f2d1ee7646690c001ea4330f2070d253a9747606065b23d3"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-24.04-arm-stable-37310595253/diskgraph-atomic-launcher/qualification/archive.stderr.gz",
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-24.04-arm-stable-37310595253/diskgraph-atomic-launcher/qualification/captured-commit.log.gz",
+          "raw_sha256": "15c0dd0746e843b3911ec1bb034bada5cde49442d26838e16d8536adbd579449",
+          "gzip_sha256": "30852154e0d918d22154ab326da042f52cd7a6042ae2a478cfeffd992d0d0e86"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-24.04-arm-stable-37310595253/diskgraph-atomic-launcher/qualification/fixture-image-1.log.gz",
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-24.04-arm-stable-37310595253/diskgraph-atomic-launcher/qualification/fixture-image-2.log.gz",
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-24.04-arm-stable-37310595253/diskgraph-atomic-launcher/qualification/fixtures/image-1.gz",
+          "raw_sha256": "e7e70f6740955b523b5825855934940d986cde7a83fb02a70f996bec77240550",
+          "gzip_sha256": "6261e94881f6c22a49f8f1868f407a26aeeadc64bea934f478387610ad38def2"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-24.04-arm-stable-37310595253/diskgraph-atomic-launcher/qualification/fixtures/image-2.gz",
+          "raw_sha256": "81a50851b65a3b96ddd9b33d11bb84e0fbec1b5c18539c2b382c8bda846508ed",
+          "gzip_sha256": "a600e473fc4d034d98eb88299d5aadff2bf34a0cfa7c1628eebfad279371ee74"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-24.04-arm-stable-37310595253/diskgraph-atomic-launcher/qualification/native-archive-members.log.gz",
+          "raw_sha256": "05018611eb0a23ee2f150b245857686494fb3bdaf5229c95774d9a4ce72b9961",
+          "gzip_sha256": "67531043d1eb04e57859d533f38d74278c93e8ae9051b84018ce8d651eefa676"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-24.04-arm-stable-37310595253/diskgraph-atomic-launcher/qualification/native-nm-undefined.log.gz",
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-24.04-arm-stable-37310595253/diskgraph-atomic-launcher/qualification/native-objdump.log.gz",
+          "raw_sha256": "434456444387b56911e4a1d37b6c537b0735807eadfb1d55299325591126d6b6",
+          "gzip_sha256": "6628d9bbdef930f92246de4e9645059cb85e4b249c78b2ed85869270af501e52"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-24.04-arm-stable-37310595253/diskgraph-atomic-launcher/qualification/native-test-inventory.log.gz",
+          "raw_sha256": "979c78c54f0f8eb6b3514c54ca6c62b21f501b4c82a1a0a540831f5ba48fe0ad",
+          "gzip_sha256": "da58bc407fd655ff1b8c178ed056cb2bb9d921533d3789d13df6e7bad386c4f5"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-24.04-arm-stable-37310595253/diskgraph-atomic-launcher/qualification/native-tests.log.gz",
+          "raw_sha256": "54fbd4af49c561b90bbfde23c3e2c51a0b2a6a44f5cdfb50d4b26ff5d1706358",
+          "gzip_sha256": "edb23f8488385ef28d5c3648f64ffc1adf33d16d277ee19e0bae777121c48cd2"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-24.04-arm-stable-37310595253/diskgraph-atomic-launcher/qualification/objects/6afc2fb409146e5d-linux_atomic_spawn.o.gz",
+          "raw_sha256": "52a33f561aa2de148c3813fdcd300ff33f67560e1d659b7ecbb63fb365ef97c6",
+          "gzip_sha256": "447815173643229cf210cb5570703b6b0edd4a2b011a7e879723f3ede508db5d"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-24.04-arm-stable-37310595253/diskgraph-atomic-launcher/qualification/objects/libdiskgraph_linux_atomic_spawn.a.gz",
+          "raw_sha256": "0d29d477b2d65a08a22dcba5d3173a9e31efcb28069558cb98fc328aee420d68",
+          "gzip_sha256": "22b5d04a4fb64abf12f652732f53d69d06a31cbb570857cce840a21a347436e3"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-24.04-arm-stable-37310595253/diskgraph-atomic-launcher/qualification/receipt.json.gz",
+          "raw_sha256": "b2c4cdd1dab96a6f5f44b75b18fb72e0e1127565f536f7f56d981b5042a2813c",
+          "gzip_sha256": "b03cee4867cd8369a46708332bedf51628257a1b323334718cbcfe199fce735a"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-24.04-arm-stable-37310595253/diskgraph-namespace-self-test/child.stderr.gz",
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-24.04-arm-stable-37310595253/diskgraph-namespace-self-test/child.stdout.gz",
+          "raw_sha256": "d26edb584505d3cc26bd88da88e9f3cd421b381e2063377bd56f5d495f93c90b",
+          "gzip_sha256": "6be1f1524769d4f2b2dd8cac3adc2ed834432ec4bd2a0b9c55a5d86f8d94c7aa"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-24.04-arm-stable-37310595253/diskgraph-namespace-self-test/namespace-receipt.json.gz",
+          "raw_sha256": "c631a24ac9e4d3165277de61617b34d22c2ce8c5a41f3f3e0fc9925f691cadb0",
+          "gzip_sha256": "9a410d214e297beb7005428f8ceaafb8d78780e917140cd230bbdefab9ab713c"
+        }
+      ]
+    },
+    {
+      "lane": "scan-atomic-launcher-ubuntu-latest-1.97.0-37310595253",
+      "commit": "91846e8c60a4bf87ad1038f25fa4241f28124a96",
+      "executed_cases": 17,
+      "outer_init_reaped": true,
+      "steps_verified": 9,
+      "artifacts": [
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-1.97.0-37310595253/diskgraph-atomic-launcher/child.stderr.gz",
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-1.97.0-37310595253/diskgraph-atomic-launcher/child.stdout.gz",
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-1.97.0-37310595253/diskgraph-atomic-launcher/namespace-receipt.json.gz",
+          "raw_sha256": "80e6092b1c0bcf5cd70ca2e3f366f04a995309215c2dfb3f80f7e8a53aba4d40",
+          "gzip_sha256": "a497bc274c4a49ae0075080ba0c4e8adbdaeb77c35aa2cd8262b68bf5f428245"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-1.97.0-37310595253/diskgraph-atomic-launcher/qualification/archive.stderr.gz",
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-1.97.0-37310595253/diskgraph-atomic-launcher/qualification/captured-commit.log.gz",
+          "raw_sha256": "15c0dd0746e843b3911ec1bb034bada5cde49442d26838e16d8536adbd579449",
+          "gzip_sha256": "30852154e0d918d22154ab326da042f52cd7a6042ae2a478cfeffd992d0d0e86"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-1.97.0-37310595253/diskgraph-atomic-launcher/qualification/fixture-image-1.log.gz",
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-1.97.0-37310595253/diskgraph-atomic-launcher/qualification/fixture-image-2.log.gz",
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-1.97.0-37310595253/diskgraph-atomic-launcher/qualification/fixtures/image-1.gz",
+          "raw_sha256": "06ceaa00e4e61eb86a4707670cba2e215d0535f542bdcc47830ac11487a58db2",
+          "gzip_sha256": "bb34d306a05457fdf137112286ceeabeb11cc088649777adbd66cf29fcf5d7c5"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-1.97.0-37310595253/diskgraph-atomic-launcher/qualification/fixtures/image-2.gz",
+          "raw_sha256": "91ea2f017b98dd5350b065f98d778ab75139d33f65deaaaf6cbff80b2d84398f",
+          "gzip_sha256": "b21a81b7d2e5179a1cd16b99cb802bf01108692e706ee920e6a7e542c0276a95"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-1.97.0-37310595253/diskgraph-atomic-launcher/qualification/native-archive-members.log.gz",
+          "raw_sha256": "05018611eb0a23ee2f150b245857686494fb3bdaf5229c95774d9a4ce72b9961",
+          "gzip_sha256": "67531043d1eb04e57859d533f38d74278c93e8ae9051b84018ce8d651eefa676"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-1.97.0-37310595253/diskgraph-atomic-launcher/qualification/native-nm-undefined.log.gz",
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-1.97.0-37310595253/diskgraph-atomic-launcher/qualification/native-objdump.log.gz",
+          "raw_sha256": "944e23568310c6bc3a10ac2d699227e8f1af641c7a2e481cfad63358ed8cc1a4",
+          "gzip_sha256": "5fe21c7536923c3fe6ba0ce04f10a983a363a67479622266ce91688fb5410013"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-1.97.0-37310595253/diskgraph-atomic-launcher/qualification/native-test-inventory.log.gz",
+          "raw_sha256": "99a642762fcd0419a939ffb79e6a30fd59da215b351104633d5f11c7d355f6b8",
+          "gzip_sha256": "770630dffdc7288a2397b2d1e652d50fdca348e3dcaa2dac348ce318dd2a36d6"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-1.97.0-37310595253/diskgraph-atomic-launcher/qualification/native-tests.log.gz",
+          "raw_sha256": "65d3b2e318df75d6cc79ccd85ff1ce3ad246799d49631544572b62ef6525c494",
+          "gzip_sha256": "9fed4bc9989f513d9808a3cb414496469944e14be00333f634bdbb84213998de"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-1.97.0-37310595253/diskgraph-atomic-launcher/qualification/objects/6afc2fb409146e5d-linux_atomic_spawn.o.gz",
+          "raw_sha256": "44f2c84f426a9818f3ea81bc83b4a49b97b194032be43c20b59adbbc8c3607d6",
+          "gzip_sha256": "b735b8a3d1fe4f43203a95853dddf9a9161edc194f9fff7ebd90193c39bf4afe"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-1.97.0-37310595253/diskgraph-atomic-launcher/qualification/objects/libdiskgraph_linux_atomic_spawn.a.gz",
+          "raw_sha256": "cd3c044debf716001a77ca2b9051d7cb61ca2e99fb14d32875910fe291287b52",
+          "gzip_sha256": "7242457f5edf63c1c059790ff777ccdbbbd64c433c9e914202ad5edb3930f5d7"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-1.97.0-37310595253/diskgraph-atomic-launcher/qualification/receipt.json.gz",
+          "raw_sha256": "188d404c86471bac559f03d822dee24d9866d46465dae327e1ae094aaffb985f",
+          "gzip_sha256": "91fc7b409926bf4e70326cb89946c45c04f4aade868c2bab8c06747b1f0a96d2"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-1.97.0-37310595253/diskgraph-namespace-self-test/child.stderr.gz",
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-1.97.0-37310595253/diskgraph-namespace-self-test/child.stdout.gz",
+          "raw_sha256": "d26edb584505d3cc26bd88da88e9f3cd421b381e2063377bd56f5d495f93c90b",
+          "gzip_sha256": "6be1f1524769d4f2b2dd8cac3adc2ed834432ec4bd2a0b9c55a5d86f8d94c7aa"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-1.97.0-37310595253/diskgraph-namespace-self-test/namespace-receipt.json.gz",
+          "raw_sha256": "ad58c08ae8ada3e00e30db96a7758e84e1853439114148f139003134a062c86a",
+          "gzip_sha256": "48e06bae03ecf625da304c6c202f31760b5248a0e878ba5fe1df5faf378eedcd"
+        }
+      ]
+    },
+    {
+      "lane": "scan-atomic-launcher-ubuntu-latest-stable-37310595253",
+      "commit": "91846e8c60a4bf87ad1038f25fa4241f28124a96",
+      "executed_cases": 17,
+      "outer_init_reaped": true,
+      "steps_verified": 9,
+      "artifacts": [
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-stable-37310595253/diskgraph-atomic-launcher/child.stderr.gz",
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-stable-37310595253/diskgraph-atomic-launcher/child.stdout.gz",
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-stable-37310595253/diskgraph-atomic-launcher/namespace-receipt.json.gz",
+          "raw_sha256": "d3757e0d01b11401da11bad1e3b57c711a454d62c9ea7216aec547e6981a8da5",
+          "gzip_sha256": "1f3ad65b6075849f058f9a8ce5fad13b607b16395dcdcb3f25919c3496045ea3"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-stable-37310595253/diskgraph-atomic-launcher/qualification/archive.stderr.gz",
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-stable-37310595253/diskgraph-atomic-launcher/qualification/captured-commit.log.gz",
+          "raw_sha256": "15c0dd0746e843b3911ec1bb034bada5cde49442d26838e16d8536adbd579449",
+          "gzip_sha256": "30852154e0d918d22154ab326da042f52cd7a6042ae2a478cfeffd992d0d0e86"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-stable-37310595253/diskgraph-atomic-launcher/qualification/fixture-image-1.log.gz",
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-stable-37310595253/diskgraph-atomic-launcher/qualification/fixture-image-2.log.gz",
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-stable-37310595253/diskgraph-atomic-launcher/qualification/fixtures/image-1.gz",
+          "raw_sha256": "06ceaa00e4e61eb86a4707670cba2e215d0535f542bdcc47830ac11487a58db2",
+          "gzip_sha256": "bb34d306a05457fdf137112286ceeabeb11cc088649777adbd66cf29fcf5d7c5"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-stable-37310595253/diskgraph-atomic-launcher/qualification/fixtures/image-2.gz",
+          "raw_sha256": "91ea2f017b98dd5350b065f98d778ab75139d33f65deaaaf6cbff80b2d84398f",
+          "gzip_sha256": "b21a81b7d2e5179a1cd16b99cb802bf01108692e706ee920e6a7e542c0276a95"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-stable-37310595253/diskgraph-atomic-launcher/qualification/native-archive-members.log.gz",
+          "raw_sha256": "05018611eb0a23ee2f150b245857686494fb3bdaf5229c95774d9a4ce72b9961",
+          "gzip_sha256": "67531043d1eb04e57859d533f38d74278c93e8ae9051b84018ce8d651eefa676"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-stable-37310595253/diskgraph-atomic-launcher/qualification/native-nm-undefined.log.gz",
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-stable-37310595253/diskgraph-atomic-launcher/qualification/native-objdump.log.gz",
+          "raw_sha256": "944e23568310c6bc3a10ac2d699227e8f1af641c7a2e481cfad63358ed8cc1a4",
+          "gzip_sha256": "5fe21c7536923c3fe6ba0ce04f10a983a363a67479622266ce91688fb5410013"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-stable-37310595253/diskgraph-atomic-launcher/qualification/native-test-inventory.log.gz",
+          "raw_sha256": "334aa87299feb315d72979df9507ef46b4b0e50783aaada8036cbaade46f30a3",
+          "gzip_sha256": "70baea3669de7d88c9757e2857f4e9646d61a5f0106bdb4f0a52370f298e8a59"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-stable-37310595253/diskgraph-atomic-launcher/qualification/native-tests.log.gz",
+          "raw_sha256": "61cce39e39398b611e52fa5875fcfbc96133f297f487780072b8995fbcf024f5",
+          "gzip_sha256": "4891d7d36e08077a956eaf973d8e3ad6021b79645bccb1ebb03051d83137b7bb"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-stable-37310595253/diskgraph-atomic-launcher/qualification/objects/6afc2fb409146e5d-linux_atomic_spawn.o.gz",
+          "raw_sha256": "aa1471f485eaac7b2f6070707277933472d042c87028cf3632ddee0342686d5f",
+          "gzip_sha256": "007ab3813af91751722579042663e00dd884d523bad1bc82134e6ff74a746f33"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-stable-37310595253/diskgraph-atomic-launcher/qualification/objects/libdiskgraph_linux_atomic_spawn.a.gz",
+          "raw_sha256": "82f2252c0b614d300deb1b4f95102472a550307ebd2b4cdc78b2fae70990757c",
+          "gzip_sha256": "5999a053c017752dd84886fae5e7dba2be53d29930dc4bc925e01086478e1048"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-stable-37310595253/diskgraph-atomic-launcher/qualification/receipt.json.gz",
+          "raw_sha256": "f6f6d2e1fc1c3f7d4d532c81c11c15f79d69bb2ec31dc2ea6d83f0483bdedfbf",
+          "gzip_sha256": "eb46d9dcd3803434fcb18728d8c7ac4ce71a9a56d4b81d73014f8e93c5c259e2"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-stable-37310595253/diskgraph-namespace-self-test/child.stderr.gz",
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-stable-37310595253/diskgraph-namespace-self-test/child.stdout.gz",
+          "raw_sha256": "d26edb584505d3cc26bd88da88e9f3cd421b381e2063377bd56f5d495f93c90b",
+          "gzip_sha256": "6be1f1524769d4f2b2dd8cac3adc2ed834432ec4bd2a0b9c55a5d86f8d94c7aa"
+        },
+        {
+          "path": "docs/benchmarks/native_atomic_qualification_37310595253/scan-atomic-launcher-ubuntu-latest-stable-37310595253/diskgraph-namespace-self-test/namespace-receipt.json.gz",
+          "raw_sha256": "ceead2e22555d7a069ec389fc7946b0a8f2c90a5d08aa38d68901094649de951",
+          "gzip_sha256": "77b1c891bc167c3a33b0485533775d414d0f2944f23ab9bc680c5ced63eb2843"
+        }
+      ]
+    }
+  ]
+}

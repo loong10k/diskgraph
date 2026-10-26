@@ -1,0 +1,198 @@
+{
+  "run": 37697115067,
+  "job": 113051449193,
+  "artifact_id": 11516898442,
+  "commit": "6fbf3ee7d5ab73d5b0f24935d18eed4003bddf2f",
+  "raw_sha256": "18e588f6a13d8382c85188889a757702dadda86c9fb4632d1a9fe97074c73aae",
+  "records": [
+    {
+      "after_counts": {
+        "p50_ms": 0.0195,
+        "p95_ms": 0.0233,
+        "samples": 100
+      },
+      "arch": "x86_64",
+      "backup_bytes": 7225344,
+      "before_counts": {
+        "p50_ms": 1.4916,
+        "p95_ms": 1.6272,
+        "samples": 100
+      },
+      "bounded_pages": [
+        {
+          "cache_state": "same connection, repeated warm queries",
+          "decoded_nodes_per_query": 10,
+          "directory_page": {
+            "p50_ms": 0.0833,
+            "p95_ms": 0.1113,
+            "samples": 100
+          },
+          "does_not_measure_sqlite_pages_or_process_rss": true,
+          "page_size": 10,
+          "tree_page": {
+            "p50_ms": 0.2129,
+            "p95_ms": 0.2825,
+            "samples": 100
+          }
+        },
+        {
+          "cache_state": "same connection, repeated warm queries",
+          "decoded_nodes_per_query": 100,
+          "directory_page": {
+            "p50_ms": 0.2095,
+            "p95_ms": 0.244,
+            "samples": 100
+          },
+          "does_not_measure_sqlite_pages_or_process_rss": true,
+          "page_size": 100,
+          "tree_page": {
+            "p50_ms": 0.4079,
+            "p95_ms": 0.4896,
+            "samples": 100
+          }
+        }
+      ],
+      "children": 20000,
+      "concurrent_directory_pages": {
+        "connection_opening_excluded_from_query_timing": true,
+        "connections": 4,
+        "decoded_nodes_per_query": 100,
+        "page_size": 100,
+        "per_connection": [
+          {
+            "p50_ms": 0.4464,
+            "p95_ms": 0.5708,
+            "samples": 100
+          },
+          {
+            "p50_ms": 0.4389,
+            "p95_ms": 0.5754999999999999,
+            "samples": 100
+          },
+          {
+            "p50_ms": 0.4587,
+            "p95_ms": 0.5805,
+            "samples": 100
+          },
+          {
+            "p50_ms": 0.4511,
+            "p95_ms": 0.5865,
+            "samples": 100
+          }
+        ]
+      },
+      "db_after_migration_bytes": 8802304,
+      "db_after_publish_bytes": 20525056,
+      "db_before_migration_bytes": 7225344,
+      "distinct_sizes": 20000,
+      "fixture": "synthetic immutable metadata",
+      "migration_including_backup_ms": 184.1969,
+      "migration_sampled_peak_sqlite_temp_bytes": null,
+      "migration_sampled_peak_wal_bytes": 2340192,
+      "os": "windows",
+      "owned_staging_fenced_publish_ms": 1361.7318,
+      "profile": "release",
+      "publish_phase_includes_sampler_validation_commit_checkpoint": true,
+      "publish_sampled_peak_sqlite_temp_bytes": null,
+      "publish_sampled_peak_wal_bytes": 17753112,
+      "space_sampling_interval_ms": 1,
+      "staging_db_before_publish_bytes": 10379264,
+      "temp_sampling_is_upper_bound": false
+    },
+    {
+      "after_counts": {
+        "p50_ms": 0.0195,
+        "p95_ms": 0.0234,
+        "samples": 100
+      },
+      "arch": "x86_64",
+      "backup_bytes": 72425472,
+      "before_counts": {
+        "p50_ms": 20.3027,
+        "p95_ms": 21.276799999999998,
+        "samples": 100
+      },
+      "bounded_pages": [
+        {
+          "cache_state": "same connection, repeated warm queries",
+          "decoded_nodes_per_query": 10,
+          "directory_page": {
+            "p50_ms": 0.0837,
+            "p95_ms": 0.1099,
+            "samples": 100
+          },
+          "does_not_measure_sqlite_pages_or_process_rss": true,
+          "page_size": 10,
+          "tree_page": {
+            "p50_ms": 0.2154,
+            "p95_ms": 0.2748,
+            "samples": 100
+          }
+        },
+        {
+          "cache_state": "same connection, repeated warm queries",
+          "decoded_nodes_per_query": 100,
+          "directory_page": {
+            "p50_ms": 0.2162,
+            "p95_ms": 0.24850000000000003,
+            "samples": 100
+          },
+          "does_not_measure_sqlite_pages_or_process_rss": true,
+          "page_size": 100,
+          "tree_page": {
+            "p50_ms": 0.4307,
+            "p95_ms": 0.4964,
+            "samples": 100
+          }
+        }
+      ],
+      "children": 200000,
+      "concurrent_directory_pages": {
+        "connection_opening_excluded_from_query_timing": true,
+        "connections": 4,
+        "decoded_nodes_per_query": 100,
+        "page_size": 100,
+        "per_connection": [
+          {
+            "p50_ms": 0.5003,
+            "p95_ms": 0.5846,
+            "samples": 100
+          },
+          {
+            "p50_ms": 0.5072,
+            "p95_ms": 0.5942999999999999,
+            "samples": 100
+          },
+          {
+            "p50_ms": 0.5062000000000001,
+            "p95_ms": 0.5969,
+            "samples": 100
+          },
+          {
+            "p50_ms": 0.5038,
+            "p95_ms": 0.5858,
+            "samples": 100
+          }
+        ]
+      },
+      "db_after_migration_bytes": 88977408,
+      "db_after_publish_bytes": 209051648,
+      "db_before_migration_bytes": 72425472,
+      "distinct_sizes": 200000,
+      "fixture": "synthetic immutable metadata",
+      "migration_including_backup_ms": 1705.9386000000002,
+      "migration_sampled_peak_sqlite_temp_bytes": null,
+      "migration_sampled_peak_wal_bytes": 23661192,
+      "os": "windows",
+      "owned_staging_fenced_publish_ms": 14999.4691,
+      "profile": "release",
+      "publish_phase_includes_sampler_validation_commit_checkpoint": true,
+      "publish_sampled_peak_sqlite_temp_bytes": null,
+      "publish_sampled_peak_wal_bytes": 182907432,
+      "space_sampling_interval_ms": 1,
+      "staging_db_before_publish_bytes": 102375424,
+      "temp_sampling_is_upper_bound": false
+    }
+  ],
+  "qualification": "native Windows x86_64 release synthetic metadata costs; not real-file scan, end-to-end MCP, RSS, or current-head acceptance"
+}

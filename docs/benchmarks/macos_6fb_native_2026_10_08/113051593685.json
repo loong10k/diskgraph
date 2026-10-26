@@ -1,0 +1,212 @@
+{
+  "id": 113051593685,
+  "run_id": 37697115067,
+  "workflow_name": "CI",
+  "head_branch": "main",
+  "run_url": "https://api.github.com/repos/loong10k/diskgraph/actions/runs/37697115067",
+  "run_attempt": 1,
+  "node_id": "CR_kwDOUvPR-88AAAAaUmZr1Q",
+  "head_sha": "6fbf3ee7d5ab73d5b0f24935d18eed4003bddf2f",
+  "url": "https://api.github.com/repos/loong10k/diskgraph/actions/jobs/113051593685",
+  "html_url": "https://github.com/loong10k/diskgraph/actions/runs/37697115067/job/113051593685",
+  "status": "completed",
+  "conclusion": "success",
+  "created_at": "2026-10-07T22:35:34Z",
+  "started_at": "2026-10-07T23:31:21Z",
+  "completed_at": "2026-10-07T23:39:43Z",
+  "name": "Native read-only package (x86_64-apple-darwin)",
+  "steps": [
+    {
+      "name": "Set up job",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 1,
+      "started_at": "2026-10-07T23:31:22Z",
+      "completed_at": "2026-10-07T23:31:26Z"
+    },
+    {
+      "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 2,
+      "started_at": "2026-10-07T23:31:26Z",
+      "completed_at": "2026-10-07T23:31:35Z"
+    },
+    {
+      "name": "Run dtolnay/rust-toolchain@stable",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 3,
+      "started_at": "2026-10-07T23:31:35Z",
+      "completed_at": "2026-10-07T23:31:57Z"
+    },
+    {
+      "name": "Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 4,
+      "started_at": "2026-10-07T23:31:57Z",
+      "completed_at": "2026-10-07T23:32:17Z"
+    },
+    {
+      "name": "Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 5,
+      "started_at": "2026-10-07T23:32:17Z",
+      "completed_at": "2026-10-07T23:32:18Z"
+    },
+    {
+      "name": "Worker package composition and file admission",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 6,
+      "started_at": "2026-10-07T23:32:18Z",
+      "completed_at": "2026-10-07T23:32:19Z"
+    },
+    {
+      "name": "Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 7,
+      "started_at": "2026-10-07T23:32:19Z",
+      "completed_at": "2026-10-07T23:32:19Z"
+    },
+    {
+      "name": "Prepare actual fixed macOS installation for package",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 8,
+      "started_at": "2026-10-07T23:32:19Z",
+      "completed_at": "2026-10-07T23:34:18Z"
+    },
+    {
+      "name": "Preserve macOS deployment preparation evidence",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 9,
+      "started_at": "2026-10-07T23:34:18Z",
+      "completed_at": "2026-10-07T23:34:19Z"
+    },
+    {
+      "name": "Build current release binaries",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 10,
+      "started_at": "2026-10-07T23:34:19Z",
+      "completed_at": "2026-10-07T23:36:08Z"
+    },
+    {
+      "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 11,
+      "started_at": "2026-10-07T23:36:08Z",
+      "completed_at": "2026-10-07T23:36:10Z"
+    },
+    {
+      "name": "Build previous CLI for isolated upgrade and rollback",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 12,
+      "started_at": "2026-10-07T23:36:10Z",
+      "completed_at": "2026-10-07T23:37:57Z"
+    },
+    {
+      "name": "Bind Linux package acceptance to actual release worker",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 13,
+      "started_at": "2026-10-07T23:37:57Z",
+      "completed_at": "2026-10-07T23:37:57Z"
+    },
+    {
+      "name": "Bind Windows package acceptance to actual release scan worker",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 14,
+      "started_at": "2026-10-07T23:37:57Z",
+      "completed_at": "2026-10-07T23:37:57Z"
+    },
+    {
+      "name": "Preserve package worker build identity",
+      "status": "completed",
+      "conclusion": "skipped",
+      "number": 15,
+      "started_at": "2026-10-07T23:37:57Z",
+      "completed_at": "2026-10-07T23:37:57Z"
+    },
+    {
+      "name": "Verify archive and packaged binaries",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 16,
+      "started_at": "2026-10-07T23:37:57Z",
+      "completed_at": "2026-10-07T23:39:03Z"
+    },
+    {
+      "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 17,
+      "started_at": "2026-10-07T23:39:03Z",
+      "completed_at": "2026-10-07T23:39:04Z"
+    },
+    {
+      "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 30,
+      "started_at": "2026-10-07T23:39:04Z",
+      "completed_at": "2026-10-07T23:39:05Z"
+    },
+    {
+      "name": "Post Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 31,
+      "started_at": "2026-10-07T23:39:05Z",
+      "completed_at": "2026-10-07T23:39:05Z"
+    },
+    {
+      "name": "Post Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 32,
+      "started_at": "2026-10-07T23:39:05Z",
+      "completed_at": "2026-10-07T23:39:05Z"
+    },
+    {
+      "name": "Post Run Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 33,
+      "started_at": "2026-10-07T23:39:05Z",
+      "completed_at": "2026-10-07T23:39:37Z"
+    },
+    {
+      "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 34,
+      "started_at": "2026-10-07T23:39:37Z",
+      "completed_at": "2026-10-07T23:39:38Z"
+    },
+    {
+      "name": "Complete job",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 35,
+      "started_at": "2026-10-07T23:39:38Z",
+      "completed_at": "2026-10-07T23:39:39Z"
+    }
+  ],
+  "check_run_url": "https://api.github.com/repos/loong10k/diskgraph/check-runs/113051593685",
+  "labels": [
+    "macos-15-intel"
+  ],
+  "runner_id": 1000012335,
+  "runner_name": "GitHub Actions 1000012335",
+  "runner_group_id": 0,
+  "runner_group_name": "GitHub Actions"
+}

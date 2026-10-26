@@ -112,3 +112,5 @@ the tools it serves; catalog families this build does not implement answer
 ## License
 
 MIT
+
+Scan-worker admission is local startup configuration and shares the CLI path, before database creation and within one 30-second deadline. macOS obtains its host only from the fixed root-protected installation; a complete legacy three-variable environment configuration is rejected. Partial or invalid configuration remains an error. Linux and other platforms retain `DISKGRAPH_SCAN_WORKER_PATH`, `DISKGRAPH_SCAN_WORKER_SHA256`, and `DISKGRAPH_SCAN_WORKER_BYTES` together, with independent expected digest/length. Response limits remain 1 MiB/frame, 2 GiB/shared output, 2 million nodes, depth 4096, 64 KiB stderr, and one active process slot. Shutdown joins the runner before draining original owners; persistent OS cleanup failure can delay shutdown. Local startup checks do not qualify installed positive scans or full platform execution.

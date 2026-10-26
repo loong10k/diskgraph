@@ -1,0 +1,18 @@
+{
+  "run": 37683012612,
+  "job": 113004487179,
+  "commit": "b03de97b32e767c23b04e8308b876cd9eaee4a88",
+  "result": "success",
+  "platform": "x86_64-unknown-linux-gnu",
+  "actual_counts": {
+    "stdio": 18,
+    "http": 13,
+    "upgrade_rollback": 7,
+    "controlled_load": 4
+  },
+  "archive_sha256": "bc2aa5362d6f53e334fcb8b9531f85617a7dd74c15df45b0f0f689cc24ec2d8f",
+  "worker_sha256": "c423798b116ec4b70164a8e893979c6fe581104d2de9885b3542fe9a22f4e611",
+  "raw_sha256": "6dc2528866c53b1d0771f2d53c3b49afcd68669c40fa5b3983748470ae6671b9",
+  "three_platform_accepted": false,
+  "supervisor_lifecycle_accepted": false
+}

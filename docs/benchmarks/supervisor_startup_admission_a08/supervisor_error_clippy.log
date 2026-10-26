@@ -1,0 +1,23 @@
+    Checking serde v1.0.229
+   Compiling syn v2.0.119
+    Checking tempfile v3.27.0
+    Checking clap_builder v4.6.7
+    Checking diskgraph-core v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-core)
+    Checking diskgraph-scan-worker v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-scan-worker)
+    Checking clap v4.6.7
+   Compiling strum_macros v0.28.0
+   Compiling derive_more-impl v2.1.1
+    Checking derive_more v2.1.1
+    Checking diskgraph-disktree v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-disktree)
+    Checking diskgraph-store v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-store)
+    Checking diskgraph-testkit v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-testkit)
+    Checking strum v0.28.0
+    Checking crossterm v0.29.0
+    Checking ratatui-core v0.1.2
+    Checking diskgraph-engine v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-engine)
+    Checking ratatui-widgets v0.3.2
+    Checking ratatui-crossterm v0.1.2
+    Checking ratatui v0.30.2
+    Checking diskgraph-mcp v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-mcp)
+    Checking diskgraph-cli v0.3.0 (/Users/wandl/workspaces/workspace-loong10k/diskgraph/crates/diskgraph-cli)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 6.14s

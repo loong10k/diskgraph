@@ -1,0 +1,13 @@
+{
+  "run": 37672712701,
+  "job": 112968279460,
+  "commit": "1cc15c244e3dbb7f04cda25d392cc07dd4fce03e",
+  "conclusion": "success",
+  "raw_log_sha256": "520a43b471d50d96d862e6af3d4bf3544c8b7379ac179a73d62a2d59ec0ed44b",
+  "actual_native_race_pass_lines": [
+    "2026-10-07T19:26:51.2901403Z test live_evidence::git_source_windows::tests::ancestor_sibling_change_between_attributes_and_data_keeps_original_route ... ok",
+    "2026-10-07T19:26:51.2924280Z test live_evidence::git_source_windows::tests::registered_leaf_change_between_attributes_and_data_is_still_refused ... ok"
+  ],
+  "current_callback_fix_covered": false,
+  "production_acceptance": false
+}

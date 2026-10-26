@@ -1,0 +1,13 @@
+{
+  "commit": "9758b53310365e626ddb485bffc1dde4d16dbb1b",
+  "job_id": 113071996228,
+  "workspace_test_step": {
+    "name": "Test",
+    "status": "completed",
+    "conclusion": "success",
+    "number": 94,
+    "started_at": "2026-10-08T00:01:32Z",
+    "completed_at": "2026-10-08T00:25:30Z"
+  },
+  "limitation": "Workspace step success only; entire job still active; raw complete log not yet available; historical 9758 commit does not qualify current HEAD"
+}

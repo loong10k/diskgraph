@@ -1,0 +1,10 @@
+{
+  "commit": "02460b7d6c21f4d6f4e9ff5a4528c993b4ffc74e",
+  "rust_stable_job": 113071181626,
+  "rust_stable_conclusion": "success",
+  "package_job": 113075162595,
+  "package_conclusion": "failure",
+  "failure_boundary": "Python package dispatch regression expected one load case but dispatcher includes20k and200k; actual package acceptance not reached",
+  "package_log_sha256": "2b6bac10bc660dbf0aac4909a6307dd0e0978b5b43d6c1c129b0818392b410ec",
+  "qualification": "historical commit only; current local package unit suite already7/7 at249; not current macOS native package qualification"
+}

@@ -1,0 +1,42 @@
+{
+  "source_sha": "2e7b35a9f619340c184593c6226f557999132c38",
+  "ci_run": 37765612472,
+  "job_id": 113273179159,
+  "job_conclusion": "success",
+  "target": "aarch64-apple-darwin",
+  "archive_sha256": "6b6bfe6377c70e38ff205500bad6e215365ed390ab45aa5222cd32f80c19a449",
+  "images": {
+    "diskgraph": {
+      "bytes": 7791312,
+      "sha256": "b74c589a63f5071bc00e9b0ee9bb2b018e1bb538429060b5c33af371b0bfbb46"
+    },
+    "diskgraph-mcp": {
+      "bytes": 6639584,
+      "sha256": "e023988d3cea2e1559c424bbe27363af8f7404cb317136b8c8f88506a756f5ee"
+    },
+    "diskgraph-scan-worker": {
+      "bytes": 1147552,
+      "sha256": "5b54c9b5bed88fa9d5fe2604e38c60d19328182bec7d426500a94425bd6172df"
+    }
+  },
+  "manifest": {
+    "executable": {
+      "bytes": 1147552,
+      "name": "diskgraph-scan-worker",
+      "sha256": "5b54c9b5bed88fa9d5fe2604e38c60d19328182bec7d426500a94425bd6172df"
+    },
+    "package_version": "0.3.0",
+    "pinned_scanner_revision": "158f9cc2f0b332194a3ffc5acec47760c99146d8",
+    "protocol_version": 2,
+    "scanner_source_manifest_sha256": "3a39423b6bcedb1c13817600d683684f46db9a8f127df22d49e104f421008b64",
+    "schema_version": 1,
+    "target": "aarch64-apple-darwin"
+  },
+  "uncompressed_log_sha256": "e5df7795e2f9e4705de42c30266a254461d8599a4974c5159add681c8e833a5d",
+  "production_ready": false,
+  "limitations": [
+    "Does not include later local sustained HTTP acceptance changes",
+    "Not real FileProvider no-download qualification",
+    "No sampled RSS, paired runner baseline or long-run qualification"
+  ]
+}

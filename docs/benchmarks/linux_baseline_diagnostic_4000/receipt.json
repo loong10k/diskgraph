@@ -1,0 +1,12 @@
+{
+  "artifact_id": 11452877584,
+  "run_id": 37549794669,
+  "original_zip_sha256": "708c6885e4e474ae4d576fe582671fb161b9a35f73f3dd31396128f68edc0840",
+  "original_zip_bytes": 12186069,
+  "saved_original_zip": "/private/tmp/dg_baseline_4000.zip",
+  "excluded_entry": "baseline-archive.stdout (source archive stream; original archive SHA in original receipt)",
+  "verified": "all diagnostic before/after/harness bytes and raw command stream lengths/hashes matched original receipt",
+  "result": "diagnostic_completed",
+  "diagnostic_exit_code": 0,
+  "paired_acceptance": "not satisfied; original baseline failure not reproduced or fixed"
+}

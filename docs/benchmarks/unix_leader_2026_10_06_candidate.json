@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "production_acceptance": false,
+  "platform": "macOS arm64 local",
+  "source_sha256": {
+    "unix_leader.rs": "74fe04f42fcab4aff6a065e5c100d9e44c4af1bfd54b53e2e40d80960bf900c2",
+    "unix_leader_tests.rs": "810376ad6b86e3ea661895b71a3cb8f317a30ffad3dc66c61288a5f11149e000",
+    "unix_child.rs": "c625d8e8cd03204de25fe21f922056ec1158a13ee1dc7e78fbbc4559f415dade",
+    "unix_normal_exit.rs": "b2c665e2f646438099ebec3d921248c3b98b8c8eb8ba67acb05f7e8fc00dcd4f",
+    "mod.rs": "9eff67788e39f5c141c39aa5ce4cabc287f1c769e1c74a10094c4e5847185dd9"
+  },
+  "logs": {
+    "api_red": {
+      "path": "docs/benchmarks/unix_leader_api_red_2026_10_06.log.gz",
+      "raw_sha256": "4e20169d75df7dddcb27d32bc824b53f8a1d387c8e37b4f6d3767c6353b57df4"
+    },
+    "leader_green": {
+      "path": "docs/benchmarks/unix_leader_leader_green_2026_10_06.log.gz",
+      "raw_sha256": "e33e9f5bf9cc91dc1ae070a3157103702e4f7dc9e7167c5d06e6c6c6d4a56947"
+    },
+    "native_regression": {
+      "path": "docs/benchmarks/unix_leader_native_regression_2026_10_06.log.gz",
+      "raw_sha256": "40e0b83569437acecafaac834da9cfeae8af3b86f1bb5bbe9c2e51568f1a3855"
+    },
+    "driver_regression": {
+      "path": "docs/benchmarks/unix_leader_driver_regression_2026_10_06.log.gz",
+      "raw_sha256": "983aebdbb4da3b277a439bd25661d4166e65898fd98a6356eabe09a8e0e21619"
+    },
+    "owned_failure_regression": {
+      "path": "docs/benchmarks/unix_leader_owned_failure_regression_2026_10_06.log.gz",
+      "raw_sha256": "f507812fb16dafe8e4e1111f1eb05b86155ed1b06b33a0dd0c6a62093e7f129b"
+    }
+  },
+  "leader_contracts": {
+    "passed": 2,
+    "failed": 0,
+    "ignored": 0
+  },
+  "native_child_regression": {
+    "passed": 25,
+    "failed": 0,
+    "ignored": 0
+  },
+  "driver_regression": {
+    "passed": 10,
+    "failed": 0,
+    "ignored": 0
+  },
+  "owned_failure_regression": {
+    "passed": 6,
+    "failed": 0,
+    "ignored": 0
+  },
+  "source_api_red": "E0432 missing UnixLeader before implementation; not native semantic failure",
+  "semantics": [
+    "only original positive PID consumed",
+    "normal exit status decoded from real kernel wait",
+    "repeat wait uses cached completion",
+    "existing std Child and original pipe FDs transferred without reopen"
+  ],
+  "limitations": [
+    "native PID primitive tests launch fixed system QA programs; not trusted fresh installer or immutable image proof",
+    "production macOS posix_spawn launcher and installation lease attachment not implemented",
+    "native child construction and irreversible process budget require separate verification",
+    "Linux/Windows regression of the changed source not yet run"
+  ]
+}

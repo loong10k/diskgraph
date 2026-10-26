@@ -1,0 +1,25 @@
+{
+  "source_head": "aa9819e2b907a284ac32d4c9a01bf4742ac507c5",
+  "historical_native_head": "9758b53310365e626ddb485bffc1dde4d16dbb1b",
+  "historical_native_job": 113071996228,
+  "verified_cases": [
+    "a_nonreading_peer_cannot_extend_the_absolute_deadline",
+    "authorization_time_consumes_the_same_delivery_deadline",
+    "exhausted_deadline_never_sends_the_first_byte",
+    "authorization_change_between_chunks_stops_remaining_bytes",
+    "successful_delivery_restores_blocking_reads_for_the_next_request",
+    "changed_authorization_prevents_the_first_byte",
+    "expired_request_context_prevents_the_first_byte",
+    "long_request_id_cannot_expand_the_http_session_header",
+    "unicode_request_id_keeps_the_session_header_printable_ascii",
+    "actual_remote_nonreading_peer_cannot_renew_delivery_deadline",
+    "actual_remote_slow_progress_cannot_renew_delivery_deadline"
+  ],
+  "source_files": [
+    "http_delivery_authority.rs",
+    "http_delivery_writer.rs",
+    "http.rs"
+  ],
+  "status": "Existing source implementation confirmed, historical Windows native 11/11 markers verified",
+  "limitation": "Not latest HEAD same-SHA cross-platform qualification; no task completion claimed"
+}

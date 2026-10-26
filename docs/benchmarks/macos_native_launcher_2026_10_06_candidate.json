@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "production_acceptance": false,
+  "platform": "macOS arm64 local",
+  "source_sha256": {
+    "macos_native_spawn.c": "4c82c0405ee7224bb3a4e3deb059310fe6c286f3caaebb5f546bcb18ba968354",
+    "macos_native_spawn.rs": "2c7122c1e7dcf89268012ac920bd19adfc409ed6077cd5e6fe3dd221a0c05942",
+    "macos_native_launcher.rs": "c643a6f909a6b71aa66c80ed39161ff23e00826f8797f4e7065102fe68f34a1a",
+    "macos_native_pipes.rs": "53e2dd61f313b83c535295742bfd22b0bc0b94aa5a295ac6a6d7de096df54bd6",
+    "macos_native_launcher_tests.rs": "71aff1aa6ed3e1bb664dca8e5b53200911b22ff3e369ce45066793a6351f3622",
+    "unix_child.rs": "e805554256866167f8bf6192fa70c24609011e6fe9a433cc6adc2dcc061d9b7e",
+    "unix_child_group.rs": "64bcb9529e1f3310736cee9cdc1a34fd2d4b0a3300f6aef0cafc821981ce0e8b",
+    "unix_leader.rs": "a92311a1197bb4812260aef5e8863e6d00ea65e63e47e19886892559a727b1a6",
+    "unix_control_channel.rs": "cd26b00ed3c656104c42841ac49c4ad99a0c358ea63deb6997d455796f8deecf",
+    "mod.rs": "2b99bbaf10e01a6a4eaae7315ea5516499b35cda038449ad868d6ee532741f3e"
+  },
+  "logs": {
+    "api_red": {
+      "path": "docs/benchmarks/macos_native_launcher_api_red_2026_10_06.log.gz",
+      "raw_sha256": "86885c9a5fee4606e4e2f77410f023c42b75b4486c05320b7b23f26779833e26"
+    },
+    "first_green": {
+      "path": "docs/benchmarks/macos_native_launcher_first_green_2026_10_06.log.gz",
+      "raw_sha256": "e8db56553ec9867b800ef85a57d4dcd3897616dd3e217642c855887ecf831c49"
+    },
+    "four_green": {
+      "path": "docs/benchmarks/macos_native_launcher_four_green_2026_10_06.log.gz",
+      "raw_sha256": "347b44347c582b8adc1f895a51872aa194d8049a0635a5f49ce94a2e6eb67415"
+    }
+  },
+  "actual_target_tests": {
+    "passed": 4,
+    "failed": 0,
+    "ignored": 0
+  },
+  "command": "cargo test --locked -p diskgraph-engine --lib macos_native_launcher_tests -- --nocapture",
+  "exit_code": 0,
+  "coverage": [
+    "actual SID==PGID==PID after public posix_spawn",
+    "non-clone original panic payload preserved",
+    "postbirth checkpoint failure keeps live original external owner",
+    "same original PID actually reaped",
+    "lease retained until original owner released",
+    "cat fixed stream plus actual EOF/normal wait",
+    "expired prebirth request keeps empty owner"
+  ],
+  "review_status": "WATCH",
+  "remaining": [
+    "pipe/socket creation before CLOEXEC has concurrent foreign-birth inheritance window; controlled birth gate still required",
+    "production Runtime/Host/CLI/MCP macOS entry not enabled",
+    "unit seeded system cat receipt is not fresh installer evidence",
+    "load-command and dynamic dependency closure not qualified",
+    "helper NPROC limit before Request not implemented; no birth-time RLIMIT claim",
+    "Intel/root-installed product flow and Recovery qualification not executed"
+  ],
+  "native_child_regression": {
+    "passed": 29,
+    "failed": 0,
+    "ignored": 0,
+    "log": "docs/benchmarks/macos_native_launcher_native_regression_2026_10_06.log.gz",
+    "raw_sha256": "28c3e4bd404643fc77f3fbe40585b14b9700205864ef32ba3a5442cddea35b10"
+  },
+  "controlled_birth_audit": {
+    "covered_by_planned_shared_gate": [
+      "Engine Git/lsof via UnixChild::spawn_command",
+      "native scan launcher"
+    ],
+    "lifecycle_exception": "CLI serve status executes and returns before Engine creation",
+    "not_protected": [
+      "public Ops SandboxedRunner",
+      "unused vendored mount/trash APIs",
+      "arbitrary foreign FFI host and separate linked instances"
+    ],
+    "gate_implemented": false
+  }
+}

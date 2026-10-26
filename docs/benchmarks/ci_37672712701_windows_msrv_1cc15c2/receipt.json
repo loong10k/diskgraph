@@ -1,0 +1,11 @@
+{
+  "run": 37672712701,
+  "job": 112968279602,
+  "commit": "1cc15c244e3dbb7f04cda25d392cc07dd4fce03e",
+  "conclusion": "success",
+  "raw_log_sha256": "563bda4adb20c0f7ae146d71a8abb08c447b21f65c3b4cb7d3ad5ddbfa7da9a4",
+  "native_ancestor_race_test": "passed",
+  "native_leaf_race_test": "passed",
+  "current_uncommitted_callback_fix_covered": false,
+  "production_acceptance": false
+}

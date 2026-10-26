@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "scope": "macOS fixed protected configuration and Host admission component",
+  "production_ready": false,
+  "sources": {
+    "crates/diskgraph-engine/src/macos_protected_document.rs": "e8af1e2359cdad20017ca9ce190c244b24fd93e23218a55962d398a40514ff15",
+    "crates/diskgraph-engine/src/macos_protected_document_tests.rs": "27d020e6cc9a165f4668e9122a418c60948a8acb9553d21332dc7aaa621bbb51",
+    "crates/diskgraph-engine/src/macos_host_settings.rs": "9c66fcab30f45b62357c33309edfaf418e2cb1d692bc0a02137945bf2e57b242",
+    "crates/diskgraph-engine/src/macos_host_settings_tests.rs": "d33efcc7510e4406d064c67b19d8451363f714be96a5f5f3a759de680464e172",
+    "crates/diskgraph-engine/src/macos_host_admission_tests.rs": "c6057a645f0eed9cebaf6466f6963ce5055dd6147228841230b145c43d4ca63e",
+    "crates/diskgraph-engine/src/macos_installation_lease.rs": "7fcd69eb930d06023d3077e6bf4df0564c12c536f734d469a1e647deb682a37a",
+    "crates/diskgraph-engine/src/scan_worker_host.rs": "b7e171ef47ec438186ea2790d26c33c7635087575a562b6b65b9ff338392fe90",
+    "crates/diskgraph-engine/src/lib.rs": "5e429fa56ef16bc2f52e55a9f4481bb4537990782d864e977d67482e8610b839"
+  },
+  "review": "CLEAR for configuration/admission only; production enablement WATCH",
+  "logs": [
+    {
+      "path": "macos_protected_host_document_api_red_2026_10_06.log.gz",
+      "uncompressed_sha256": "d42fe6a472187ca76c5f00f64b2dc1f79d62f1b6746d32b7ebc4606de3cb4fc1"
+    },
+    {
+      "path": "macos_protected_host_document_budget_negative_control_2026_10_06.log.gz",
+      "uncompressed_sha256": "49f99389c9891393e46d3fd9707f1ae469d213ca1334b6f671bc761992ee9f30"
+    },
+    {
+      "path": "macos_protected_host_settings_api_red_2026_10_06.log.gz",
+      "uncompressed_sha256": "0f0b83959c9a2df85e25209c1fe0749d76caf0a05c5b3ea3055a74fbdea75c10"
+    },
+    {
+      "path": "macos_protected_host_host_api_red_2026_10_06.log.gz",
+      "uncompressed_sha256": "495f7bc83107ffc9909725b9022988f8bf907a4aa0ea7bc91c501301f9928847"
+    },
+    {
+      "path": "macos_protected_host_macos_final_2026_10_06.log.gz",
+      "uncompressed_sha256": "63581da1f22295f5b29749e801280d6f4341faf6e55b3befc408594c1fc1334e"
+    }
+  ],
+  "limitations": [
+    "No root fresh installation positive path has run; local root fixture cannot be created without privilege.",
+    "Host prep is not yet wired to Runtime; macOS Runtime remains Unsupported.",
+    "Active settings prep and process birth are not yet coordinated with trusted updater across processes.",
+    "Epoch/floor consistency in one JSON is not durable rollback prevention; installer/updater and independent monotonic floor remain required.",
+    "MacOS arm64 only; current-source Intel/Linux/Windows gates not complete."
+  ],
+  "actual_results": {
+    "passed": 44,
+    "failed": 0,
+    "ignored": 0,
+    "configuration_parser": 3,
+    "protected_document": 3,
+    "host_negative_admission": 2
+  }
+}

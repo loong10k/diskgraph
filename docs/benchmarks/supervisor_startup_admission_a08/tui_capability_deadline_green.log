@@ -1,0 +1,40 @@
+   Compiling diskgraph-engine v0.3.0 (/build/terminal-red-7fc3330/crates/diskgraph-engine)
+   Compiling diskgraph-mcp v0.3.0 (/build/terminal-red-7fc3330/crates/diskgraph-mcp)
+   Compiling diskgraph-cli v0.3.0 (/build/terminal-red-7fc3330/crates/diskgraph-cli)
+    Finished `test` profile [unoptimized] target(s) in 4.51s
+     Running unittests src/main.rs (/build/target/debug/deps/diskgraph-497fbdd7cdfb9b7c)
+
+running 10 tests
+test tui::deadline_frame_tests::expired_nested_frame_commits_parent_and_deadline_to_the_actual_backend ... ok
+test tui::deadline_frame_tests::expired_nested_frame_refuses_scope_revoked_during_paint ... ok
+test tui::deadline_frame_tests::expired_nested_frame_refuses_single_metadata_grant_revoked_during_paint ... ok
+test tui::deadline_frame_tests::expired_partial_frame_cannot_renew_a_slow_terminal_authorization ... ok
+test tui::deadline_frame_tests::generic_authorized_reader_still_refuses_an_expired_complete_success ... ok
+test tui::deadline_frame_tests::initial_control_lock_is_refused_before_paint_or_owner_release ... ok
+test tui::deadline_frame_tests::navigation_control_lock_cannot_wait_beyond_its_original_read_deadline ... ok
+test tui::deadline_frame_tests::navigation_control_lock_is_refused_before_returning_a_layer_or_owner_release ... ok
+test tui::deadline_frame_tests::terminal_control_lock_is_refused_before_its_owner_releases_it ... ok
+test tui::deadline_frame_tests::real_store_error_during_paint_never_applies_a_partial_frame ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 64 filtered out; finished in 0.81s
+
+   Compiling diskgraph-engine v0.3.0 (/build/terminal-red-7fc3330/crates/diskgraph-engine)
+    Finished `test` profile [unoptimized] target(s) in 2.62s
+     Running tests/runtime_revision_authorization.rs (/build/target/debug/deps/runtime_revision_authorization-66af503f119c3d69)
+
+running 1 test
+test in_flight_complete_and_truncated_reads_refuse_runtime_revision_quarantine ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.46s
+
+     Running tests/scope_authorization_projection_tests.rs (/build/target/debug/deps/scope_authorization_projection_tests-989c320bde1b429f)
+
+running 5 tests
+test grant_withdrawn_by_the_real_terminal_callback_refuses_the_display ... ok
+test giant_optional_scope_fields_are_not_owned_by_the_real_display_request ... ok
+test ordinary_scope_completes_the_real_display_request_within_the_original_budget ... ok
+test scope_withdrawn_by_the_real_terminal_callback_refuses_the_display ... ok
+test terminal_policy_sql_keeps_its_budget_after_the_capability_callback ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.34s
+

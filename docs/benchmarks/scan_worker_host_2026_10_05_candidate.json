@@ -1,0 +1,467 @@
+{
+  "schema_version": 1,
+  "scope": "Historical tests-first observations plus candidate macOS owner-slot RED/GREEN validation; product and full-platform integration not accepted",
+  "baseline_commit": "3924dc4be707ad20db819e27d41f593ecaa576a3",
+  "formal_contract_sha256": "d795ddfc1009b906ab7ffaa1fd4931fd0e90222c61ed92ae363c39025359a773",
+  "test_manifest": {
+    "schema": 1,
+    "phase": "tests-only",
+    "repo": "/Users/wandl/workspaces/workspace-loong10k/diskgraph",
+    "snapshot": "/private/tmp/diskgraph-scan-host-tests-v3-9btliue2",
+    "formal_contract": "openspec/changes/implement-diskgraph-platform/physical-scan-process.md",
+    "sources": [
+      {
+        "path": "crates/diskgraph-engine/tests/scan_worker_no_host.rs",
+        "sha256": "40a57601f7dba2f7f915c39217e43ec85255092ca6c99c17f3b8c98f3e6dc2a6",
+        "bytes": 3214,
+        "lines": 85
+      },
+      {
+        "path": "crates/diskgraph-engine/tests/scan_worker_host_contract.rs",
+        "sha256": "9eaa0f73d8d6b679a442a33eb4d0148312f7fc9ea694d5bac2a5c35875814b15",
+        "bytes": 3787,
+        "lines": 95
+      },
+      {
+        "path": "crates/diskgraph-engine/src/scan_worker_registry_tests.rs",
+        "sha256": "55ae2c0efe9500362da50b13f137f2fa18a7799c319c5ac350417c97169ba46e",
+        "bytes": 2883,
+        "lines": 80
+      }
+    ],
+    "production_modified": false,
+    "commands": [
+      "cargo test --offline --locked -p diskgraph-engine --test scan_worker_no_host -- --nocapture",
+      "cargo test --offline --locked -p diskgraph-engine --test scan_worker_host_contract --no-run",
+      "cargo test --offline --locked -p diskgraph-engine --lib scan_worker_registry_tests --no-run"
+    ],
+    "root_registration": [
+      "#[cfg(test)] mod scan_worker_registry_tests;"
+    ],
+    "expected_evidence": {
+      "no_host": "existing API executable runtime target; expected Unsupported/Failed/no latest",
+      "host_contract": "new API absence only before implementation",
+      "registry": "new API absence only before implementation; reserve tests create zero OS children"
+    },
+    "native_followup": "real Cargo helper artifact, Linux sealed FD+Atomic+normal exit; no Mac/Win path fallback or source-proof runtime claims",
+    "previous_manifest": "/private/tmp/diskgraph-scan-host-tests-v2-candidate.json",
+    "scope": "virtual admin ScopeAdmin witnessed via real persisted PolicyAuthorizer.decide; registered scope live Index unchanged; target unchanged"
+  },
+  "observations": [
+    {
+      "test": "no-host v1",
+      "result": "fixture failed at register_scope PermissionDenied; not target RED"
+    },
+    {
+      "test": "no-host v2",
+      "result": "fixture queried virtual admin as registered scope: ScopeNotFound; not target RED"
+    },
+    {
+      "test": "no-host v3",
+      "result": "actual valid Index returned Completed without host; expected Unsupported assertion failed",
+      "passed": 0,
+      "failed": 1,
+      "ignored": 0,
+      "target_red": true
+    },
+    {
+      "test": "host contract",
+      "result": "missing Host, RuntimeBudget and open_with_scan_worker API; interface absence only"
+    },
+    {
+      "test": "registry",
+      "result": "missing registry API; interface absence only"
+    }
+  ],
+  "validation_checkout": "fresh HEAD archive plus SHA-checked frozen tests; Engine Cargo dependency and lock copied for ProtocolLimits; registry test declared only in isolated checkout",
+  "logs": [
+    {
+      "path": "docs/benchmarks/scan_worker_host-no-host-red_2026_10_05.log.gz",
+      "raw_sha256": "1ae24dedeba29b7b6216bdfd501b401c798bac63c669b01edd3d4d7545592a25",
+      "gzip_sha256": "eb7db8f37b0e1a1f7550f74a24c17146eec954b5856b2145a350f84fef27c47f",
+      "exit_code": 101
+    },
+    {
+      "path": "docs/benchmarks/scan_worker_host-no-host-v2-red_2026_10_05.log.gz",
+      "raw_sha256": "e57853e3962ed55952ee90a5bc8e9b4baad7fc4abffc75d637d797704950418a",
+      "gzip_sha256": "659f49f1a4dddf9cbbf0334ebb5f791052ba834babaf162234980fe062da221d",
+      "exit_code": 101
+    },
+    {
+      "path": "docs/benchmarks/scan_worker_host-no-host-v3-red_2026_10_05.log.gz",
+      "raw_sha256": "0f190567b5c1b022e097f5e3bf113d59c85f68e35f7d0dd8fb8be95865c79cc3",
+      "gzip_sha256": "f20d250413617567bf6756dc1b9695da6d6f9bfa0c329c4f65d114c97204d1ef",
+      "exit_code": 101
+    },
+    {
+      "path": "docs/benchmarks/scan_worker_host-contract-api-absence_2026_10_05.log.gz",
+      "raw_sha256": "ba620febc6899685db73f4721cd5c3940f2d590d25ac24c7ba095ff5c420b98f",
+      "gzip_sha256": "31ad9e493eca163e6b30ae962eb4d4f407d0b3bee687c3856c65ad553c0b4361",
+      "exit_code": 101
+    },
+    {
+      "path": "docs/benchmarks/scan_worker_host-registry-api-absence_2026_10_05.log.gz",
+      "raw_sha256": "63e052271bcf4d0e04df2184f78cd41d87f8e58bccfe3e1362312f5db500dac6",
+      "gzip_sha256": "78f3e1feb4131c522e64805053e235ec04edbc83e8de27f9224e985b38e453e0",
+      "exit_code": 101
+    }
+  ],
+  "limits": [
+    "No production implementation or whole-platform acceptance.",
+    "No runtime RED from API absence.",
+    "The valid no-host test failed before later assertions; it witnessed Completed but did not reach its latest-revision assertion."
+  ],
+  "cargo_target_material": {
+    "build_script_sha256": "9c2f225c63a5140ded8de9deaf34445ebaa46167b2b25a1f9e2e02f3b66f02a3",
+    "actual_isolated_cargo_check_exit": 0,
+    "actual_rustc_env": "DISKGRAPH_ENGINE_TARGET=aarch64-apple-darwin",
+    "scope": "Cargo target protocol material only; not Linux native object or Engine host implementation acceptance",
+    "log": "docs/benchmarks/scan_worker_host-target-build_2026_10_05.log.gz",
+    "raw_sha256": "a3f18a81887da0b7ae255ad44680fdb694b1bd76b7ead9762b788b03badf8584",
+    "gzip_sha256": "8807e7dc72f29c75e9aafcadaae645121d114bfe475d1cf15fae0ce6a32b0af5"
+  },
+  "mounted_driver_validation": {
+    "platform": "macOS arm64",
+    "checkout": "HEAD archive with 14 identical driver candidates and current native support; standalone fixture compiled as isolated example",
+    "initial_result": "3 passed / 13 failed / 0 ignored: fixture environment was absent; not target regression",
+    "fixture_build_exit": 0,
+    "qualified_result": {
+      "exit_code": 0,
+      "passed": 16,
+      "failed": 0,
+      "ignored": 0
+    },
+    "logs": [
+      {
+        "path": "docs/benchmarks/scan_worker_mounted-driver-macos-tests_2026_10_05.log.gz",
+        "raw_sha256": "347557c0870e86bb89b07bfddc960597a8beb35eb0d960df84cc968b06b376b3",
+        "gzip_sha256": "4af0ac60786fe6e05b3747214073e885a30abb83defa72d5560e992181d184cf"
+      },
+      {
+        "path": "docs/benchmarks/scan_worker_mounted-driver-macos-fixture_2026_10_05.log.gz",
+        "raw_sha256": "3622e662d09575301c9618820cf6350d04bceb1573a3887e72fc97866f020ed3",
+        "gzip_sha256": "7ec29738ea795f98e5dfd2fc3def3add2c8213e252cb679a1e4d54d9b9c61bef"
+      },
+      {
+        "path": "docs/benchmarks/scan_worker_mounted-driver-macos-v2-tests_2026_10_05.log.gz",
+        "raw_sha256": "581ef2c30099c2c7543ee42fc64e0bd74e7e127be2a03c276a346dd54464ba6e",
+        "gzip_sha256": "3ec7e08ae9bf098a297e241adc4394d14ee009b335ccefa28ee0e73a908bd2ee"
+      }
+    ],
+    "limits": [
+      "Tests cover driver, typed owned failures and independent input budget only.",
+      "Standalone fixture is freshly compiled test material, not trusted installed scan-worker or product Engine route.",
+      "Linux Atomic and Windows execution are not covered by this macOS run.",
+      "No full workspace, Clippy or source layout acceptance claimed for integration-in-progress."
+    ]
+  },
+  "reservation_aba_regression": {
+    "platform": "macOS arm64",
+    "phase": "actual_behavior_red_then_green",
+    "test": "scan_worker_slot_generation_tests::old_reservation_drop_cannot_clear_a_reused_slot_after_actual_child_reap",
+    "test_sha256": "5b578881ce98c35029703530935dd001b12eadd42ebf6d4ea332fc4c450e638a",
+    "observed": {
+      "exit_code": 101,
+      "passed": 0,
+      "failed": 1,
+      "ignored": 0,
+      "occupied_after_old_drop": 0,
+      "expected_occupied": 1
+    },
+    "proof": "Real live child verified session/group/parent, retained original owner, actual cleanup/wait and ECHILD before reusing the slot. Old reservation Drop cleared the new reservation.",
+    "red_log": {
+      "path": "docs/benchmarks/scan_worker_slot-aba-red_2026_10_05.log.gz",
+      "raw_sha256": "e8ab4486cec49613d25e6fec73ce052b21725b697a808183201a4bd9ba49fd21",
+      "gzip_sha256": "7ef9d1e4642cffabf8d13b55a13c07df3309ab9d87fd4f0d312bd71990d6f147"
+    },
+    "limits": [
+      "No Linux/Windows execution acceptance.",
+      "Not whole Engine or product startup acceptance."
+    ],
+    "implementation_manifest": {
+      "schema_version": 1,
+      "status": "READY_source_only_ABA_GREEN_pending_root",
+      "repo": "/Users/wandl/workspaces/workspace-loong10k/diskgraph",
+      "snapshot": "/private/tmp/diskgraph-engine-host-aba-ready-qkshrdkm",
+      "sources": [
+        {
+          "path": "crates/diskgraph-engine/src/engine.rs",
+          "sha256": "e604887dd2fe08059bd98bc8da840d6212e37ca0ee55bdbc155c2948dae0c439",
+          "bytes": 2914,
+          "lines": 77,
+          "ownership": "author"
+        },
+        {
+          "path": "crates/diskgraph-engine/src/engine_startup.rs",
+          "sha256": "b63a12a32097c3ac7dec9cc8c6b07e9166752227f47df3d795577b08733c5f55",
+          "bytes": 4303,
+          "lines": 102,
+          "ownership": "author"
+        },
+        {
+          "path": "crates/diskgraph-engine/src/scan_execution.rs",
+          "sha256": "c9bff655cca2bdd5cc692f68142563eb82aa982db0625003fda9b3c7dc2a994b",
+          "bytes": 19777,
+          "lines": 445,
+          "ownership": "author"
+        },
+        {
+          "path": "crates/diskgraph-engine/src/scan_worker_runtime_budget.rs",
+          "sha256": "369cc6ad34b620f2ae005f09924b029b380304001c941823f68b212387318f64",
+          "bytes": 1723,
+          "lines": 45,
+          "ownership": "author"
+        },
+        {
+          "path": "crates/diskgraph-engine/src/scan_worker_owner_slot.rs",
+          "sha256": "85bdb0364a23eae05a011a4a35445fc52ecd3f1026332143517f263e74b9e619",
+          "bytes": 620,
+          "lines": 14,
+          "ownership": "author"
+        },
+        {
+          "path": "crates/diskgraph-engine/src/scan_worker_registry.rs",
+          "sha256": "a94d1e058b1299844eec7316a16c571149bd0d9663d6e3ce8726adc3194dbfc8",
+          "bytes": 5996,
+          "lines": 129,
+          "ownership": "author"
+        },
+        {
+          "path": "crates/diskgraph-engine/src/scan_worker_reservation.rs",
+          "sha256": "a68abc63b4c3ae535c46242cd99855092f3652a18c88410272c4f6bb772002d5",
+          "bytes": 1523,
+          "lines": 39,
+          "ownership": "author"
+        },
+        {
+          "path": "crates/diskgraph-engine/src/scan_worker_host.rs",
+          "sha256": "0e0111ea48a908a55b10b2c0695d179bab521e6f7026fc383b3935338e00c368",
+          "bytes": 3165,
+          "lines": 80,
+          "ownership": "author"
+        },
+        {
+          "path": "crates/diskgraph-engine/src/scan_worker_recovery.rs",
+          "sha256": "a02709cdce3ee31b2d42cc70f5f680144ad34e945ea921b6b257bf6104f2b501",
+          "bytes": 1351,
+          "lines": 27,
+          "ownership": "author"
+        },
+        {
+          "path": "crates/diskgraph-engine/src/scan_worker_error_projection.rs",
+          "sha256": "9e194c9159f8a6cf388d6fd3e374919373fc8cb92606a7ceb7036950104d3b7d",
+          "bytes": 3870,
+          "lines": 88,
+          "ownership": "author"
+        },
+        {
+          "path": "crates/diskgraph-engine/src/scan_worker_remote_error.rs",
+          "sha256": "1a94ae6ee093e32eddba87b556077052fe0dba542c7a90ca3330fe9cbd99991d",
+          "bytes": 1300,
+          "lines": 37,
+          "ownership": "author"
+        },
+        {
+          "path": "crates/diskgraph-engine/src/scan_worker_runtime.rs",
+          "sha256": "40c83837e273c2083dd7c792be5efee21734ade0fe72dfe79c59d594761d4b25",
+          "bytes": 12989,
+          "lines": 286,
+          "ownership": "author"
+        },
+        {
+          "path": "crates/diskgraph-engine/src/scan_worker_runtime_hooks.rs",
+          "sha256": "07a3863e656ed14a49ca69ff35f13ac5d24cfb5c70b8b659bd550dda12dfde61",
+          "bytes": 923,
+          "lines": 23,
+          "ownership": "author"
+        },
+        {
+          "path": "crates/diskgraph-engine/src/scan_worker_recovery_fixture.rs",
+          "sha256": "bc16bfd60758f7b25d688b7864290b6ad2cb3be28e9fdd29e1aabde6048d294e",
+          "bytes": 5270,
+          "lines": 147,
+          "ownership": "author"
+        },
+        {
+          "path": "crates/diskgraph-engine/src/scan_worker_recovery_tests.rs",
+          "sha256": "9209fc2cb28720d095f80f05d37dbac820cbc5c148e51316d34f90e94a67ab48",
+          "bytes": 4646,
+          "lines": 129,
+          "ownership": "author"
+        },
+        {
+          "path": "crates/diskgraph-engine/tests/scan_worker_engine_flow.rs",
+          "sha256": "3c1bfee4519c886dd503a1704b5f143aa883dd89f1572051966946e1760225f2",
+          "bytes": 3648,
+          "lines": 111,
+          "ownership": "author"
+        },
+        {
+          "path": "crates/diskgraph-engine/tests/scan_worker_engine_flow/fixture.rs",
+          "sha256": "637a11edc8c2b746159708e3e1a15e2157bc1d048eb1771305d8c4d1d4c43b4e",
+          "bytes": 4978,
+          "lines": 128,
+          "ownership": "author"
+        },
+        {
+          "path": "crates/diskgraph-engine/tests/scan_worker_no_host.rs",
+          "sha256": "40a57601f7dba2f7f915c39217e43ec85255092ca6c99c17f3b8c98f3e6dc2a6",
+          "bytes": 3214,
+          "lines": 85,
+          "ownership": "frozen_tests"
+        },
+        {
+          "path": "crates/diskgraph-engine/tests/scan_worker_host_contract.rs",
+          "sha256": "9eaa0f73d8d6b679a442a33eb4d0148312f7fc9ea694d5bac2a5c35875814b15",
+          "bytes": 3787,
+          "lines": 95,
+          "ownership": "frozen_tests"
+        },
+        {
+          "path": "crates/diskgraph-engine/src/scan_worker_registry_tests.rs",
+          "sha256": "55ae2c0efe9500362da50b13f137f2fa18a7799c319c5ac350417c97169ba46e",
+          "bytes": 2883,
+          "lines": 80,
+          "ownership": "frozen_tests"
+        },
+        {
+          "path": "crates/diskgraph-engine/src/scan_worker_slot_generation_tests.rs",
+          "sha256": "5b578881ce98c35029703530935dd001b12eadd42ebf6d4ea332fc4c450e638a",
+          "bytes": 3633,
+          "lines": 102,
+          "ownership": "frozen_tests"
+        }
+      ],
+      "root_owned_readonly_assembly": [
+        {
+          "path": "crates/diskgraph-engine/src/lib.rs",
+          "sha256": "eb8f97226b6565fee6baf84471b1d16c6cc5e0d21573e92c3b7825f29cabe5ac",
+          "bytes": 6772,
+          "lines": 232,
+          "author_mutated": false
+        },
+        {
+          "path": "crates/diskgraph-engine/src/native_child/mod.rs",
+          "sha256": "bcfdd70be48f52fb6239bda1ceb70aa909b064efbcf88c979434baa537fd7ff6",
+          "bytes": 3044,
+          "lines": 108,
+          "author_mutated": false
+        },
+        {
+          "path": "crates/diskgraph-engine/build.rs",
+          "sha256": "9c2f225c63a5140ded8de9deaf34445ebaa46167b2b25a1f9e2e02f3b66f02a3",
+          "bytes": 1351,
+          "lines": 27,
+          "author_mutated": false
+        },
+        {
+          "path": "crates/diskgraph-engine/Cargo.toml",
+          "sha256": "13f0998978496133c1b7304a072f96b177eed94742f8335ba1f3e310acb5eebe",
+          "bytes": 1259,
+          "lines": 37,
+          "author_mutated": false
+        },
+        {
+          "path": "Cargo.lock",
+          "sha256": "23bbd3f51b14f791251d8b366599d12c49303776c411c6e2521314cd90c702a0",
+          "bytes": 55860,
+          "lines": 2247,
+          "author_mutated": false
+        }
+      ],
+      "previous_candidate": {
+        "path": "/private/tmp/diskgraph-engine-host-production-candidate.json",
+        "sha256": "078fb2e2958f2292f5aefa81f3ae8fd706987f54374e7c7b80360081fd417689",
+        "retained_unchanged": true
+      },
+      "aba_tests_candidate": {
+        "path": "/private/tmp/diskgraph-scan-slot-aba-tests-candidate.json",
+        "sha256": "60314636b98c584743ab4d9872b43bff7788edf79730cd3fb8cfdfffeb8f9987"
+      },
+      "before_snapshot": "/private/tmp/diskgraph-host-aba-before-kqnoz9ah",
+      "production_diff": {
+        "path": "/private/tmp/diskgraph-engine-host-aba-production.diff",
+        "sha256": "fd6b36aa9a3915a270b76af966a57dae7d148b15bd76526f43e19a84c5bc637f"
+      },
+      "delta": [
+        "Only scan_worker_reservation.rs production changed: private Cell<bool> release responsibility initialized true; after real child retention, responsibility transfers to original Registry and is disarmed; Drop releases only while armed.",
+        "The other 19 old candidate sources and original TDD assertions remain byte-exact; ABA test source remains frozen.",
+        "No registry generation, OS owner, grant, deadline, DB write, thread, reaper or fallback added."
+      ],
+      "root_actual_red": {
+        "path": "/private/tmp/diskgraph-slot-aba-red.log",
+        "reported_result": "exit101; original child actually reaped, second real reservation occupied changed 1 to 0 after old reservation Drop"
+      },
+      "root_commands": [
+        "cargo test --offline --locked -p diskgraph-engine --lib scan_worker_slot_generation_tests::old_reservation_drop_cannot_clear_a_reused_slot_after_actual_child_reap -- --exact --nocapture",
+        "cargo test --offline --locked -p diskgraph-engine --lib scan_worker_registry_tests -- --nocapture",
+        "cargo test --offline --locked -p diskgraph-engine --test scan_worker_host_contract -- --nocapture",
+        "cargo test --offline --locked -p diskgraph-engine --test scan_worker_no_host -- --nocapture"
+      ],
+      "api": {
+        "open_with_scan_worker": "(EngineConfig, ScanWorkerHost) -> Result<(Engine, ScanWorkerRecovery), EngineError>",
+        "host_new": "(File, ScanWorkerHostConfig, ScanWorkerRuntimeBudget) -> Result<Self, EngineError>",
+        "runtime_budget_new": "(ProtocolLimits, stderr_bytes: u64, capacity: u32) -> Result<Self, EngineError>",
+        "recovery": "occupied_slots() -> Result<usize, EngineError>; drain() -> Result<bool, EngineError>"
+      },
+      "limitations": [
+        "No author Cargo/cc/Git executed; all new source/runtime tests pending root validation.",
+        "Linux actual memfd execution policy gates remain pending; current sealed source has no explicit MFD_EXEC and must preserve real denial, no downgrade.",
+        "Mac/Windows actual held-image/loader lease not qualified; launch Unsupported, desktop driver component success is not Engine execution capability.",
+        "Non-desktop open/host/recovery compile shape preserved; no fake child type or mobile spawn fallback.",
+        "Old Index test fixtures using plain open will now fail until actual trusted platform host is supplied; no in-process fallback to obtain green.",
+        "Operator must retain nonClone recovery outside catch/join until real drain; Rust cannot stop malicious final handle Drop.",
+        "Panic payload remains original; cleanup diagnostics independent; launcher and driver may involve blocking kernel cleanup, no hard 20ms/RSS claim.",
+        "Root native identity/staging/publication code retained; helper source-read confinement/mobile providers/full PF06 remain open.",
+        "Runtime constructor has no external callback; possible allocator abort is not claimed recoverable Rust unwind.",
+        "ABA production candidate author did not execute Cargo/Git; actual GREEN and native platform qualification remain root responsibilities.",
+        "Runtime mutually exclusive owner moves were independently reviewed; this change prevents obsolete Drop release, not public multi-retain capability.",
+        "Tiny helper output test proves failure/cleanup, not precise Engine Budget classification; InvalidData is not widened to Budget."
+      ]
+    },
+    "green_logs": [
+      {
+        "path": "docs/benchmarks/scan_worker_slot-aba-green_2026_10_05.log.gz",
+        "raw_sha256": "a28ab3777b5c9a0441c16d752621abf9ef7ecd2605624d9469556bedc744c86b",
+        "gzip_sha256": "cd7af8afafcc82b85d103d00f7b0af96c301eb2e1d9dbb0e72492937b4446213",
+        "exit_code": 0,
+        "passed": 1,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "path": "docs/benchmarks/scan_worker_slot-registry-green_2026_10_05.log.gz",
+        "raw_sha256": "cd8358f973309fcaa0de615475f82593d358b47e50507a914521d7fe35e6e0cb",
+        "gzip_sha256": "ac093b439cd14ad63b9410ff6b9a0f4ed8fad8d158e7cfe39a64df289c09104a",
+        "exit_code": 0,
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0
+      },
+      {
+        "path": "docs/benchmarks/scan_worker_slot-host-regression_2026_10_05.log.gz",
+        "raw_sha256": "dda3c5767d00fc30db8517c73ac8dbc7eb5835cf94eea9b2ece5ae1d8cbaf447",
+        "gzip_sha256": "56639c808ed1d8bd3a31124627ac3f7f94b8e5c656f8254f7aae607101674907",
+        "exit_code": 0,
+        "passed": 3,
+        "failed": 0,
+        "ignored": 0
+      }
+    ],
+    "independent_review": {
+      "result": "APPROVE narrow source change",
+      "manifest_sha256": "e81463b046c1b93d919c49eb59fd441c177e55ce39ae2a40c82d53a04054bf2f",
+      "scope": "Cell responsibility transfer; private Reservation stays Send but becomes !Sync; no change to Engine/Recovery public auto-traits; platform execution acceptance excluded"
+    },
+    "format_check": {
+      "exit_code": 0,
+      "files": [
+        "scan_worker_reservation.rs",
+        "scan_worker_slot_generation_tests.rs"
+      ]
+    },
+    "warnings": [
+      "macOS host regression build reports existing unused WorkerControl and spawn_worker; not strict Clippy acceptance."
+    ]
+  }
+}

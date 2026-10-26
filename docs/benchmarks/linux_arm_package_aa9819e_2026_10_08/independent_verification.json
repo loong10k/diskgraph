@@ -1,0 +1,31 @@
+{
+  "commit": "aa9819e2b907a284ac32d4c9a01bf4742ac507c5",
+  "job_id": 113089493608,
+  "artifact_id": 11521255251,
+  "archive_sha256_verified": "7758d51483c8ce774386ddee0d88c5b2b4e7a75f8c987b994e7528727ef7148d",
+  "artifact_sha256": "89a53c97154cdf073b153cf65ca96d48a0f0965e9f17d70bd629ffd03bd05909",
+  "report_checks": "both 6/6, actual complete paths and nodes",
+  "measurements": [
+    {
+      "files": 20000,
+      "indexed_nodes": 20001,
+      "scan_seconds": 2.171,
+      "query_p50_ms": 6.282,
+      "query_p95_ms": 8.636,
+      "database_and_wal_bytes": 59363328
+    },
+    {
+      "files": 200000,
+      "indexed_nodes": 200001,
+      "scan_seconds": 21.607,
+      "query_p50_ms": 5.847,
+      "query_p95_ms": 7.922,
+      "database_and_wal_bytes": 594530304
+    }
+  ],
+  "limitations": [
+    "Linux ARM64 native package only",
+    "No packaged RSS or long-running acceptance",
+    "Does not qualify full Rust suite, generic provider or other platforms"
+  ]
+}

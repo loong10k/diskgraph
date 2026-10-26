@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "source_commit": "493257fda48242b2fb326be948e20c3636d228f2",
+  "run_id": 37361681010,
+  "job_id": 111937563632,
+  "production_acceptance": false,
+  "failure": "200000-wide-round1-candidate run_job Business(Conflict), exit101, elapsed23.542227872s",
+  "raw_stderr_sha256": "6c87f2d07676c7d69e933d40ac6cf84b11b9908754b78cadd3a08520e5ba9bc2",
+  "raw_stderr_path": "linux_scan_cost_37361681010_200k_candidate_failure_2026_10_06.log.gz",
+  "receipt_path": "linux_scan_cost_37361681010_receipt_2026_10_06.json.gz",
+  "receipt_sha256": "0c1af6a14e963098a0ed4538a7e69131a774e4b46d0930c677d4c35b1fefeed3",
+  "cause": "not yet observed",
+  "evidence_limits": [
+    "posterior lease/grant/staging reads are non-atomic and do not identify first failure",
+    "200k candidate metrics absent; remaining200k rounds and deep300 incomplete; no complete200k comparison",
+    "namespace directory identity compares dev/inode/unique mount, not mtime/ctime",
+    "candidate source excludes current uncommitted scan host integration"
+  ],
+  "next_action": "observe original namespace syscall errno and identity equality before lossy Conflict mapping; preserve original check/deadline/error order, no retry or identity relaxation"
+}

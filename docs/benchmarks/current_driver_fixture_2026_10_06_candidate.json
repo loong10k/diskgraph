@@ -1,0 +1,33 @@
+{
+  "binary": "/Users/wandl/workspaces/workspace-loong10k/diskgraph/target/debug/examples/scan_worker_driver_fixture",
+  "sha256": "48081ec063bc49395d27c2686bc230c1b6c5bb455a367f40c925aa9efc68ba5e",
+  "results": [
+    {
+      "label": "driver",
+      "exit_code": 0,
+      "log": "docs/benchmarks/current_driver_fixture_driver_2026_10_06.log.gz",
+      "passed": 10,
+      "failed": 0,
+      "ignored": 0,
+      "raw_sha256": "0b41fe1d2b701e1da1bfb9814e73ca59b94e852a09e16454fbdedf33d9e1612c"
+    },
+    {
+      "label": "owned-failure",
+      "exit_code": 0,
+      "log": "docs/benchmarks/current_driver_fixture_owned-failure_2026_10_06.log.gz",
+      "passed": 6,
+      "failed": 0,
+      "ignored": 0,
+      "raw_sha256": "d02003fa573a14ae5be11ff24660860b3ac83c70627d91c3c2410c39179f960d"
+    }
+  ],
+  "production_acceptance": false,
+  "limitations": [
+    "macOS local driver/owned-failure protocol tests; not production trusted installation or scan host qualification",
+    "full Engine initial scans still fail without configured macOS worker host"
+  ],
+  "source_sha256": {
+    "crates/diskgraph-engine/tests/fixtures/scan_worker_driver_fixture.rs": "3c6180f900c9be83430aa98ac914c9f3af7422d7d8374b4d0e32511eb7e3ad8b",
+    "crates/diskgraph-engine/Cargo.toml": "7bea9bd42215ef15033c86747c7c443e254961bdb680a5d4cf321345ed5ee854"
+  }
+}

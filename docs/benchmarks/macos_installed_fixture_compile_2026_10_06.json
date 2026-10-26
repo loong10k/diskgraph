@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "production_ready": false,
+  "candidate_commit": "4d44a5e3eb8a1c35e20c9865a7e6f22db4f6b591",
+  "ci_run": 37379794982,
+  "actual_local_results": {
+    "macos_tests_passed": 69,
+    "failed": 0,
+    "ignored_required_ephemeral_cases": 4,
+    "harness_guard_tests_passed": 6
+  },
+  "compile_log": "macos_installed_fixture_compile_2026_10_06.log.gz",
+  "compile_log_sha256": "00847e736ea78a0f6f391145aea7fc165baad428a2b522d4ee68b18c5d4ce1e7",
+  "limitation": "Root issuer and three installed ordinary-UID cases are compiled but unexecuted locally; actual CI result must be inspected separately."
+}

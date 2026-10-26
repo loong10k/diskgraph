@@ -1,0 +1,162 @@
+{
+  "schema_version": 1,
+  "status": "candidate product startup and zero-child recovery verified on macOS arm64",
+  "baseline_commit": "3924dc4be707ad20db819e27d41f593ecaa576a3",
+  "platform": "macOS arm64",
+  "logs": [
+    {
+      "path": "docs/benchmarks/scan_worker_mcp-startup-binary-red_2026_10_05.log.gz",
+      "exit_code": 101,
+      "observation": "actual 2 failed startup behavior tests: invalid deployment returned exit0; expected10",
+      "raw_sha256": "326285ed6c352b12efd129fbb845f3a9aac3b7d4f50278f26a0884a733033313",
+      "gzip_sha256": "6697fa51881ef6d9d9f749e2214a17b06084eeac9455fb0b066c6ad4c6940574"
+    },
+    {
+      "path": "docs/benchmarks/scan_worker_mcp-startup-api-absence_2026_10_05.log.gz",
+      "exit_code": 101,
+      "observation": "3 E0599 absent service constructors; interface absence, not behavior RED",
+      "raw_sha256": "4d8b7c0f2c12997fe501ec928e122f2aa2913e8c8f9f649a0f051606db64c200",
+      "gzip_sha256": "0fe325944cadd5fef31359cf28c25ce7cb3743960f4ac3058e9aa64a00401ecc"
+    },
+    {
+      "path": "docs/benchmarks/scan_worker_mcp-startup-green_2026_10_05.log.gz",
+      "exit_code": 0,
+      "passed": 7,
+      "failed": 0,
+      "ignored": 0,
+      "raw_sha256": "0233dda370e7c3f1c44ad3745749d33544da490a28f53c9021961e0460ff53fd",
+      "gzip_sha256": "418ac6a3d0d90e924e38052ed3f3985df6fe94fb4a881a50bcee14eb4bfc1453"
+    }
+  ],
+  "limits": [
+    "No valid ELF execution or real scanned revision acceptance.",
+    "Active child/panic recovery in actual product and Linux/Windows execution pending.",
+    "CLI/FFI lifecycle not covered.",
+    "Existing Engine WorkerControl/spawn_worker warnings remain; no strict Clippy acceptance.",
+    "Permanent OS cleanup failure can block shutdown while ownership remains retained.",
+    "Latest full MCP library regression failed (111/34); previous 106/36 result retained; targeted startup GREEN is not full integration acceptance."
+  ],
+  "sources": [
+    {
+      "path": "crates/diskgraph-mcp/src/mcp_service.rs",
+      "sha256": "ce10e2c908510df3d563ebe2b99a4ec2a86848d01f8adbbe79835b299fad8ed5"
+    },
+    {
+      "path": "crates/diskgraph-mcp/src/main.rs",
+      "sha256": "44f3dbe9d6918b19bad898b9fd8032b63ad65c900699d40b06c84428b80269cc"
+    },
+    {
+      "path": "crates/diskgraph-mcp/src/scan_worker_shutdown.rs",
+      "sha256": "bd5c5bb3866dab0f674007ae9d405c9f1bdf2203fc8ec228b7d53ceb0154a725"
+    },
+    {
+      "path": "crates/diskgraph-mcp/tests/scan_worker_service_startup.rs",
+      "sha256": "cc43e9aaf227156aaddb7a73894ba2eac168012464fa1a6b5777372b3a4e48bb"
+    },
+    {
+      "path": "crates/diskgraph-mcp/tests/scan_worker_binary_config.rs",
+      "sha256": "229a4a006567aff4ed3ae6573cae134c11921034a0dd5fa145cb57759cf837ab"
+    },
+    {
+      "path": "crates/diskgraph-mcp/Cargo.toml",
+      "sha256": "ddbe480d73df8382efc57dffc2d7c5ab70ba309c78f856146724176fbea81019"
+    },
+    {
+      "path": "Cargo.lock",
+      "sha256": "9aa0c2977629251a9a5aeb4651ac0e39d5b6caa386e94b627a183e1c55252e0b"
+    },
+    {
+      "path": "openspec/changes/implement-diskgraph-platform/physical-scan-process.md",
+      "sha256": "4afe0eec29cc24311c6a923a0fedbc0bae36c132353f7cea38f90d051d4b8364"
+    }
+  ],
+  "independent_review": "APPROVE limited startup/zero-child recovery; service manifest915f5200 plus root main/shutdown",
+  "full_mcp_lib_regression": {
+    "exit_code": 101,
+    "passed": 106,
+    "failed": 36,
+    "ignored": 0,
+    "result": "all 36 failure blocks include Unsupported/unsupported from unqualified or absent scan-worker host; integration remains failed",
+    "failures": [
+      "history_budget_tests::encoded_socket_growth_rechecks_both_scope_sides",
+      "history_budget_tests::encoded_socket_growth_rechecks_both_grant_sides",
+      "history_budget_tests::encoded_socket_history_rechecks_both_scope_sides",
+      "children_cursor_tests::directory_cursor_resumes_in_stable_order_with_offset_compatibility",
+      "children_cursor_tests::directory_cursor_resumes_after_response_byte_truncation",
+      "children_cursor_tests::directory_cursor_rejects_changed_parent_filter_and_policy",
+      "history_budget_tests::encoded_socket_history_rechecks_both_grant_sides",
+      "history_budget_tests::history_and_growth_use_real_authentication_origin_and_revision_ownership",
+      "history_budget_tests::history_decode_failure_keeps_a_bounded_business_diagnostic_on_the_socket",
+      "history_budget_tests::socket_growth_initial_authorization_cannot_reset_deadline",
+      "history_budget_tests::socket_history_initial_authorization_cannot_reset_deadline",
+      "http::tests::a_client_side_path_is_never_resolved_against_the_server",
+      "http::tests::a_real_socket_round_trip_answers_the_same_as_the_direct_call",
+      "http::tests::a_disconnected_client_job_completes_and_stays_queryable",
+      "http::tests::mcp_search_cursors_expire_with_policy_updates",
+      "http::tests::scope_ids_from_another_server_are_not_found",
+      "relation_budget_tests::escaped_impact_fits_the_real_mcp_structured_envelope",
+      "relation_budget_tests::final_mcp_envelope_cannot_escape_after_scope_revocation",
+      "relation_budget_tests::initial_mcp_authorization_wait_cannot_reset_the_candidate_deadline",
+      "tests::authorization_tests::impact_requires_the_revision_owners_grant_even_when_a_different_scope_is_supplied",
+      "tests::candidate_tests::incomplete_candidates_do_not_decode_the_full_revision",
+      "tests::candidate_tests::positive_target_candidates_use_a_narrow_read_and_report_the_target_gap",
+      "tests::candidate_tests::zero_target_candidates_do_not_decode_the_full_revision",
+      "tests::management_tests::an_index_job_is_reachable_after_the_call_returns",
+      "tests::management_tests::the_manage_profile_serves_scope_listing",
+      "tests::protocol_tests::tool_calls_reject_unknown_and_mistyped_arguments",
+      "tests::query_tests::explicit_revision_and_node_id_select_historical_data",
+      "tests::query_tests::queries_answer_with_envelopes_and_unknown_scopes_refuse_honestly",
+      "tests::query_tests::two_scopes_stay_isolated_and_reuse_their_own_revisions",
+      "tests::relation_tests::explain_checks_entity_bytes_before_decoding",
+      "tests::relation_tests::explain_mixed_direction_byte_pages_never_skip_edges",
+      "tests::relation_tests::explain_returns_typed_evidence_for_a_cargo_project",
+      "tests::relation_tests::impact_uses_entity_edges_without_decoding_unrelated_relations",
+      "tests::relation_tests::relation_queries_bound_decoding_and_report_continuation",
+      "http::tests::dropping_every_connection_is_not_a_cancellation",
+      "http::tests::legacy_disconnect_leaves_the_job_queryable"
+    ],
+    "log": {
+      "path": "docs/benchmarks/scan_worker_mcp-lib-host-regression_2026_10_05.log.gz",
+      "raw_sha256": "8c94afcd57c44e6b131687cd55e0e333efc631239dceb70b8d1697e139cf1bda",
+      "gzip_sha256": "eb06aa0a9f9632fa2a6ae1eda28f01968eb6e3ecb4336e515068da9d84fd63bf"
+    }
+  },
+  "management_registration_regression": {
+    "path": "docs/benchmarks/scan_worker_mcp-management-registration-green_2026_10_05.log.gz",
+    "exit_code": 0,
+    "passed": 2,
+    "failed": 0,
+    "ignored": 0,
+    "raw_sha256": "7d5b98516ab5599ca4718e7fcf9ab930407c5d3139811c799a57accbc7a2132a",
+    "gzip_sha256": "a506b36ef5c820bf4dc4bc9688358c06b8b140fcfb9cdacd33b24258c9683b49",
+    "scope": "Two existing management tests register a real scope without requiring an unrelated scan; all original queued-job and scope-list assertions retained."
+  },
+  "management_registration_source": {
+    "path": "crates/diskgraph-mcp/src/tests/management_tests.rs",
+    "sha256": "26331ae150ad577f8337dbb56f993d2adf297f47be8466aac92bb3ae0902ae83"
+  },
+  "latest_full_mcp_lib_regression": {
+    "exit_code": 101,
+    "passed": 111,
+    "failed": 34,
+    "ignored": 0,
+    "scope": "Latest full MCP library regression after adding independent imported-query cases. Original real scan cases remain failing; no full integration acceptance.",
+    "log": {
+      "path": "docs/benchmarks/scan_worker_mcp-lib-host-regression-v3_2026_10_05.log.gz",
+      "raw_sha256": "4a50d426e5e12ab4c94e79af6cb8b7a4ec8439ea6990bb1374a268e15c6bfa24",
+      "gzip_sha256": "d3ca7c4caeb0a0019a30ec082d117871611de6c880832a2966a2a63f1dfb74fd"
+    }
+  },
+  "full_regression_history": [
+    {
+      "path": "docs/benchmarks/scan_worker_mcp-lib-host-regression-v2_2026_10_05.log.gz",
+      "exit_code": 101,
+      "passed": 108,
+      "failed": 34,
+      "ignored": 0,
+      "raw_sha256": "7ad968184b56a0411deccdba66ea366878809c58a97237a94e84f67deedd7531",
+      "gzip_sha256": "7544d98e26fcc6c09b3000c19e8578df1fee0efd20815f7b6dde513b7daa45d9",
+      "scope": "Latest full MCP library regression; failures remain, no full integration acceptance."
+    }
+  ]
+}

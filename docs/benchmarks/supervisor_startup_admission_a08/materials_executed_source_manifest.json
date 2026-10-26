@@ -1,0 +1,47 @@
+{
+  "scope": "candidate components only; archived dependency baseline, not full current workspace",
+  "files": [
+    {
+      "path": "crates/diskgraph-engine/src/recovery_slot/linux_supervisor_materials.rs",
+      "source_sha256": "0402772e25705aa94a2f507c369af79c233683022d80c010dff26e268ecb9e45",
+      "executed_cache_sha256": "0402772e25705aa94a2f507c369af79c233683022d80c010dff26e268ecb9e45",
+      "exact_match": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/recovery_slot/linux_supervisor_materials_tests.rs",
+      "source_sha256": "c1534b6a754e4cb34a4675959f984b589ac5f63807f8f68aa3fe43fa3fc8b7af",
+      "executed_cache_sha256": "c1534b6a754e4cb34a4675959f984b589ac5f63807f8f68aa3fe43fa3fc8b7af",
+      "exact_match": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/recovery_slot/linux_supervisor_namespace.rs",
+      "source_sha256": "256e99912fa0bc3370b450e97d9344b2a234c4309ba8194e7c8956ea4e9e6f21",
+      "executed_cache_sha256": "256e99912fa0bc3370b450e97d9344b2a234c4309ba8194e7c8956ea4e9e6f21",
+      "exact_match": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/recovery_slot/linux_supervisor_namespace_tests.rs",
+      "source_sha256": "5773d551ddbe3f62688b72d2e0c484099222e629d074a6ba45b028121d5f2500",
+      "executed_cache_sha256": "5773d551ddbe3f62688b72d2e0c484099222e629d074a6ba45b028121d5f2500",
+      "exact_match": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/recovery_slot/linux_supervisor_trust.rs",
+      "source_sha256": "9ca215b636eb1c66976152f799339868439ed13b56cb2f28d5799399dafdc144",
+      "executed_cache_sha256": "9ca215b636eb1c66976152f799339868439ed13b56cb2f28d5799399dafdc144",
+      "exact_match": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/recovery_slot/linux_supervisor_peer.rs",
+      "source_sha256": "3a292f5ff440078b28ea513ea9d4e8f5de3ff92cea60e964ba177a72bd5228ed",
+      "executed_cache_sha256": "3a292f5ff440078b28ea513ea9d4e8f5de3ff92cea60e964ba177a72bd5228ed",
+      "exact_match": true
+    },
+    {
+      "path": "crates/diskgraph-engine/src/recovery_slot/mod.rs",
+      "source_sha256": "ee181a367148c6f21cbac2f4119f1c8f1aaa9025164ba5fd1ac2e5bfeeee6ed8",
+      "executed_cache_sha256": "ee181a367148c6f21cbac2f4119f1c8f1aaa9025164ba5fd1ac2e5bfeeee6ed8",
+      "exact_match": true
+    }
+  ]
+}

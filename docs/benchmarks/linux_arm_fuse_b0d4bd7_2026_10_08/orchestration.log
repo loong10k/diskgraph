@@ -1,0 +1,160 @@
+Unable to find image 'rust@sha256:0e2bcaef56d041a486784e54104a81aebe0da44bd03019bd70bc0401e42e4a97' locally
+docker.io/library/rust@sha256:0e2bcaef56d041a486784e54104a81aebe0da44bd03019bd70bc0401e42e4a97: Pulling from library/rust
+c6cbf97176c5: Pulling fs layer
+225a0a6c500b: Pulling fs layer
+2c9a098bd641: Pulling fs layer
+a75326012c0e: Pulling fs layer
+01580955e3a7: Pulling fs layer
+a75326012c0e: Waiting
+01580955e3a7: Waiting
+225a0a6c500b: Verifying Checksum
+225a0a6c500b: Download complete
+c6cbf97176c5: Verifying Checksum
+c6cbf97176c5: Download complete
+2c9a098bd641: Verifying Checksum
+2c9a098bd641: Download complete
+a75326012c0e: Verifying Checksum
+a75326012c0e: Download complete
+01580955e3a7: Verifying Checksum
+01580955e3a7: Download complete
+c6cbf97176c5: Pull complete
+225a0a6c500b: Pull complete
+2c9a098bd641: Pull complete
+a75326012c0e: Pull complete
+01580955e3a7: Pull complete
+Digest: sha256:0e2bcaef56d041a486784e54104a81aebe0da44bd03019bd70bc0401e42e4a97
+Status: Downloaded newer image for rust@sha256:0e2bcaef56d041a486784e54104a81aebe0da44bd03019bd70bc0401e42e4a97
+PRODUCT_TEST_EXIT 0
+ed hex v0.4.3
+  Downloaded rustc-hash v2.1.3
+  Downloaded crypto-common v0.1.7
+  Downloaded fallible-streaming-iterator v0.1.9
+  Downloaded errno v0.3.14
+  Downloaded sha1 v0.10.7
+  Downloaded base64 v0.22.1
+  Downloaded memchr v2.8.3
+  Downloaded version_check v0.9.5
+  Downloaded digest v0.10.7
+  Downloaded fastrand v2.5.0
+  Downloaded either v1.18.0
+  Downloaded fallible-iterator v0.3.0
+  Downloaded pkg-config v0.3.34
+  Downloaded quote v1.0.47
+  Downloaded thiserror v2.0.21
+  Downloaded zmij v1.0.23
+  Downloaded shlex v2.0.1
+  Downloaded find-msvc-tools v0.1.14
+  Downloaded sha2 v0.10.9
+  Downloaded crossbeam-deque v0.8.8
+  Downloaded crossbeam-epoch v0.9.21
+  Downloaded crossbeam-utils v0.8.23
+  Downloaded iana-time-zone v0.1.65
+  Downloaded smallvec v1.16.2
+  Downloaded thiserror-impl v2.0.21
+  Downloaded tempfile v3.27.0
+  Downloaded once_cell v1.21.4
+  Downloaded proc-macro2 v1.0.107
+  Downloaded unicode-ident v1.0.26
+  Downloaded serde_core v1.0.229
+  Downloaded serde_derive v1.0.229
+  Downloaded uuid v1.26.1
+  Downloaded rayon-core v1.13.0
+  Downloaded getrandom v0.4.3
+  Downloaded num-traits v0.2.19
+  Downloaded serde v1.0.229
+  Downloaded typenum v1.20.1
+  Downloaded serde_json v1.0.151
+  Downloaded rayon v1.12.0
+  Downloaded rusqlite v0.40.2
+  Downloaded vcpkg v0.2.15
+  Downloaded chrono v0.4.45
+  Downloaded syn v3.0.6
+  Downloaded syn v2.0.119
+  Downloaded rustix v1.1.5
+  Downloaded libc v0.2.189
+  Downloaded linux-raw-sys v0.12.1
+  Downloaded libsqlite3-sys v0.38.2
+   Compiling unicode-ident v1.0.26
+   Compiling proc-macro2 v1.0.107
+   Compiling libc v0.2.189
+   Compiling version_check v0.9.5
+   Compiling quote v1.0.47
+   Compiling generic-array v0.14.7
+   Compiling crossbeam-utils v0.8.23
+   Compiling typenum v1.20.1
+   Compiling crossbeam-epoch v0.9.21
+   Compiling syn v3.0.6
+   Compiling serde_core v1.0.229
+   Compiling cfg-if v1.0.5
+   Compiling zmij v1.0.23
+   Compiling crossbeam-deque v0.8.8
+   Compiling shlex v2.0.1
+   Compiling bitflags v2.13.2
+   Compiling find-msvc-tools v0.1.14
+   Compiling cc v1.5.1
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling rayon-core v1.13.0
+   Compiling serde_json v1.0.151
+   Compiling autocfg v1.5.1
+   Compiling getrandom v0.4.3
+   Compiling rustix v1.1.5
+   Compiling serde v1.0.229
+   Compiling serde_derive v1.0.229
+   Compiling num-traits v0.2.19
+   Compiling digest v0.10.7
+   Compiling cpufeatures v0.2.17
+   Compiling linux-raw-sys v0.12.1
+   Compiling memchr v2.8.3
+   Compiling itoa v1.0.18
+   Compiling vcpkg v0.2.15
+   Compiling either v1.18.0
+   Compiling pkg-config v0.3.34
+   Compiling rayon v1.12.0
+   Compiling libsqlite3-sys v0.38.2
+   Compiling sha2 v0.10.9
+   Compiling iana-time-zone v0.1.65
+   Compiling base64 v0.22.1
+   Compiling chrono v0.4.45
+   Compiling diskgraph-core v0.3.0 (/src/crates/diskgraph-core)
+   Compiling thiserror v2.0.21
+   Compiling rustc-hash v2.1.3
+   Compiling diskgraph-disktree-core v0.3.0 (/src/crates/diskgraph-disktree-core)
+   Compiling uuid v1.26.1
+   Compiling thiserror-impl v2.0.21
+   Compiling fallible-iterator v0.3.0
+   Compiling fallible-streaming-iterator v0.1.9
+   Compiling diskgraph-scan-worker v0.3.0 (/src/crates/diskgraph-scan-worker)
+   Compiling smallvec v1.16.2
+   Compiling diskgraph-engine v0.3.0 (/src/crates/diskgraph-engine)
+   Compiling fastrand v2.5.0
+   Compiling once_cell v1.21.4
+   Compiling tempfile v3.27.0
+   Compiling diskgraph-disktree v0.3.0 (/src/crates/diskgraph-disktree)
+   Compiling sha1 v0.10.7
+   Compiling hex v0.4.3
+   Compiling diskgraph-testkit v0.3.0 (/src/crates/diskgraph-testkit)
+   Compiling syn v2.0.119
+   Compiling rusqlite v0.40.2
+   Compiling diskgraph-store v0.3.0 (/src/crates/diskgraph-store)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 21.62s
+     Running tests/linux_content_no_recall_probe.rs (/tmp/target/debug/deps/linux_content_no_recall_probe-b62348f63b3cbc4d)
+
+running 4 tests
+test actual_provider_content_read_must_not_fetch ... DG_ACTUAL_FUSE_PRODUCT digest=false before=0 after=0 safe=true
+ok
+test actual_provider_digest_must_not_fetch ... DG_ACTUAL_FUSE_PRODUCT digest=true before=0 after=0 safe=true
+ok
+test nested_provider_content_read_must_not_fetch ... DG_ACTUAL_FUSE_PRODUCT digest=false before=0 after=0 safe=true
+ok
+test nested_provider_digest_must_not_fetch ... DG_ACTUAL_FUSE_PRODUCT digest=true before=0 after=0 safe=true
+ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+
+
+PROVIDER_MOUNTED
+FUSE_DATA_OPEN
+FUSE_FETCH_DATA=1
+
+ORIGINAL_PROVIDER_UNMOUNTED_AND_REAPED=1

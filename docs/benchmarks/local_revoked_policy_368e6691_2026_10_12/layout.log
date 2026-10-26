@@ -1,0 +1,9 @@
+error: no test target named `source_layout` in `diskgraph-cli` package
+help: available test in `diskgraph-store` package:
+    source_layout
+help: available test in `diskgraph-ffi` package:
+    source_layout
+help: available test in `diskgraph-engine` package:
+    source_layout
+help: available test in `diskgraph-ops` package:
+    source_layout
